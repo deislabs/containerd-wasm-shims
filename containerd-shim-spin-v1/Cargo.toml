@@ -1,0 +1,21 @@
+[package]
+name = "containerd-shim-spin-v1"
+version = "0.1.0"
+authors = ["DeisLabs Engineering Team"]
+edition = "2021"
+
+[dependencies]
+chrono = "~0.4"
+clap = { version = "3.1.15", features = ["derive", "env"] }
+containerd-shim = "~0.3"
+containerd-shim-wasm = { git = "https://github.com/deislabs/runwasi", branch = "main" }
+log = "~0.4"
+spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v0.4.0" }
+spin-engine = { git = "https://github.com/fermyon/spin", tag = "v0.4.0"  }
+spin-http-engine =  { git = "https://github.com/fermyon/spin", tag = "v0.4.0"  }
+spin-loader =  { git = "https://github.com/fermyon/spin", tag = "v0.4.0"  }
+spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v0.4.0"  }
+tokio = { version = "1", features = [ "rt" ] }
+tokio-util = { version = "0.6.10", features = [ "codec" ]}
+wasmtime = "^0.35"
+
