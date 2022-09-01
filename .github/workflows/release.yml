@@ -1,0 +1,83 @@
+name: release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: build
+        run: make
+  release:
+    permissions: 
+      contents: write
+      packages: write 
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set RELEASE_VERSION ENV var
+        run: echo "RELEASE_VERSION=${GITHUB_REF:10}" >> $GITHUB_ENV
+      - name: lowercase the runner OS name
+        shell: bash
+        run: |
+          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          echo "RUNNER_OS=$OS" >> $GITHUB_ENV
+      - name: Install latest Rust stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+      - name: build release
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release
+      - name: package release assets
+        run: |
+          mkdir _dist
+          cp target/release/containerd-shim-*-v1 _dist/
+          cd _dist
+          tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz containerd-shim-*-v1
+      - name: upload binary as GitHub artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: containerd-wasm-shims-v1
+          path: _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz
+      - name: Recreate canary tag and release
+        uses: ncipollo/release-action@v1.10.0
+        with:
+          tag: ${{ env.RELEASE_VERSION }}
+          allowUpdates: true
+          prerelease: true
+          artifacts: _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz
+          body: |
+            This is a "canary" release of the most recent commits on our main branch. Canary is **not stable**.
+            It is only intended for developers wishing to try out the latest features, some of which may not be fully implemented.
+      - name: setup buildx
+        uses: docker/setup-buildx-action@v1
+      - name: login to GitHub container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          context: images/spin
+      - name: build and push Spin hello world
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:${{ env.RELEASE_VERSION }}
+            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
+          context: images/spin
