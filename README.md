@@ -17,7 +17,7 @@ To build the shims in this project, run `make`.
 ### Running a shim locally on Linux
 To run the spin shim using [a hello world Spin example](./images/spin), run `make run_spin`. This will use `ctr` to simulate the same call that would be made from containerd to run a local OCI container image.
 
-The "hello world" image contains only 2 files, the [spin.toml](./images/spin/spin.toml) file and the `spin_rust_hello.wasm` file created by compiling the "hello world" spin example using `cargo`. **The image is only 1.9MB!**
+The "hello world" image contains only 2 files, the [`spin.toml`](./images/spin/spin.toml) file and the `spin_rust_hello.wasm` file created by compiling the "hello world" spin example by running `cargo build --target wasm32-wasi --release` in [the example directory](./images/spin). **The image is only 1.9MB!**
 
 ### Cleaning up
 To clean up, run `make clean`.
@@ -56,7 +56,16 @@ To use one of these containerd shims in Kubernetes, you must do the following:
         spec:
           runtimeClassName: wasmtime-spin
           containers:
-          - name: testwasm
-            image: ghcr.io/mossaka/spinkitchensink:latest
+          - name: spin-hello
+            image: ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
             command: ["/"]
   ```
+
+## Code of Conduct
+
+This project has adopted the [Microsoft Open Source Code of
+Conduct](https://opensource.microsoft.com/codeofconduct/).
+
+For more information see the [Code of Conduct
+FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact
+[opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
