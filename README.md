@@ -22,6 +22,9 @@ The "hello world" image contains only 2 files, the [`spin.toml`](./images/spin/s
 ### Cleaning up
 To clean up, run `make clean`.
 
+## Example Kubernetes Cluster Deployments
+In [the deployments directory](deployments) you will find examples of deploying the shims to Kubernetes clusters and using them in example Kubernetes workloads.
+
 ## Using a shim in Kubernetes
 To use one of these containerd shims in Kubernetes, you must do the following:
 1. Install the shim binary somewhere on the path of your Kubernetes worker nodes. For example, copy `containerd-shim-spin-v1` to  `/bin`.
