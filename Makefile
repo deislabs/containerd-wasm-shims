@@ -10,10 +10,12 @@ build:
 
 .PHONY: install-cross
 install-cross:
-	cargo install cross --git https://github.com/cross-rs/cross
+	@if [ -z $$(which cross) ]; then cargo install cross --git https://github.com/cross-rs/cross; fi
 
-build-static-musl: install-cross
-	cross build --release --target x86_64-unknown-linux-musl
+# build-cross can be be used to build any cross supported target (make build-cross-x86_64-unknown-linux-musl)
+.PHONY: build-cross-%
+build-cross-%: install-cross
+	cross build --release --target $*
 
 .PHONY: install
 install: build
