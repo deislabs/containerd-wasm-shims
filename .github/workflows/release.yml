@@ -23,16 +23,16 @@ jobs:
         run: |
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           echo "RUNNER_OS=$OS" >> $GITHUB_ENV
-      - name: Install latest Rust stable toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: actions/cache@v3
         with:
-          toolchain: stable
-          default: true
-      - name: build release
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./target/
+            ./deployments/k3d/.tmp/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: package release assets
         run: |
           mkdir _dist
@@ -40,6 +40,8 @@ jobs:
           cd _dist
           tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz containerd-shim-*-v1
       - name: create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create ${{ env.RELEASE_VERSION }} \
             --generate-notes \
@@ -48,7 +50,7 @@ jobs:
             ./deployments/workloads/runtime.yml#example-runtimes \
             ./deployments/workloads/workload.yml#example-workloads
       - name: setup buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
       - name: login to GitHub container registry
         uses: docker/login-action@v2
         with:
