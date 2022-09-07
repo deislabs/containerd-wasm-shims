@@ -18,6 +18,8 @@ jobs:
             ./target/
             ./deployments/k3d/.tmp/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
       - name: build
         run: make
       - name: build k3d demo
