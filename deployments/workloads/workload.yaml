@@ -23,7 +23,6 @@ kind: Service
 metadata:
   name: wasm-spin
 spec:
-  type: LoadBalancer
   ports:
     - protocol: TCP
       port: 80
