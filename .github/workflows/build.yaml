@@ -20,8 +20,16 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+      - name: "Install Rust Wasm targets"
+        run: |
+          rustup target add wasm32-wasi
+          rustup target add wasm32-unknown-unknown
       - name: build
-        run: make
+        run: |
+          make build
+          mkdir ./bin
+          cp containerd-shim-slight-v1/target/release/containerd-shim-*-v1 bin/
+          cp containerd-shim-spin-v1/target/release/containerd-shim-*-v1 bin/
       - name: build k3d demo
         run: make build-image
         working-directory: ./deployments/k3d
