@@ -1,12 +1,16 @@
 IMAGE_NAME ?= k3swithshims
 CLUSTER_NAME ?= k3s-default
 
-compile-musl:
-	make build-cross-x86_64-unknown-linux-musl -C ../..
+compile-musl-spin:
+	make build-spin-cross-x86_64-unknown-linux-musl -C ../..
 
-move-musl-to-tmp: compile-musl
+compile-musl-slight:
+	make build-slight-cross-x86_64-unknown-linux-musl -C ../..
+
+move-musl-to-tmp: compile-musl-spin compile-musl-slight
 	mkdir -p ./.tmp
-	cp ../../target/x86_64-unknown-linux-musl/release/containerd-shim-*-v1 ./.tmp/
+	cp ../../containerd-shim-slight-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-*-v1 ./.tmp/
+	cp ../../containerd-shim-spin-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-*-v1 ./.tmp/
 
 build-image: move-musl-to-tmp
 	docker build -t $(IMAGE_NAME) .
@@ -14,8 +18,11 @@ build-image: move-musl-to-tmp
 up: build-image
 	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 2
 
-deploy: 
-	kubectl apply -f ../workloads
+deploy-spin: 
+	kubectl apply -f ../workloads/spin
+
+deploy-slight: 
+	kubectl apply -f ../workloads/slight
 
 test:
 	curl localhost:8081/hello

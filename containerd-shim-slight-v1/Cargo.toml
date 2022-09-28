@@ -1,0 +1,25 @@
+[package]
+name = "containerd-shim-slight-v1"
+version = "0.1.0"
+authors = ["DeisLabs Engineering Team"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = "~0.4"
+clap = { version = "3.1.15", features = ["derive", "env"] }
+containerd-shim = "~0.3"
+containerd-shim-wasm = { git = "https://github.com/deislabs/runwasi", branch = "main" }
+log = "~0.4"
+tokio = { version = "1", features = [ "full" ] }
+tokio-util = { version = "0.6.10", features = [ "codec" ]}
+wasmtime = "0.39"
+toml = "0.5"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing = { version = "0.1", features = ["log"] }
+slight = { git = "https://github.com/deislabs/spiderlightning", rev = "d029c57d20485b6cade1635827d66364e36de9fe"}
+spiderlightning = { git = "https://github.com/deislabs/spiderlightning", rev = "d029c57d20485b6cade1635827d66364e36de9fe"}
+openssl = { version = "0.10", features = ["vendored"] }
+
+[workspace]

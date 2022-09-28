@@ -1,0 +1,50 @@
+// The HTTP status code.
+type http-status = u16
+
+// The HTTP body.
+type body = list<u8>
+
+// The HTTP headers represented as a list of (name, value) pairs.
+type headers = list<tuple<string, string>>
+
+// The HTTP parameter queries, represented as a list of (name, value) pairs.
+type params = list<tuple<string, string>>
+
+// The HTTP URI of the current request.
+type uri = string
+
+// The HTTP method.
+enum method {
+    get,
+    post,
+    put,
+    delete,
+    patch,
+    head,
+    options,
+}
+
+// An HTTP request.
+record request {
+    method: method,
+    uri: uri,
+    headers: headers,
+    params: params,
+    body: option<body>,
+}
+
+// An HTTP response.
+record response {
+    status: http-status,
+    headers: option<headers>,
+    body: option<body>,
+}
+
+// HTTP errors returned by the runtime.
+enum http-error {
+    success,
+    destination-not-allowed,
+    invalid-url,
+    request-error,
+    runtime-error,
+}

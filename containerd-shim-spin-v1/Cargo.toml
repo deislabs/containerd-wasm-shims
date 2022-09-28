@@ -19,3 +19,5 @@ tokio = { version = "1", features = [ "rt" ] }
 tokio-util = { version = "0.6.10", features = [ "codec" ]}
 wasmtime = "^0.35"
 openssl = { version = "*", features = ["vendored"] }
+
+[workspace]

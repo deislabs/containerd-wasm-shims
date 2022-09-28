@@ -1,7 +1,0 @@
-[workspace]
-members = [
-    "containerd-shim-spin-v1",
-]
-exclude = [
-    "images/spin",
-]
