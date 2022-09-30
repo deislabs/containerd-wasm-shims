@@ -1190,7 +1190,6 @@ dependencies = [
  "log",
  "openssl",
  "slight",
- "spiderlightning",
  "tokio",
  "tokio-util 0.6.10",
  "toml",
@@ -3940,7 +3939,7 @@ checksum = "03b634d87b960ab1a38c4fe143b508576f075e7c978bfad18217645ebfdfa2ec"
 [[package]]
 name = "slight"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "as-any",
@@ -3968,10 +3967,11 @@ dependencies = [
 [[package]]
 name = "slight-common"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "as-any",
+ "async-trait",
  "slight-events-api",
  "slight-http-api",
  "wasmtime",
@@ -3980,11 +3980,12 @@ dependencies = [
 [[package]]
 name = "slight-events"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "crossbeam-channel",
  "crossbeam-utils",
+ "futures",
  "slight-common",
  "slight-events-api",
  "tracing",
@@ -3998,7 +3999,7 @@ dependencies = [
 [[package]]
 name = "slight-events-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "cloudevents-sdk",
@@ -4009,7 +4010,7 @@ dependencies = [
 [[package]]
 name = "slight-http"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "crossbeam-channel",
@@ -4030,9 +4031,10 @@ dependencies = [
 [[package]]
 name = "slight-http-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
+ "async-trait",
  "hyper",
  "wasmtime",
  "wit-bindgen-wasmtime 0.2.0 (git+https://github.com/Mossaka/wit-bindgen?rev=6f80d65a483fe929a79e2661825d99842227b146)",
@@ -4042,9 +4044,10 @@ dependencies = [
 [[package]]
 name = "slight-kv"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
+ "async-trait",
  "aws-config",
  "aws-sdk-dynamodb",
  "azure_core 0.4.0",
@@ -4060,6 +4063,7 @@ dependencies = [
  "slight-common",
  "slight-events-api",
  "slight-runtime-configs",
+ "tokio",
  "tracing",
  "uuid 1.1.2",
  "wit-bindgen-wasmtime 0.2.0 (git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0)",
@@ -4069,12 +4073,12 @@ dependencies = [
 [[package]]
 name = "slight-lockd"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
+ "async-trait",
  "crossbeam-channel",
  "etcd-client",
- "futures",
  "slight-common",
  "slight-events-api",
  "slight-runtime-configs",
@@ -4089,18 +4093,19 @@ dependencies = [
 [[package]]
 name = "slight-mq"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
+ "async-trait",
  "azure_core 0.2.2",
  "azure_messaging_servicebus",
  "chrono",
  "crossbeam-channel",
- "futures",
  "http",
  "slight-common",
  "slight-events-api",
  "slight-runtime-configs",
+ "tokio",
  "tracing",
  "url",
  "uuid 1.1.2",
@@ -4111,16 +4116,18 @@ dependencies = [
 [[package]]
 name = "slight-pubsub"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "async-channel",
+ "async-trait",
  "crossbeam-channel",
  "futures",
  "mosquitto-rs",
  "slight-common",
  "slight-events-api",
  "slight-runtime-configs",
+ "tokio",
  "tracing",
  "url",
  "uuid 1.1.2",
@@ -4131,10 +4138,11 @@ dependencies = [
 [[package]]
 name = "slight-runtime"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "as-any",
+ "async-trait",
  "crossbeam-channel",
  "dyn-clone",
  "slight-common",
@@ -4158,12 +4166,12 @@ dependencies = [
 [[package]]
 name = "slight-runtime-configs"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
+ "async-trait",
  "azure-app-configuration",
  "crossbeam-channel",
- "futures",
  "rand 0.8.5",
  "short-crypt",
  "slight-common",
@@ -4227,7 +4235,7 @@ dependencies = [
 [[package]]
 name = "spiderlightning"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "rand 0.8.5",
@@ -5639,6 +5647,7 @@ version = "0.2.0"
 source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
 dependencies = [
  "anyhow",
+ "async-trait",
  "bitflags",
  "thiserror",
  "wasmtime",
@@ -5651,6 +5660,7 @@ version = "0.2.0"
 source = "git+https://github.com/Mossaka/wit-bindgen?rev=6f80d65a483fe929a79e2661825d99842227b146#6f80d65a483fe929a79e2661825d99842227b146"
 dependencies = [
  "anyhow",
+ "async-trait",
  "bitflags",
  "thiserror",
  "wasmtime",

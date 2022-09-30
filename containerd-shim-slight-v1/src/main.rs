@@ -1,7 +1,7 @@
-use std::fs::OpenOptions;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::{Arc, Condvar, Mutex};
+use std::sync::Arc;
+use std::sync::{Condvar, Mutex};
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Sender;
 use std::thread;
@@ -16,8 +16,6 @@ use containerd_shim_wasm::sandbox::oci;
 use log::info;
 
 use tokio::runtime::Runtime;
-use wasmtime::OptLevel;
-use spiderlightning::core::slightfile::TomlFile;
 use slight_lib::commands::run::handle_run;
 
 pub struct Wasi {
@@ -30,6 +28,7 @@ pub struct Wasi {
     shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
 }
 
+
 pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
     let mut spec = oci::load(Path::new(&bundle)
         .join("config.json")
@@ -39,6 +38,23 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
 
     spec.canonicalize_rootfs(&bundle)
         .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {}", err)))?;
+    
+    
+    // add env to current proc
+    let env = spec
+        .process()
+        .as_ref()
+        .unwrap()
+        .env()
+        .as_ref()
+        .unwrap();
+    for v in env {
+        match v.split_once('=') {
+            None => {}
+            Some(t) => std::env::set_var(t.0.to_string(), t.1.to_string()),
+        };
+        
+    }
 
     let working_dir = oci::get_root(&spec);
     let mod_path = working_dir.join("slightfile.toml");
@@ -68,14 +84,11 @@ impl Instance for Wasi {
         let shutdown_signal = self.shutdown_signal.clone();
         let (tx, rx) = channel::<Result<(), Error>>();
         let bundle = self.bundle.clone();
-        let stdin = self.stdin.clone();
-        let stdout = self.stdout.clone();
-        let stderr = self.stderr.clone();
-
-        info!(
-            " >>> stdin: {:#?}, stdout: {:#?}, stderr: {:#?}",
-            stdin, stdout, stderr
-        );
+        
+        // FIXME: redirect slight stdio to pod stdio
+        let _pod_stdin = self.stdin.clone();
+        let _pod_stdout = self.stdout.clone();
+        let _pod_stderr = self.stderr.clone();
 
         thread::Builder::new()
             .name(self.id.clone())
@@ -90,7 +103,7 @@ impl Instance for Wasi {
 
                 info!(" >>> loading module: {}", mod_path.display());
                 info!(" >>> wasm path: {}", wasm_path.display());
-                info!(" >>> starting spin");
+                info!(" >>> starting slight");
 
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
