@@ -1188,7 +1188,6 @@ dependencies = [
  "containerd-shim",
  "containerd-shim-wasm",
  "log",
- "nix 0.25.0",
  "openssl",
  "slight",
  "tokio",

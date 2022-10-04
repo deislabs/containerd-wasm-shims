@@ -14,7 +14,6 @@ use containerd_shim_wasm::sandbox::Instance;
 use containerd_shim_wasm::sandbox::instance::EngineGetter;
 use containerd_shim_wasm::sandbox::oci;
 use log::info;
-use nix::mount::{mount, MsFlags};
 
 use tokio::runtime::Runtime;
 use slight_lib::commands::run::handle_run;
@@ -42,15 +41,10 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
     
 
     let working_dir = oci::get_root(&spec);
-    
-    // mount the resolv.conf to the host resolv.conf
-    mount::<str, str, str, str>(
-        Some(working_dir.join("etc/resolv.conf").to_str().unwrap()),
-        "/etc/resolv.conf",
-        Some("bind"),
-        MsFlags::MS_BIND,
-        None,
-    ).unwrap();
+
+    // change the working directory to the rootfs
+    std::os::unix::fs::chroot(working_dir).unwrap();
+    std::env::set_current_dir("/").unwrap();
 
     // add env to current proc
     let env = spec
@@ -67,8 +61,8 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
         };
     }
 
-    let mod_path = working_dir.join("slightfile.toml");
-    let wasm_path = working_dir.join("app.wasm");
+    let mod_path = PathBuf::from("slightfile.toml");
+    let wasm_path = PathBuf::from("app.wasm");
     Ok((wasm_path, mod_path))
 }
 
