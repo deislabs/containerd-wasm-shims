@@ -1,4 +1,8 @@
 specversion = "0.1"
+secret_store = "configs.envvars"
 
 [[capability]]
 name = "http"
+
+[[capability]]
+name = "kv.awsdynamodb"

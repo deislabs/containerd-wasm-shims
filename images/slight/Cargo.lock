@@ -88,7 +88,7 @@ dependencies = [
 [[package]]
 name = "slight-http-handler-macro"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=d029c57d20485b6cade1635827d66364e36de9fe#d029c57d20485b6cade1635827d66364e36de9fe"
+source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
 dependencies = [
  "anyhow",
  "proc-macro2",
