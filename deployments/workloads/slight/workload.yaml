@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: wasm-slight
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: wasm-slight
@@ -15,22 +15,8 @@ spec:
       runtimeClassName: wasmtime-slight
       containers:
         - name: testwasm
-          image: docker.io/mossaka/slight-try3:awsdynamodb
+          image: docker.io/mossaka/slight-try:filesystem
           command: ["/"]
-          envFrom:
-          - secretRef:
-              name: aws-credentials
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: aws-credentials
-type: Opaque
-stringData:
-  AWS_ACCESS_KEY_ID: 
-  AWS_SECRET_ACCESS_KEY:
-  AWS_DEFAULT_REGION:
-  AWS_REGION:
 ---
 apiVersion: v1
 kind: Service

@@ -5,4 +5,4 @@ secret_store = "configs.envvars"
 name = "http"
 
 [[capability]]
-name = "kv.awsdynamodb"
+name = "kv.filesystem"

@@ -49,7 +49,6 @@ fn handle_foo(request: Request) -> Result<Response, Error> {
 #[register_handler]
 fn handle_bar(request: Request) -> Result<Response, Error> {
     assert_eq!(request.method, Method::Put);
-    println!("request body: {:?}", request.body);
     if let Some(body) = request.body {
         let kv = crate::Kv::open("my-container").unwrap();
         kv.set("key", &body).unwrap();
