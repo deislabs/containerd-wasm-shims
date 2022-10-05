@@ -1,10 +1,13 @@
 use anyhow::Result;
 
 use http::*;
+use kv::*;
 use slight_http_handler_macro::register_handler;
 
 wit_bindgen_rust::import!("http.wit");
-wit_error_rs::impl_error!(Error);
+wit_bindgen_rust::import!("kv.wit");
+wit_error_rs::impl_error!(http::Error);
+wit_error_rs::impl_error!(kv::Error);
 
 fn main() -> Result<()> {
     let router = Router::new()?;
@@ -34,9 +37,11 @@ fn handle_hello(req: Request) -> Result<Response, Error> {
 
 #[register_handler]
 fn handle_foo(request: Request) -> Result<Response, Error> {
+    let kv = crate::Kv::open("my-container").unwrap();
+    let value = kv.get("key").unwrap();
     Ok(Response {
         headers: Some(request.headers),
-        body: request.body,
+        body: Some(value),
         status: 500,
     })
 }
@@ -44,9 +49,13 @@ fn handle_foo(request: Request) -> Result<Response, Error> {
 #[register_handler]
 fn handle_bar(request: Request) -> Result<Response, Error> {
     assert_eq!(request.method, Method::Put);
+    if let Some(body) = request.body {
+        let kv = crate::Kv::open("my-container").unwrap();
+        kv.set("key", &body).unwrap();
+    }
     Ok(Response {
         headers: Some(request.headers),
-        body: request.body,
+        body: None,
         status: 200,
     })
 }

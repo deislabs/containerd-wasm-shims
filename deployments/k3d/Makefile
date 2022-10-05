@@ -16,7 +16,7 @@ build-image: move-musl-to-tmp
 	docker build -t $(IMAGE_NAME) .
 
 up: build-image
-	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 2
+	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1
 
 deploy-spin: 
 	kubectl apply -f ../workloads/spin
