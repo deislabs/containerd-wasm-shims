@@ -17,6 +17,7 @@ jobs:
             ~/.cargo/git/db/
             ./target/
             ./deployments/k3d/.tmp/
+            ./bin
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
