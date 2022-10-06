@@ -51,7 +51,7 @@ jobs:
             ./deployments/workloads/spin/runtime.yaml#example-spin-runtimes \
             ./deployments/workloads/spin/workload.yaml#example-spin-workloads \
             ./deployments/workloads/slight/runtime.yaml#example-slight-runtimes \
-            ./deployments/workloads/slight/workload.yaml#example-slight-workloads \
+            ./deployments/workloads/slight/workload.yaml#example-slight-workloads
       - name: setup buildx
         uses: docker/setup-buildx-action@v2
       - name: login to GitHub container registry
