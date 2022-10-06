@@ -28,7 +28,7 @@ jobs:
       - name: build
         run: |
           make build
-          mkdir ./bin
+          rm -rf ./bin && mkdir ./bin
           cp containerd-shim-slight-v1/target/release/containerd-shim-*-v1 bin/
           cp containerd-shim-spin-v1/target/release/containerd-shim-*-v1 bin/
       - name: build k3d demo
