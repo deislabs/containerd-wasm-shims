@@ -209,3 +209,5 @@ impl EngineGetter for Wasi {
 fn main() {
     shim::run::<ShimCli<Wasi, _>>("io.containerd.slight.v1", None);
 }
+
+// FIXME: remove this
