@@ -263,13 +263,6 @@ impl Instance for Wasi {
 impl EngineGetter for Wasi {
     type E = ();
     fn new_engine() -> Result<Self::E, Error> {
-        // let mut config = wasmtime::Config::new();
-        // config
-        //     .cache_config_load_default()?
-        //     .interruptable(true)
-        //     .cranelift_opt_level(OptLevel::Speed);
-        // let engine = Self::E::new(config)?;
-        // Ok(engine)
         Ok(())
     }
 }
