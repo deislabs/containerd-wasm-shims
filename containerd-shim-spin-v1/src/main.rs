@@ -1,4 +1,3 @@
-use std::fs::OpenOptions;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, Condvar, Mutex};
@@ -14,19 +13,21 @@ use containerd_shim_wasm::sandbox::Instance;
 use containerd_shim_wasm::sandbox::instance::EngineGetter;
 use containerd_shim_wasm::sandbox::oci;
 use log::info;
-use spin_engine::io::CustomLogPipes;
-use spin_engine::io::ModuleIoRedirectsTypes;
-use spin_engine::io::PipeFile;
-use spin_http_engine::{HttpTrigger, HttpTriggerConfig};
-use spin_trigger::TriggerExecutor;
+use spin_http::HttpTrigger;
+use spin_trigger::{TriggerExecutor, TriggerExecutorBuilder};
+
 use tokio::runtime::Runtime;
 use wasmtime::OptLevel;
+use reqwest::Url;
+use anyhow::{Result, anyhow};
+
+mod loader;
+mod podio;
 
 static SPIN_ADDR: &str = "0.0.0.0:80";
 
 pub struct Wasi {
     exit_code: Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>,
-    engine: spin_engine::Engine,
     id: String,
     stdin: String,
     stdout: String,
@@ -50,20 +51,6 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
     Ok((working_dir.to_path_buf(), mod_path))
 }
 
-pub fn maybe_open_stdio(pipe_path: &PathBuf) -> Option<PipeFile> {
-    if pipe_path.as_os_str().is_empty() {
-        None
-    } else {
-        Some(PipeFile::new(
-            OpenOptions::new()
-                .read(true)
-                .write(true)
-                .open(pipe_path.clone())
-                .unwrap(),
-            pipe_path.clone(),
-        ))
-    }
-}
 
 impl Wasi {
     async fn build_spin_application(
@@ -74,56 +61,47 @@ impl Wasi {
     }
 
     async fn build_spin_trigger(
-        engine: spin_engine::Engine,
+        working_dir: PathBuf,
         app: spin_manifest::Application,
         stdout_pipe_path: PathBuf,
         stderr_pipe_path: PathBuf,
         stdin_pipe_path: PathBuf,
-    ) -> Result<HttpTrigger, Error> {
-        let custom_log_pipes = CustomLogPipes::new(
-            maybe_open_stdio(&stdin_pipe_path),
-            maybe_open_stdio(&stdout_pipe_path),
-            maybe_open_stdio(&stderr_pipe_path),
-        );
-        let config = spin_engine::ExecutionContextConfiguration {
-            components: app.components,
-            label: app.info.name,
-            config_resolver: app.config_resolver,
-            module_io_redirects: ModuleIoRedirectsTypes::FromFiles(custom_log_pipes),
-            ..Default::default()
+    ) -> Result<HttpTrigger> {
+
+        // Build and write app lock file
+        let locked_app = spin_trigger::locked::build_locked_app(app, &working_dir)?;
+        let locked_path = working_dir.join("spin.lock");
+        let locked_app_contents =
+            serde_json::to_vec_pretty(&locked_app).expect("could not serialize locked app");
+        std::fs::write(&locked_path, locked_app_contents).expect("could not write locked app");
+        let locked_url = Url::from_file_path(&locked_path).map_err(|_| anyhow!("cannot convert to file URL: {locked_path:?}"))?.to_string();
+
+        // Build trigger config
+        let loader = loader::TriggerLoader::new(working_dir, true);
+
+        let executor: HttpTrigger = {
+            let mut builder = TriggerExecutorBuilder::<HttpTrigger>::new(loader);
+            let config = builder.wasmtime_config_mut();
+            config
+                .cache_config_load_default()?
+                .cranelift_opt_level(OptLevel::Speed);
+
+            let logging_hooks = podio::PodioLoggingTriggerHooks::new(stdout_pipe_path, stderr_pipe_path, stdin_pipe_path);
+            builder.hooks(logging_hooks);
+
+            builder.build(locked_url).await?
         };
 
-        let mut builder = spin_engine::Builder::with_engine(config, engine)
-            .expect("can create a builder with engine");
-        builder
-            .link_defaults()
-            .expect("can link defaults for builder");
-        HttpTrigger::configure_execution_context(&mut builder)?;
-        let execution_ctx = builder.build().await?;
-        let global_config = app.info.trigger.try_into().unwrap();
-        let trigger_configs = app
-            .component_triggers
-            .into_iter()
-            .map(|(id, config)| (id, config).try_into().unwrap())
-            .collect::<Vec<HttpTriggerConfig>>();
-
-        let trigger = spin_http_engine::HttpTrigger::new(
-            execution_ctx,
-            global_config,
-            trigger_configs,
-        )?;
-
-        Ok(trigger)
+        Ok(executor)
     }
 }
 
 impl Instance for Wasi {
-    type E = spin_engine::Engine;
+    type E = ();
     fn new(id: String, cfg: Option<&InstanceConfig<Self::E>>) -> Self {
         let cfg = cfg.unwrap();
         Wasi {
             exit_code: Arc::new((Mutex::new(None), Condvar::new())),
-            engine: cfg.get_engine(),
             id,
             stdin: cfg.get_stdin().unwrap_or_default(),
             stdout: cfg.get_stdout().unwrap_or_default(),
@@ -133,7 +111,6 @@ impl Instance for Wasi {
         }
     }
     fn start(&self) -> Result<u32, Error> {
-        let engine = self.engine.clone();
         let exit_code = self.exit_code.clone();
         let shutdown_signal = self.shutdown_signal.clone();
         let (tx, rx) = channel::<Result<(), Error>>();
@@ -164,7 +141,8 @@ impl Instance for Wasi {
 
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
-                    let app = match Wasi::build_spin_application(mod_path, working_dir).await {
+                    info!(" >>> building spin application");
+                    let app = match Wasi::build_spin_application(mod_path, working_dir.clone()).await {
                         Ok(app) => app,
                         Err(err) => {
                             tx.send(Err(err)).unwrap();
@@ -172,8 +150,9 @@ impl Instance for Wasi {
                         }
                     };
 
+                    info!(" >>> building spin trigger");
                     let http_trigger = match Wasi::build_spin_trigger(
-                        engine.clone(),
+                        working_dir,
                         app,
                         PathBuf::from(stdout),
                         PathBuf::from(stderr),
@@ -183,7 +162,9 @@ impl Instance for Wasi {
                     {
                         Ok(http_trigger) => http_trigger,
                         Err(err) => {
-                            tx.send(Err(err)).unwrap();
+                            tx.send(Err(
+                                Error::Others(format!("could not build spin trigger: {}", err)),
+                            )).unwrap();
                             return;
                         }
                     };
@@ -196,7 +177,8 @@ impl Instance for Wasi {
                         }
                     });
 
-                    let f = http_trigger.run(spin_http_engine::CliArgs {
+                    info!(" >>> running spin trigger");
+                    let f = http_trigger.run(spin_http::CliArgs {
                         address: SPIN_ADDR.to_string(),
                         tls_cert: None,
                         tls_key: None,
@@ -279,15 +261,16 @@ impl Instance for Wasi {
 }
 
 impl EngineGetter for Wasi {
-    type E = spin_engine::Engine;
+    type E = ();
     fn new_engine() -> Result<Self::E, Error> {
-        let mut config = wasmtime::Config::new();
-        config
-            .cache_config_load_default()?
-            .interruptable(true)
-            .cranelift_opt_level(OptLevel::Speed);
-        let engine = Self::E::new(config)?;
-        Ok(engine)
+        // let mut config = wasmtime::Config::new();
+        // config
+        //     .cache_config_load_default()?
+        //     .interruptable(true)
+        //     .cranelift_opt_level(OptLevel::Speed);
+        // let engine = Self::E::new(config)?;
+        // Ok(engine)
+        Ok(())
     }
 }
 
