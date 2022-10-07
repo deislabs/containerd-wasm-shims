@@ -22,5 +22,5 @@ jobs:
     env:
       ARCH: ${{ matrix.config.arch }}
     steps:
-      uses: ./.github/workflows/build.yaml
+      - uses: ./.github/workflows/build.yaml
       
