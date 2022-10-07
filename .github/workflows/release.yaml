@@ -17,11 +17,9 @@ jobs:
               os: "ubuntu_latest",
               arch: "aarch64"
             }
-    steps:
-      # run ci prior to release
-      uses: ./.github/workflows/build.yaml
-      env:
-        ARCH: ${{ matrix.config.arch }}
+    uses: ./.github/workflows/build.yaml
+    env:
+      ARCH: ${{ matrix.config.arch }}
 
   release:
     runs-on: ${{ matrix.config.os }}

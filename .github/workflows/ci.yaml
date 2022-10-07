@@ -19,8 +19,7 @@ jobs:
                 os: "ubuntu_latest",
                 arch: "aarch64"
               }
-    steps:
-      uses: ./.github/workflows/build.yaml
-      env:
-        ARCH: ${{ matrix.config.arch }}
+    uses: ./.github/workflows/build.yaml
+    env:
+      ARCH: ${{ matrix.config.arch }}
       

@@ -3,7 +3,6 @@ on:
   workflow_call:
 env:
   CARGO_TERM_COLOR: always
-  ARCH: x86_64
 jobs:
   build:
     runs-on: ubuntu-latest
