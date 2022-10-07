@@ -5,7 +5,20 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+          - {
+              os: "ubuntu-latest",
+              arch: "x86_64",
+            }
+          - {
+              os: "ubuntu_latest",
+              arch: "aarch64"
+            }
+    env:
+      ARCH: ${{ matrix.config.arch }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v3
