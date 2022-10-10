@@ -109,6 +109,7 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
     let cluster_name = format!("{}-cluster", test_ns);
     let image_name = test_ns;
     let context_name = format!("k3d-{}", cluster_name);
+    
 
     let host_port = get_available_port().expect("failed to get available port");
     // k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1
@@ -128,28 +129,6 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
         eprintln!("{}", String::from_utf8_lossy(&output.stderr));
         anyhow::bail!(format!("failed to create k3d cluster {}", cluster_name));
     }
-
-    
-    // get cluster uri
-    // let uri = client::
-
-    // let mut cmd = Command::new("k3d");
-    // cmd.arg("cluster")
-    //     .arg("list")
-    //     .arg("--no-headers")
-    //     .arg("--output")
-    //     .arg("json");
-    // let output = cmd.output().await?;
-    // if !output.status.success() {
-    //     // print out the error message to stderr
-    //     eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-    //     anyhow::bail!(format!("failed to list k3d cluster {}", cluster_name));
-    // }
-    // let cluster_list: Vec<NamedCluster> = serde_json::from_slice(&output.stdout)?;
-    // let cluster = cluster_list.iter().find(|c| c.name == cluster_name).unwrap();
-    // let uri = format!("http://localhost:{}", cluster.cluster.server);
-    // let uri = uri.parse::<http::Uri>()?;
-    // println!(" >>> cluster uri: {}", uri);
 
     Ok(host_port)
 }
@@ -196,142 +175,66 @@ async fn teardown_test(test_ns: &str) -> Result<()> {
 async fn slight_test() -> Result<()> {
     let host_port = setup_test("slight-test").await?;
 
-    // apply slight workloads
-    let mut cmd = Command::new("kubectl");
-    cmd.arg("apply")
-        .arg("-f")
-        .arg("deployments/workloads/slight");
-    let output = cmd.output().await?;
-    if !output.status.success() {
-        // print out the error message to stderr
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-        anyhow::bail!(format!("failed to apply slight workloads"));
-    }
+    let res = async {
+        // apply slight workloads
+        k_apply("deployments/workloads/slight").await?;
 
-    // sleep for 30 seconds for the pods to be ready
-    tokio::time::sleep(Duration::from_secs(30)).await;
+        // sleep for 30 seconds for the pods to be ready
+        tokio::time::sleep(Duration::from_secs(30)).await;
+        
+        // check the test pod is running
+        let cluster_name = format!("k3d-{}-{}", "slight-test", "cluster");
+        list_pods(&cluster_name).await?;
+        
+
+        // curl for hello 
+        println!(" >>> curl http://localhost:{}/hello", host_port);
+        retry_curl(&format!("http://localhost:{}/hello", host_port), 5, 10).await?;
+
+        Ok(())
+    }.await;
     
-    // check the test pod is running
-    let cluster_name = format!("k3d-{}-{}", "slight-test", "cluster");
-
-    let config = Config::from_kubeconfig(&KubeConfigOptions {
-        context: Some(cluster_name),
-        ..Default::default()
-    }).await?;
-   
-    let client = Client::try_from(config)?;
-
-    let pods: Api<Pod> = Api::default_namespaced(client);
-    for p in pods.list(&ListParams::default()).await? {
-        println!("found pod {}", p.name_any());
-    }
-
-    // curl for hello 
-    println!(" >>> curl http://localhost:{}/hello", host_port);
-    let retry = 3;
-    let mut i = 0;
-    let mut handle = Easy::new();
-    handle.url(&format!("http://localhost:{}/hello", host_port))?;
-    handle.write_function(|data| {
-        println!("{}", String::from_utf8_lossy(data));
-        Ok(data.len())
-    }).unwrap();
-
-    loop {
-        let res = handle.perform();
-        if res.is_ok() {
-            break;
-        }
-        i += 1;
-        if i == retry {
-            anyhow::bail!("failed to curl for hello");
-        }
-        tokio::time::sleep(Duration::from_secs(5)).await;
-    }
-
-
     teardown_test("slight-test").await?;
-    Ok(())
+    res
 }
 
 #[tokio::test]
 async fn spin_test() -> Result<()> {
     let host_port = setup_test("spin-test").await?;
 
-    // apply spin workloads
-    let mut cmd = Command::new("kubectl");
-    cmd.arg("apply")
-        .arg("-f")
-        .arg("deployments/workloads/spin");
-    let output = cmd.output().await?;
-    if !output.status.success() {
-        // print out the error message to stderr
-        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
-        anyhow::bail!(format!("failed to apply spin workloads"));
-    }
+    let res = async {
+        // apply spin workloads
+        k_apply("deployments/workloads/spin").await?;
 
-    // sleep for 30 seconds for the pods to be ready
-    tokio::time::sleep(Duration::from_secs(30)).await;
-    
-    // check the test pod is running
-    let cluster_name = format!("k3d-{}-{}", "spin-test", "cluster");
+        // sleep for 30 seconds for the pods to be ready
+        tokio::time::sleep(Duration::from_secs(30)).await;
+        
+        // check the test pod is running
+        let cluster_name = format!("k3d-{}-{}", "spin-test", "cluster");
+        list_pods(&cluster_name).await?;
 
-    let config = Config::from_kubeconfig(&KubeConfigOptions {
-        context: Some(cluster_name),
-        ..Default::default()
-    }).await?;
-   
-    let client = Client::try_from(config)?;
-
-    let pods: Api<Pod> = Api::default_namespaced(client);
-    for p in pods.list(&ListParams::default()).await? {
-        println!("found pod {}", p.name_any());
-    }
-
-    // curl for hello 
-    println!(" >>> curl http://localhost:{}/hello", host_port);
-    let retry = 3;
-    let mut i = 0;
-    let mut handle = Easy::new();
-    handle.url(&format!("http://localhost:{}/hello", host_port))?;
-    handle.write_function(|data| {
-        println!("{}", String::from_utf8_lossy(data));
-        Ok(data.len())
-    }).unwrap();
-
-    loop {
-        let res = handle.perform();
-        if res.is_ok() {
-            break;
-        }
-        i += 1;
-        if i == retry {
-            anyhow::bail!("failed to curl for hello");
-        }
-        tokio::time::sleep(Duration::from_secs(5)).await;
-    }
-
+        // curl for hello 
+        println!(" >>> curl http://localhost:{}/hello", host_port);
+        retry_curl(&format!("http://localhost:{}/hello", host_port), 1, 1).await?;
+        
+        Ok(())
+    }.await;
 
     teardown_test("spin-test").await?;
-    Ok(())
+    res
 }
 
-// #[tokio::test]
-// async fn duplicate_my_test() -> Result<()> {
-//     setup_test("duplicate-my-test").await?;
-    
-//     teardown_test("duplicate-my-test").await?;
-//     Ok(())
-// }
 
-// #[tokio::test]
-// async fn setup_idempotentcy() -> Result<()> {
-//     setup_test("setup-idempotentcy").await?;
-//     setup_test("setup-idempotentcy").await?;
+#[tokio::test]
+async fn setup_idempotentcy() -> Result<()> {
+    // FIXME: make setup and teardown idempotent
 
-//     teardown_test("setup-idempotentcy").await?;
-//     Ok(())
-// }
+    // setup_test("setup-idempotentcy").await?;
+    // setup_test("setup-idempotentcy").await?;
+
+    // teardown_test("setup-idempotentcy").await?;
+    Ok(())
+}
 
 fn port_is_available(port: u16) -> bool {
     match TcpListener::bind(("127.0.0.1", port)) {
@@ -348,4 +251,56 @@ fn get_available_port() -> Option<u16> {
             return Some(port)
         }
     }
+}
+
+async fn retry_curl(url: &str, retry_times: u32, interval_in_secs: u64) -> Result<()> {
+    let mut i = 0;
+    let mut handle = Easy::new();
+    handle.url(url)?;
+    handle.write_function(|data| {
+        println!("{}", String::from_utf8_lossy(data));
+        Ok(data.len())
+    }).unwrap();
+
+    loop {
+        let res = handle.perform();
+        if res.is_ok() {
+            break;
+        }
+        i += 1;
+        if i == retry_times {
+            anyhow::bail!("failed to curl for hello");
+        }
+        tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
+    }
+    Ok(())
+}
+
+async fn list_pods(cluster_name: &str) -> Result<()> {
+    let config = Config::from_kubeconfig(&KubeConfigOptions {
+        context: Some(cluster_name.to_string()),
+        ..Default::default()
+    }).await?;
+   
+    let client = Client::try_from(config)?;
+
+    let pods: Api<Pod> = Api::default_namespaced(client);
+    for p in pods.list(&ListParams::default()).await? {
+        println!("found pod {}", p.name_any());
+    }
+    Ok(())
+}
+
+async fn k_apply(path: &str) -> Result<()> {
+    let mut cmd = Command::new("kubectl");
+    cmd.arg("apply")
+        .arg("-f")
+        .arg(path);
+    let output = cmd.output().await?;
+    if !output.status.success() {
+        // print out the error message to stderr
+        eprintln!("{}", String::from_utf8_lossy(&output.stderr));
+        anyhow::bail!(format!("failed to apply {}", path));
+    }
+    Ok(())
 }
