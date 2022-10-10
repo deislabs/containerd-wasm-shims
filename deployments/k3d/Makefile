@@ -22,7 +22,8 @@ deploy:
 	kubectl apply -f ../workloads
 
 test:
-	curl localhost:8081/hello
+	curl localhost:8081/spin/hello 
+	curl localhost:8081/slight/hello
 
 clean: 
 	k3d cluster delete $(CLUSTER_NAME)
