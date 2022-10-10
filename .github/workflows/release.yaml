@@ -16,7 +16,7 @@ jobs:
               arch: "x86_64",
             }
           - {
-              os: "ubuntu_latest",
+              os: "ubuntu-latest",
               arch: "aarch64"
             }
     permissions: 
