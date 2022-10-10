@@ -1,12 +1,17 @@
 use std::{net::TcpListener, time::Duration};
 
 use anyhow::Result;
-use k8s_openapi::{api::core::v1::{Node, Pod}, serde_json};
-use kube::{Api, Client, Config, config::KubeConfigOptions, client::ConfigExt, api::ListParams, ResourceExt};
+use curl::easy::Easy;
+use k8s_openapi::{
+    api::core::v1::{Node, Pod},
+    serde_json,
+};
+use kube::{
+    api::ListParams, client::ConfigExt, config::KubeConfigOptions, Api, Client, Config, ResourceExt,
+};
+use rand::Rng;
 use tokio::process::Command;
 use tower::ServiceBuilder;
-use curl::easy::Easy;
-use rand::Rng;
 
 async fn which_binary(bianry_name: &str) -> Result<()> {
     println!(" >>> which {}", bianry_name);
@@ -15,7 +20,7 @@ async fn which_binary(bianry_name: &str) -> Result<()> {
     let output = cmd.output().await;
     if output.is_err() {
         anyhow::bail!(format!("{} not found in PATH", bianry_name));
-    } 
+    }
     let output = output.unwrap();
     if !output.status.success() {
         anyhow::bail!(format!("{} not found in PATH", bianry_name));
@@ -92,10 +97,7 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
 
     // build docker image
     let mut cmd = Command::new("docker");
-    cmd.arg("build")
-        .arg("-t")
-        .arg(test_ns)
-        .arg(dockerfile_path);
+    cmd.arg("build").arg("-t").arg(test_ns).arg(dockerfile_path);
     let output = cmd.output().await?;
     if !output.status.success() {
         // print out the error message to stderr
@@ -109,7 +111,6 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
     let cluster_name = format!("{}-cluster", test_ns);
     let image_name = test_ns;
     let context_name = format!("k3d-{}", cluster_name);
-    
 
     let host_port = get_available_port().expect("failed to get available port");
     // k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1
@@ -138,8 +139,7 @@ async fn teardown_test(test_ns: &str) -> Result<()> {
 
     // delete docker image
     let mut cmd = Command::new("docker");
-    cmd.arg("rmi")
-        .arg(test_ns);
+    cmd.arg("rmi").arg(test_ns);
     let output = cmd.output().await?;
     if !output.status.success() {
         // print out the error message to stderr
@@ -151,9 +151,7 @@ async fn teardown_test(test_ns: &str) -> Result<()> {
 
     // check docker image is deleted
     let mut cmd = Command::new("docker");
-    cmd.arg("image")
-        .arg("inspect")
-        .arg(test_ns);
+    cmd.arg("image").arg("inspect").arg(test_ns);
     let output = cmd.output().await?;
     if output.status.success() {
         anyhow::bail!(format!("failed to delete docker image {}", test_ns));
@@ -161,9 +159,7 @@ async fn teardown_test(test_ns: &str) -> Result<()> {
 
     // delete k3d cluster
     let mut cmd = Command::new("k3d");
-    cmd.arg("cluster")
-        .arg("delete")
-        .arg(cluster_name);
+    cmd.arg("cluster").arg("delete").arg(cluster_name);
     let output = cmd.output().await?;
     if !output.status.success() {
         anyhow::bail!(format!("failed to delete k3d cluster {}", test_ns));
@@ -181,19 +177,19 @@ async fn slight_test() -> Result<()> {
 
         // sleep for 30 seconds for the pods to be ready
         tokio::time::sleep(Duration::from_secs(30)).await;
-        
+
         // check the test pod is running
         let cluster_name = format!("k3d-{}-{}", "slight-test", "cluster");
         list_pods(&cluster_name).await?;
-        
 
-        // curl for hello 
+        // curl for hello
         println!(" >>> curl http://localhost:{}/hello", host_port);
         retry_curl(&format!("http://localhost:{}/hello", host_port), 5, 10).await?;
 
         Ok(())
-    }.await;
-    
+    }
+    .await;
+
     teardown_test("slight-test").await?;
     res
 }
@@ -208,22 +204,22 @@ async fn spin_test() -> Result<()> {
 
         // sleep for 30 seconds for the pods to be ready
         tokio::time::sleep(Duration::from_secs(30)).await;
-        
+
         // check the test pod is running
         let cluster_name = format!("k3d-{}-{}", "spin-test", "cluster");
         list_pods(&cluster_name).await?;
 
-        // curl for hello 
+        // curl for hello
         println!(" >>> curl http://localhost:{}/hello", host_port);
         retry_curl(&format!("http://localhost:{}/hello", host_port), 1, 1).await?;
-        
+
         Ok(())
-    }.await;
+    }
+    .await;
 
     teardown_test("spin-test").await?;
     res
 }
-
 
 #[tokio::test]
 async fn setup_idempotentcy() -> Result<()> {
@@ -246,9 +242,9 @@ fn port_is_available(port: u16) -> bool {
 fn get_available_port() -> Option<u16> {
     let mut rng = rand::thread_rng();
     loop {
-    let port: u16 = rng.gen_range(1025..65535);
+        let port: u16 = rng.gen_range(1025..65535);
         if port_is_available(port) {
-            return Some(port)
+            return Some(port);
         }
     }
 }
@@ -257,10 +253,12 @@ async fn retry_curl(url: &str, retry_times: u32, interval_in_secs: u64) -> Resul
     let mut i = 0;
     let mut handle = Easy::new();
     handle.url(url)?;
-    handle.write_function(|data| {
-        println!("{}", String::from_utf8_lossy(data));
-        Ok(data.len())
-    }).unwrap();
+    handle
+        .write_function(|data| {
+            println!("{}", String::from_utf8_lossy(data));
+            Ok(data.len())
+        })
+        .unwrap();
 
     loop {
         let res = handle.perform();
@@ -280,8 +278,9 @@ async fn list_pods(cluster_name: &str) -> Result<()> {
     let config = Config::from_kubeconfig(&KubeConfigOptions {
         context: Some(cluster_name.to_string()),
         ..Default::default()
-    }).await?;
-   
+    })
+    .await?;
+
     let client = Client::try_from(config)?;
 
     let pods: Api<Pod> = Api::default_namespaced(client);
@@ -293,9 +292,7 @@ async fn list_pods(cluster_name: &str) -> Result<()> {
 
 async fn k_apply(path: &str) -> Result<()> {
     let mut cmd = Command::new("kubectl");
-    cmd.arg("apply")
-        .arg("-f")
-        .arg(path);
+    cmd.arg("apply").arg("-f").arg(path);
     let output = cmd.output().await?;
     if !output.status.success() {
         // print out the error message to stderr
