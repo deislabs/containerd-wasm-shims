@@ -3,15 +3,14 @@ use std::{net::TcpListener, time::Duration};
 use anyhow::Result;
 use curl::easy::Easy;
 use k8s_openapi::{
-    api::core::v1::{Node, Pod},
-    serde_json,
+    api::core::v1::{Pod},
 };
 use kube::{
-    api::ListParams, client::ConfigExt, config::KubeConfigOptions, Api, Client, Config, ResourceExt,
+    api::ListParams, config::KubeConfigOptions, Api, Client, Config, ResourceExt,
 };
 use rand::Rng;
 use tokio::process::Command;
-use tower::ServiceBuilder;
+
 
 async fn which_binary(bianry_name: &str) -> Result<()> {
     println!(" >>> which {}", bianry_name);
@@ -110,7 +109,7 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
     // create k3d cluster
     let cluster_name = format!("{}-cluster", test_ns);
     let image_name = test_ns;
-    let context_name = format!("k3d-{}", cluster_name);
+    let _context_name = format!("k3d-{}", cluster_name);
 
     let host_port = get_available_port().expect("failed to get available port");
     // k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1
@@ -233,10 +232,7 @@ async fn setup_idempotentcy() -> Result<()> {
 }
 
 fn port_is_available(port: u16) -> bool {
-    match TcpListener::bind(("127.0.0.1", port)) {
-        Ok(_) => true,
-        Err(_) => false,
-    }
+    TcpListener::bind(("127.0.0.1", port)).is_ok()
 }
 
 fn get_available_port() -> Option<u16> {
