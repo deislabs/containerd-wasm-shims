@@ -1,10 +1,10 @@
-use std::{net::TcpListener, time::Duration};
+use std::{io::Read, net::TcpListener, time::Duration};
 
 use anyhow::Result;
 use curl::easy::Easy;
 use k8s_openapi::api::core::v1::Pod;
 use kube::{api::ListParams, config::KubeConfigOptions, Api, Client, Config, ResourceExt};
-use rand::Rng;
+use rand::{distributions::Alphanumeric, Rng};
 use tokio::process::Command;
 
 async fn which_binary(bianry_name: &str) -> Result<()> {
@@ -131,6 +131,14 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
 pub async fn teardown_test(test_ns: &str) -> Result<()> {
     let cluster_name = format!("{}-cluster", test_ns);
 
+    // delete k3d cluster
+    let mut cmd = Command::new("k3d");
+    cmd.arg("cluster").arg("delete").arg(cluster_name);
+    let output = cmd.output().await?;
+    if !output.status.success() {
+        anyhow::bail!(format!("failed to delete k3d cluster {}", test_ns));
+    }
+
     // delete docker image
     let mut cmd = Command::new("docker");
     cmd.arg("rmi").arg(test_ns);
@@ -151,13 +159,6 @@ pub async fn teardown_test(test_ns: &str) -> Result<()> {
         anyhow::bail!(format!("failed to delete docker image {}", test_ns));
     }
 
-    // delete k3d cluster
-    let mut cmd = Command::new("k3d");
-    cmd.arg("cluster").arg("delete").arg(cluster_name);
-    let output = cmd.output().await?;
-    if !output.status.success() {
-        anyhow::bail!(format!("failed to delete k3d cluster {}", test_ns));
-    }
     Ok(())
 }
 
@@ -175,19 +176,55 @@ fn get_available_port() -> Option<u16> {
     }
 }
 
-pub async fn retry_curl(url: &str, retry_times: u32, interval_in_secs: u64) -> Result<()> {
+pub async fn retry_get(
+    url: &str,
+    buf: &mut Vec<u8>,
+    retry_times: u32,
+    interval_in_secs: u64,
+) -> Result<()> {
     let mut i = 0;
     let mut handle = Easy::new();
     handle.url(url)?;
-    handle
-        .write_function(|data| {
-            println!("{}", String::from_utf8_lossy(data));
-            Ok(data.len())
-        })
-        .unwrap();
+    let mut transfer = handle.transfer();
+    transfer.write_function(|data| {
+        buf.extend_from_slice(data);
+        Ok(data.len())
+    })?;
 
     loop {
-        let res = handle.perform();
+        let res = transfer.perform();
+        if res.is_ok() {
+            break;
+        }
+        i += 1;
+        if i == retry_times {
+            anyhow::bail!("failed to curl for hello");
+        }
+        tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
+    }
+    Ok(())
+}
+
+pub async fn retry_put(
+    url: &str,
+    data: &str,
+    retry_times: u32,
+    interval_in_secs: u64,
+) -> Result<()> {
+    let mut i = 0;
+    let mut handle = Easy::new();
+    handle.url(url)?;
+    handle.put(true)?;
+    handle.post_field_size(data.len() as u64)?;
+    let mut transfer = handle.transfer();
+    transfer.read_function(|into| Ok(data.as_bytes().read(into).unwrap_or(0)))?;
+    transfer.write_function(|data| {
+        println!("{}", String::from_utf8_lossy(data));
+        Ok(data.len())
+    })?;
+
+    loop {
+        let res = transfer.perform();
         if res.is_ok() {
             break;
         }
@@ -226,4 +263,14 @@ pub async fn k_apply(path: &str) -> Result<()> {
         anyhow::bail!(format!("failed to apply {}", path));
     }
     Ok(())
+}
+
+pub async fn random_payload() -> String {
+    let rng = rand::thread_rng();
+    let payload: String = rng
+        .sample_iter(&Alphanumeric)
+        .take(30)
+        .map(char::from)
+        .collect();
+    payload
 }
