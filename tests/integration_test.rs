@@ -1,11 +1,6 @@
-use std::{net::TcpListener, time::Duration};
+use std::time::Duration;
 
 use anyhow::Result;
-use curl::easy::Easy;
-use k8s_openapi::api::core::v1::Pod;
-use kube::{api::ListParams, config::KubeConfigOptions, Api, Client, Config, ResourceExt};
-use rand::Rng;
-use tokio::process::Command;
 
 use common::{k_apply, list_pods, retry_curl, setup_test, teardown_test};
 
