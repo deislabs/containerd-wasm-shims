@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces:
+          workspaces: |
             "containerd-shim-slight-v1 -> target"
             "containerd-shim-spin-v1 -> target"
       - name: "Install Rust Wasm targets"
