@@ -42,10 +42,8 @@ jobs:
           tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz containerd-shim-*-v1
       - name: copy release workload assets into _dist
         run: |
-          cp ./deployments/workloads/spin/runtime.yaml _dist/spin_runtime.yaml
-          cp ./deployments/workloads/spin/workload.yaml _dist/spin_workload.yaml
-          cp ./deployments/workloads/slight/runtime.yaml _dist/slight_runtime.yaml
-          cp ./deployments/workloads/slight/workload.yaml _dist/slight_workload.yaml
+          cp ./deployments/workloads/runtime.yaml _dist/runtime.yaml
+          cp ./deployments/workloads/workload.yaml _dist/workload.yaml
       - name: create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,10 +52,8 @@ jobs:
             --generate-notes \
             -p \
             _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz#containerd-wasm-shims-v1 \
-            _dist/spin_runtime.yaml#example-spin-runtimes \
-            _dist/spin_workload.yaml#example-spin-workloads \
-            _dist/slight_runtime.yaml#example-slight-runtimes \
-            _dist/slight_workload.yaml#example-slight-workloads
+            _dist/runtime.yaml#example-runtimes \
+            _dist/workload.yaml#example-workloads \
       - name: setup buildx
         uses: docker/setup-buildx-action@v2
       - name: login to GitHub container registry
