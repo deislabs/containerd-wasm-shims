@@ -29,6 +29,7 @@ Deploy a pre-built sample spin application:
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/spin/workload.yaml
+echo "waiting 5 seconds for workload to be ready"
 sleep 5
 curl -v http://0.0.0.0:8081/hello
 ```
@@ -212,6 +213,7 @@ Deploy the application and confirm it is running:
 
 ```bash
 kubectl apply -f qs.yaml
+echo "waiting 5 seconds for workload to be ready"
 sleep 5
 curl -v http://0.0.0.0:8081/hi
 ```
