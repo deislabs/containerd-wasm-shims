@@ -81,9 +81,10 @@ git clone https://github.com/deislabs/containerd-wasm-shims.git
 cd containerd-wasm-shims/images/slight
 ```
 
-Use `cargo` to install the `wasm32-wasi` target and build the application. For example:
+Use `rustup` to install the `wasm32-wasi` target and `cargo` to build the application. For example:
 
 ```bash
+rustup target add wasm32-wasi
 cargo build --target wasm32-wasi
 ```
 
