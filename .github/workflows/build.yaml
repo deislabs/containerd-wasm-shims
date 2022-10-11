@@ -5,22 +5,35 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+          - {
+              os: "ubuntu-latest",
+              arch: "x86_64",
+            }
+          - {
+              os: "ubuntu-latest",
+              arch: "aarch64"
+            }
+    env:
+      ARCH: ${{ matrix.config.arch }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ./target/
             ./deployments/k3d/.tmp/
             ./bin
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            "containerd-shim-slight-v1 -> target"
+            "containerd-shim-spin-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           rustup target add wasm32-wasi

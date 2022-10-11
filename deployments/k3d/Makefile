@@ -1,16 +1,18 @@
 IMAGE_NAME ?= k3swithshims
 CLUSTER_NAME ?= k3s-default
+ARCH ?= x86_64
+TARGET ?= $(ARCH)-unknown-linux-musl
 
 compile-musl-spin:
-	make build-spin-cross-x86_64-unknown-linux-musl -C ../..
+	make build-spin-cross-$(TARGET) -C ../..
 
 compile-musl-slight:
-	make build-slight-cross-x86_64-unknown-linux-musl -C ../..
+	make build-slight-cross-$(TARGET) -C ../..
 
 move-musl-to-tmp: compile-musl-spin compile-musl-slight
 	mkdir -p ./.tmp
-	cp ../../containerd-shim-slight-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-*-v1 ./.tmp/
-	cp ../../containerd-shim-spin-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-*-v1 ./.tmp/
+	cp ../../containerd-shim-slight-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
+	cp ../../containerd-shim-spin-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
 
 build-image: move-musl-to-tmp
 	docker build -t $(IMAGE_NAME) .
