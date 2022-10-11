@@ -8,7 +8,6 @@ Before you begin, you need to have the following installed:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [Spin binary and templates](https://spin.fermyon.dev/quickstart/)
 - [Rust](https://www.rust-lang.org/tools/install)
-- 
 
 ## Start and configure a k3d cluster
 
