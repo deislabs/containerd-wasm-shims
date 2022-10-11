@@ -37,11 +37,6 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ./target/
             ./deployments/k3d/.tmp/
             ./bin
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
