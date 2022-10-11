@@ -1,0 +1,14 @@
+spin_version = "1"
+authors = ["Jiaxiao Zhou <jiazho@microsoft.com>"]
+description = "just a dotnet project"
+name = "MyTestProject"
+version = "1.0.0"
+trigger = { type = "http", base = "/" }
+
+[[component]]
+id = "my_test_project"
+source = "bin/Release/net7.0/MyTestProject.wasm"
+[component.build]
+command = "dotnet build -c Release"
+[component.trigger]
+route = "/..."
