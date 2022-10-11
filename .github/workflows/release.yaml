@@ -5,15 +5,26 @@ on:
       - 'v[0-9]+.[0-9]+.*'
 jobs:
   build:
-    # run ci prior to release
     uses: ./.github/workflows/build.yaml
+
   release:
+    strategy:
+      matrix:
+        config:
+          - {
+              os: "ubuntu-latest",
+              arch: "x86_64",
+            }
+          - {
+              os: "ubuntu-latest",
+              arch: "aarch64"
+            }
     permissions: 
       contents: write
       packages: write 
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.config.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Set RELEASE_VERSION ENV var
@@ -39,7 +50,7 @@ jobs:
           mkdir _dist
           cp bin/containerd-shim-*-v1 _dist/
           cd _dist
-          tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz containerd-shim-*-v1
+          tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: copy release workload assets into _dist
         run: |
           cp ./deployments/workloads/spin/runtime.yaml _dist/spin_runtime.yaml
@@ -53,7 +64,7 @@ jobs:
           gh release create ${{ env.RELEASE_VERSION }} \
             --generate-notes \
             -p \
-            _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-amd64.tar.gz#containerd-wasm-shims-v1 \
+            _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz#containerd-wasm-shims-v1 \
             _dist/spin_runtime.yaml#example-spin-runtimes \
             _dist/spin_workload.yaml#example-spin-workloads \
             _dist/slight_runtime.yaml#example-slight-runtimes \
