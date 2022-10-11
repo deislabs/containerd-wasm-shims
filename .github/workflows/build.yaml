@@ -21,14 +21,6 @@ jobs:
       ARCH: ${{ matrix.config.arch }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ./deployments/k3d/.tmp/
-            ./bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
@@ -41,9 +33,20 @@ jobs:
       - name: build
         run: |
           make build
-          rm -rf ./bin && mkdir ./bin
-          cp containerd-shim-slight-v1/target/release/containerd-shim-*-v1 bin/
-          cp containerd-shim-spin-v1/target/release/containerd-shim-*-v1 bin/
+          cp containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 ./bin/${{ matrix.config.arch }}/
+          cp containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 ./bin/${{ matrix.config.arch }}/
+      - name: upload slight artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.arch }}-containerd-shim-slight-v1
+          path: containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1
+          retention-days: 5
+      - name: upload spin artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.config.arch }}-containerd-shim-spin-v1
+          path: containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1
+          retention-days: 5
       - name: build k3d demo
         run: make build-image
         working-directory: ./deployments/k3d

@@ -2,11 +2,13 @@ PREFIX ?= /usr/local
 INSTALL ?= install
 TEST_IMG_NAME_SPIN ?= wasmtest_spin:latest
 TEST_IMG_NAME_SLIGHT ?= wasmtest_slight:latest
+ARCH ?= x86_64
+TARGET ?= $(ARCH)-unknown-linux-musl
 
 CONTAINERD_NAMESPACE ?= default
 
 .PHONY: build
-build: build-spin build-slight
+build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET)
 	echo "Build complete"
 
 .PHONY: build-spin
