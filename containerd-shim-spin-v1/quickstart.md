@@ -84,7 +84,7 @@ HTTP path: /hi
 Navigate to the directory where you created the application:
 
 ```bash
-cd qs-wasm-spin-shim
+cd qs-wasm-spin
 ```
 
 Use `rustup` to install the `wasm32-wasi` target and `spin build` to build the application. For example:
