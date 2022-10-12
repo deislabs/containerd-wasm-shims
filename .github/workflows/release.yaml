@@ -6,25 +6,13 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yaml
-
   release:
-    strategy:
-      matrix:
-        config:
-          - {
-              os: "ubuntu-latest",
-              arch: "x86_64",
-            }
-          - {
-              os: "ubuntu-latest",
-              arch: "aarch64"
-            }
     permissions: 
       contents: write
       packages: write 
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set RELEASE_VERSION ENV var
@@ -34,24 +22,15 @@ jobs:
         run: |
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           echo "RUNNER_OS=$OS" >> $GITHUB_ENV
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ./deployments/k3d/.tmp/
-            ./bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: package release assets
-        run: |
-          mkdir _dist
-          cp bin/containerd-shim-*-v1 _dist/
-          cd _dist
-          tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: copy release workload assets into _dist
         run: |
           cp ./deployments/workloads/spin/runtime.yaml _dist/spin_runtime.yaml
           cp ./deployments/workloads/spin/workload.yaml _dist/spin_workload.yaml
           cp ./deployments/workloads/slight/runtime.yaml _dist/slight_runtime.yaml
           cp ./deployments/workloads/slight/workload.yaml _dist/slight_workload.yaml
+      - uses: actions/download-artifact@v3
+        with:
+          path: _artifacts
       - name: create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,11 +38,12 @@ jobs:
           gh release create ${{ env.RELEASE_VERSION }} \
             --generate-notes \
             -p \
-            _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz#containerd-wasm-shims-v1 \
             _dist/spin_runtime.yaml#example-spin-runtimes \
             _dist/spin_workload.yaml#example-spin-workloads \
             _dist/slight_runtime.yaml#example-slight-runtimes \
             _dist/slight_workload.yaml#example-slight-workloads
+          
+          for f in ./_artifacts/*/*.tar.gz; do gh release upload ${{ env.RELEASE_VERSION }} $f; done
       - name: setup buildx
         uses: docker/setup-buildx-action@v2
       - name: login to GitHub container registry
@@ -88,6 +68,11 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:latest
           context: images/slight
+      - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
+        run: |
+          mkdir -p ./deployments/k3d/.tmp
+          tar -xf ./_artifacts/containerd-wasm-shims-v1-linux-x86_64/containerd-wasm-shims-v1-linux-x86_64.tar.gz \
+            --directory ./deployments/k3d/.tmp
       - name: build and push k3d shim image
         uses: docker/build-push-action@v3
         with:

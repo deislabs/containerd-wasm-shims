@@ -20,15 +20,7 @@ jobs:
     env:
       ARCH: ${{ matrix.config.arch }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ./deployments/k3d/.tmp/
-            ./bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+      - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
@@ -41,9 +33,24 @@ jobs:
       - name: build
         run: |
           make build
-          rm -rf ./bin && mkdir ./bin
-          cp containerd-shim-slight-v1/target/release/containerd-shim-*-v1 bin/
-          cp containerd-shim-spin-v1/target/release/containerd-shim-*-v1 bin/
+      - name: lowercase the runner OS name
+        shell: bash
+        run: |
+          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          echo "RUNNER_OS=$OS" >> $GITHUB_ENV
+      - name: package release assets
+        run: |
+          mkdir _dist
+          cp containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          cp containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          cd _dist
+          tar czf containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
+      - name: upload shim artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}
+          path: _dist/containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz
+          retention-days: 5
       - name: build k3d demo
         run: make build-image
         working-directory: ./deployments/k3d
