@@ -33,8 +33,6 @@ jobs:
       - name: build
         run: |
           make build
-          cp containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 ./bin/${{ matrix.config.arch }}/
-          cp containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 ./bin/${{ matrix.config.arch }}/
       - name: upload slight artifact
         uses: actions/upload-artifact@v3
         with:
