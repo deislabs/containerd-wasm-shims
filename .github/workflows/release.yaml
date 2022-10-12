@@ -24,6 +24,7 @@ jobs:
           echo "RUNNER_OS=$OS" >> $GITHUB_ENV
       - name: copy release workload assets into _dist
         run: |
+          mkdir -p _dist
           cp ./deployments/workloads/spin/runtime.yaml _dist/spin_runtime.yaml
           cp ./deployments/workloads/spin/workload.yaml _dist/spin_workload.yaml
           cp ./deployments/workloads/slight/runtime.yaml _dist/slight_runtime.yaml
