@@ -33,17 +33,18 @@ jobs:
       - name: build
         run: |
           make build
-      - name: upload slight artifact
+      - name: package release assets
+        run: |
+          mkdir _dist
+          cp containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          cp containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          cd _dist
+          tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
+      - name: upload shim artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.config.arch }}-containerd-shim-slight-v1
-          path: containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1
-          retention-days: 5
-      - name: upload spin artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.config.arch }}-containerd-shim-spin-v1
-          path: containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1
+          name: ${{ matrix.config.arch }}-containerd-shims-v1
+          path: _dist/containerd-shim-*-v1.tar.gz
           retention-days: 5
       - name: build k3d demo
         run: make build-image
