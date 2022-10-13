@@ -1997,7 +1997,7 @@ dependencies = [
 [[package]]
 name = "outbound-http"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "http",
@@ -2012,7 +2012,7 @@ dependencies = [
 [[package]]
 name = "outbound-pg"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "spin-core",
@@ -2025,7 +2025,7 @@ dependencies = [
 [[package]]
 name = "outbound-redis"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "redis",
@@ -2913,7 +2913,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 [[package]]
 name = "spin-app"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2927,7 +2927,7 @@ dependencies = [
 [[package]]
 name = "spin-config"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2943,7 +2943,7 @@ dependencies = [
 [[package]]
 name = "spin-core"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2957,7 +2957,7 @@ dependencies = [
 [[package]]
 name = "spin-http"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2983,7 +2983,7 @@ dependencies = [
 [[package]]
 name = "spin-loader"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3012,7 +3012,7 @@ dependencies = [
 [[package]]
 name = "spin-manifest"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "indexmap",
@@ -3024,7 +3024,7 @@ dependencies = [
 [[package]]
 name = "spin-trigger"
 version = "0.2.0"
-source = "git+https://github.com/fermyon/spin?rev=c86f027cb72f4b59b4f30cc7971950de69245f87#c86f027cb72f4b59b4f30cc7971950de69245f87"
+source = "git+https://github.com/fermyon/spin?rev=96942a2d760e2989298fabf6f2141edfcb41fa30#96942a2d760e2989298fabf6f2141edfcb41fa30"
 dependencies = [
  "anyhow",
  "async-trait",
