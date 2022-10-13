@@ -15,7 +15,7 @@ move-musl-to-tmp: compile-musl-spin compile-musl-slight
 	cp ../../containerd-shim-spin-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
 
 build-image: move-musl-to-tmp
-	docker build -t $(IMAGE_NAME) .
+	docker buildx build -t $(IMAGE_NAME) --platform linux/amd64,linux/arm64 .
 
 up: build-image
 	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1

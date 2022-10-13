@@ -1,4 +1,4 @@
-FROM rancher/k3s:v1.24.4-k3s1-amd64
+FROM rancher/k3s:v1.24.6-k3s1
 
 # copy shims from target directory into the /bin
 COPY ./.tmp /bin/
