@@ -14,7 +14,7 @@ Before you begin, you need to have the following installed:
 Start a k3d cluster with the WASM shims already installed:
 
 ```bash
-k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:latest -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
+k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.2 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
 ```
 
 Apply RuntimeClass for SpiderLightning applications to use the SpiderLightning WASM shim:
