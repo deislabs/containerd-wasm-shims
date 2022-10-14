@@ -6,25 +6,13 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/build.yaml
-
   release:
-    strategy:
-      matrix:
-        config:
-          - {
-              os: "ubuntu-latest",
-              arch: "x86_64",
-            }
-          - {
-              os: "ubuntu-latest",
-              arch: "aarch64"
-            }
     permissions: 
       contents: write
       packages: write 
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set RELEASE_VERSION ENV var
@@ -34,20 +22,9 @@ jobs:
         run: |
           OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
           echo "RUNNER_OS=$OS" >> $GITHUB_ENV
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ./deployments/k3d/.tmp/
-            ./bin
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: package release assets
-        run: |
-          mkdir _dist
-          cp bin/containerd-shim-*-v1 _dist/
-          cd _dist
-          tar czf containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: copy release workload assets into _dist
         run: |
+          mkdir -p _dist
           cp ./deployments/workloads/runtime.yaml _dist/runtime.yaml
           cp ./deployments/workloads/workload.yaml _dist/workload.yaml
       - name: create release
@@ -57,9 +34,14 @@ jobs:
           gh release create ${{ env.RELEASE_VERSION }} \
             --generate-notes \
             -p \
-            _dist/containerd-wasm-shims-v1-${{ env.RELEASE_VERSION }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz#containerd-wasm-shims-v1 \
             _dist/runtime.yaml#example-runtimes \
             _dist/workload.yaml#example-workloads \
+            
+          for f in ./_artifacts/*/*.tar.gz; do gh release upload ${{ env.RELEASE_VERSION }} $f; done
+
+      # Setup buildx to build multiarch image: https://github.com/docker/build-push-action/blob/master/docs/advanced/multi-platform.md
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
       - name: setup buildx
         uses: docker/setup-buildx-action@v2
       - name: login to GitHub container registry
@@ -76,6 +58,16 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
           context: images/spin
+          platforms: wasi/wasm
+      - name: build and push Spin DotNet
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-dotnet-hello:${{ env.RELEASE_VERSION }}
+            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-dotnet-hello:latest
+          context: images/spin_dotnet
+          platforms: wasi/wasm
       - name: build and push Slight hello world
         uses: docker/build-push-action@v3
         with:
@@ -84,6 +76,12 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:latest
           context: images/slight
+          platforms: wasi/wasm
+      - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
+        run: |
+          mkdir -p ./deployments/k3d/.tmp
+          tar -xf ./_artifacts/containerd-wasm-shims-v1-linux-x86_64/containerd-wasm-shims-v1-linux-x86_64.tar.gz \
+            --directory ./deployments/k3d/.tmp
       - name: build and push k3d shim image
         uses: docker/build-push-action@v3
         with:
@@ -92,6 +90,7 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:latest
           context: deployments/k3d
+          platforms: linux/amd64,linux/arm64
       - name: clear
         if: always()
         run: |

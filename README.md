@@ -3,8 +3,11 @@ This project aims to provide containerd shim implementations that can run Wasm /
 
 [runwasi](https://github.com/deislabs/runwasi) is a project that aims to run wasm workloads running on [Wasmtime](https://wasmtime.dev/), a fast and secure runtime for WebAssembly, which is managed by containerd.
 
-## Quickstart
-To get up and running quickly on a local k3d cluster, use [the k3d deployment described here](./deployments/k3d/README.md#how-to-run-the-example).
+## Quickstarts
+
+- [Start k3d and run a sample WASM application](./deployments/k3d/README.md#how-to-run-the-example).
+- [Create a Spin application on k3d](./containerd-shim-spin-v1/quickstart.md)
+- [Deploy a SpiderLightning application with k3d](./containerd-shim-slight-v1/quickstart.md)
 
 ## Containerd Wasm Shims
 Each of the shims below leverage runwasi to provide the bridge between K8s and containerd. 

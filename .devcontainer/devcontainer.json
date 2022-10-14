@@ -1,0 +1,23 @@
+  {
+    "name": "Codespace to bootstrap k3d in a Codespace",
+    "image": "mcr.microsoft.com/vscode/devcontainers/universal:linux",
+    "remoteUser": "codespace",
+      "overrideCommand": false,
+      "mounts": ["source=codespaces-linux-var-lib-docker,target=/var/lib/docker,type=volume"],
+      "runArgs": [
+          "--cap-add=SYS_PTRACE",
+          "--security-opt",
+          "seccomp=unconfined",
+          "--privileged",
+          "--init"
+      ],
+      
+      // Add the IDs of extensions you want installed when the container is created.
+      "extensions": [
+          "GitHub.vscode-pull-request-github",
+          "ms-vscode.azure-account",
+          "ms-vscode.azurecli",
+          "ms-azuretools.vscode-docker",
+      ],
+      "postAttachCommand": "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"
+  }
