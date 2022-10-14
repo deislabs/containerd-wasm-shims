@@ -26,7 +26,7 @@ pub async fn setup_test(test_ns: &str) -> Result<u16> {
     let res = setup_test_helper(test_ns).await;
     if res.is_err() {
         println!(" >>> setup test failed");
-        teardown_test("my-test").await?;
+        teardown_test(test_ns).await?;
         return res;
     }
     res
