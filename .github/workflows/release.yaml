@@ -65,6 +65,16 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
           context: images/spin
+          platforms: wasi/wasm
+      - name: build and push Spin DotNet
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-dotnet-hello:${{ env.RELEASE_VERSION }}
+            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-dotnet-hello:latest
+          context: images/spin_dotnet
+          platforms: wasi/wasm
       - name: build and push Slight hello world
         uses: docker/build-push-action@v3
         with:
@@ -73,6 +83,7 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:latest
           context: images/slight
+          platforms: wasi/wasm
       - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
         run: |
           mkdir -p ./deployments/k3d/.tmp

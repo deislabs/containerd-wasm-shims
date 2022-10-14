@@ -42,12 +42,12 @@ update-deps:
 
 test/out_spin/img.tar: images/spin/Dockerfile
 	mkdir -p $(@D)
-	docker build -t $(TEST_IMG_NAME_SPIN) ./images/spin
+	docker buildx build --platform=wasi/wasm -t $(TEST_IMG_NAME_SPIN) ./images/spin
 	docker save -o $@ $(TEST_IMG_NAME_SPIN)
 
 test/out_slight/img.tar: images/slight/Dockerfile
 	mkdir -p $(@D)
-	docker build -t $(TEST_IMG_NAME_SLIGHT) ./images/slight
+	docker buildx build --platform=wasi/wasm -t $(TEST_IMG_NAME_SLIGHT) ./images/slight
 	docker save -o $@ $(TEST_IMG_NAME_SLIGHT)
 
 load: test/out_spin/img.tar test/out_slight/img.tar

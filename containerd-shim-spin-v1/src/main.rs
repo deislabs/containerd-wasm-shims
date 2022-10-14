@@ -14,14 +14,13 @@ use containerd_shim_wasm::sandbox::instance::EngineGetter;
 use containerd_shim_wasm::sandbox::oci;
 use log::info;
 use spin_http::HttpTrigger;
-use spin_trigger::{TriggerExecutor, TriggerExecutorBuilder};
+use spin_trigger::{loader, TriggerExecutor, TriggerExecutorBuilder};
 
 use tokio::runtime::Runtime;
 use wasmtime::OptLevel;
 use reqwest::Url;
 use anyhow::{Result, anyhow};
 
-mod loader;
 mod podio;
 
 static SPIN_ADDR: &str = "0.0.0.0:80";
