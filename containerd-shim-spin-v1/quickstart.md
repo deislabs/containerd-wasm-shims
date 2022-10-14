@@ -3,7 +3,7 @@
 ## Pre-requisites
 Before you begin, you need to have the following installed:
 
-- [Docker](https://docs.docker.com/install/)
+- [Docker](https://docs.docker.com/install/) version 4.13.1 (90346) or later with [containerd enabled](https://docs.docker.com/desktop/containerd/)
 - [k3d](https://k3d.io/v5.4.6/#installation)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [Spin binary and templates](https://spin.fermyon.dev/quickstart/)
@@ -14,7 +14,7 @@ Before you begin, you need to have the following installed:
 Start a k3d cluster with the wasm shims already installed:
 
 ```bash
-k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.2 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
+k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.3 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
 ```
 
 Apply RuntimeClass for spin applications to use the spin wasm shim:
@@ -31,13 +31,13 @@ Deploy a pre-built sample spin application:
 kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/workload.yaml
 echo "waiting 5 seconds for workload to be ready"
 sleep 5
-curl -v http://0.0.0.0:8081/hello
+curl -v http://0.0.0.0:8081/spin/hello
 ```
 
 Confirm you see a response from the sample application. For example:
 
 ```output
-$ curl -v http://0.0.0.0:8081/hello
+$ curl -v http://0.0.0.0:8081/spin/hello
 *   Trying 0.0.0.0:8081...
 * TCP_NODELAY set
 * Connected to 0.0.0.0 (127.0.0.1) port 8081 (#0)
@@ -125,7 +125,7 @@ Return to the terminal window running `spin up` and stop the application.
 Create a `Dockerfile` at the root of the application directory with the following:
 
 ```dockerfile
-FROM rust:1.59 AS build
+FROM --platform=${BUILDPLATFORM} rust:1.59 AS build
 WORKDIR /opt/build
 COPY . .
 RUN rustup target add wasm32-wasi && cargo build --target wasm32-wasi --release
@@ -148,7 +148,7 @@ source = "qs_wasm_spin.wasm"
 Use `docker` to build the container image and push it to the k3d registry:
 
 ```bash
-docker build -t localhost:12345/qs-wasm-spin .
+docker buildx build --platform=wasi/wasm -t localhost:12345/qs-wasm-spin .
 docker push localhost:12345/qs-wasm-spin:latest
 ```
 

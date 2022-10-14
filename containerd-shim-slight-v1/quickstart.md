@@ -3,7 +3,7 @@
 ## Pre-requisites
 Before you begin, you need to have the following installed:
 
-- [Docker](https://docs.docker.com/install/)
+- [Docker](https://docs.docker.com/install/) version 4.13.1 (90346) or later with [containerd enabled](https://docs.docker.com/desktop/containerd/)
 - [k3d](https://k3d.io/v5.4.6/#installation)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [SpiderLightning and `slight`](https://github.com/deislabs/spiderlightning#spiderlightning-or-slight)
@@ -14,7 +14,7 @@ Before you begin, you need to have the following installed:
 Start a k3d cluster with the WASM shims already installed:
 
 ```bash
-k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.2 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
+k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.3 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
 ```
 
 Apply RuntimeClass for SpiderLightning applications to use the SpiderLightning WASM shim:
@@ -31,13 +31,13 @@ Deploy a pre-built sample SpiderLightning application:
 kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/workload.yaml
 echo "waiting 5 seconds for workload to be ready"
 sleep 5
-curl -v http://0.0.0.0:8081/hello
+curl -v http://0.0.0.0:8081/slight/hello
 ```
 
 Confirm you see a response from the sample application. For example:
 
 ```output
-$ curl -v http://0.0.0.0:8081/hello
+$ curl -v http://0.0.0.0:8081/slight/hello
 *   Trying 0.0.0.0:8081...
 * TCP_NODELAY set
 * Connected to 0.0.0.0 (127.0.0.1) port 8081 (#0)
@@ -129,7 +129,7 @@ Return to the terminal window running `slight run` and stop the application.
 Use `docker` to build the container image and push it to the k3d registry:
 
 ```bash
-docker build -t localhost:12345/qs-wasm-slight .
+docker buildx build --platform=wasi/wasm -t localhost:12345/qs-wasm-slight .
 docker push localhost:12345/qs-wasm-slight:latest
 ```
 
