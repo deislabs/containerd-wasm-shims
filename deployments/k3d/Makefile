@@ -20,14 +20,12 @@ build-image: move-musl-to-tmp
 up: build-image
 	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1
 
-deploy-spin: 
-	kubectl apply -f ../workloads/spin
-
-deploy-slight: 
-	kubectl apply -f ../workloads/slight
+deploy: 
+	kubectl apply -f ../workloads
 
 test:
-	curl localhost:8081/hello
+	curl localhost:8081/spin/hello 
+	curl localhost:8081/slight/hello
 
 clean: 
 	k3d cluster delete $(CLUSTER_NAME)

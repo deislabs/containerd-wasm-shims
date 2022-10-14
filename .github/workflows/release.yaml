@@ -25,10 +25,8 @@ jobs:
       - name: copy release workload assets into _dist
         run: |
           mkdir -p _dist
-          cp ./deployments/workloads/spin/runtime.yaml _dist/spin_runtime.yaml
-          cp ./deployments/workloads/spin/workload.yaml _dist/spin_workload.yaml
-          cp ./deployments/workloads/slight/runtime.yaml _dist/slight_runtime.yaml
-          cp ./deployments/workloads/slight/workload.yaml _dist/slight_workload.yaml
+          cp ./deployments/workloads/runtime.yaml _dist/runtime.yaml
+          cp ./deployments/workloads/workload.yaml _dist/workload.yaml
       - uses: actions/download-artifact@v3
         with:
           path: _artifacts
@@ -39,11 +37,9 @@ jobs:
           gh release create ${{ env.RELEASE_VERSION }} \
             --generate-notes \
             -p \
-            _dist/spin_runtime.yaml#example-spin-runtimes \
-            _dist/spin_workload.yaml#example-spin-workloads \
-            _dist/slight_runtime.yaml#example-slight-runtimes \
-            _dist/slight_workload.yaml#example-slight-workloads
-          
+            _dist/runtime.yaml#example-runtimes \
+            _dist/workload.yaml#example-workloads \
+            
           for f in ./_artifacts/*/*.tar.gz; do gh release upload ${{ env.RELEASE_VERSION }} $f; done
 
       # Setup buildx to build multiarch image: https://github.com/docker/build-push-action/blob/master/docs/advanced/multi-platform.md
