@@ -27,6 +27,9 @@ jobs:
           mkdir -p _dist
           cp ./deployments/workloads/runtime.yaml _dist/runtime.yaml
           cp ./deployments/workloads/workload.yaml _dist/workload.yaml
+      - uses: actions/download-artifact@v3
+        with:
+          path: _artifacts
       - name: create release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
