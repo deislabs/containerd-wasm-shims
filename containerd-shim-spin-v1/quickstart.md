@@ -20,7 +20,7 @@ k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/e
 Apply RuntimeClass for spin applications to use the spin wasm shim:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/spin/runtime.yaml
+kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/runtime.yaml
 ```
 
 ## Deploy an existing sample spin application
@@ -28,7 +28,7 @@ kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shim
 Deploy a pre-built sample spin application:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/spin/workload.yaml
+kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/workload.yaml
 echo "waiting 5 seconds for workload to be ready"
 sleep 5
 curl -v http://0.0.0.0:8081/hello
@@ -59,7 +59,7 @@ Hello world from Spin!
 Delete the pre-built sample spin application:
 
 ```bash
-kubectl delete -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/spin/workload.yaml
+kubectl delete -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/workload.yaml
 ```
 
 ## Create a new spin sample application

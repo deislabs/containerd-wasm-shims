@@ -20,7 +20,7 @@ k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/e
 Apply RuntimeClass for SpiderLightning applications to use the SpiderLightning WASM shim:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/slight/runtime.yaml
+kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/runtime.yaml
 ```
 
 ## Deploy an existing sample SpiderLightning application
@@ -28,7 +28,7 @@ kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shim
 Deploy a pre-built sample SpiderLightning application:
 
 ```bash
-kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/slight/workload.yaml
+kubectl apply -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/workload.yaml
 echo "waiting 5 seconds for workload to be ready"
 sleep 5
 curl -v http://0.0.0.0:8081/hello
@@ -69,7 +69,7 @@ hello
 Delete the pre-built sample SpiderLightning application:
 
 ```bash
-kubectl delete -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/slight/workload.yaml
+kubectl delete -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shims/main/deployments/workloads/workload.yaml
 ```
 
 ## Build and deploy a SpiderLightning application
