@@ -17,6 +17,11 @@ The Spin shim, as the name implies, is powered by the [Fermyon Spin](https://git
 
 If you are curious, [here is the Spin shim source code](./containerd-shim-spin-v1).
 
+### Slight (SpiderLightning) shim
+The slight shim is powered by the [Deislabs SpiderLightning](https://github.com/deislabs/spiderlightning) engine. Slight is an open source host, much like Spin, for building and running fast, secure, and composable cloud microservices with WebAssembly. In addition, the slight shim comes with an increasing [array of WebAssembly component capabilities, including underlying implementations](https://github.com/deislabs/spiderlightning/blob/main/docs/primer.md#spiderlightning-capabilities), to consume common application level services. 
+
+If you are curious, [here is the Slight shim source code](./containerd-shim-slight-v1).
+
 ### Building the shims
 To build the shims in this project, run `make`.
 
@@ -24,6 +29,8 @@ To build the shims in this project, run `make`.
 To run the spin shim using [a hello world Spin example](./images/spin), run `make run_spin`. This will use `ctr` to simulate the same call that would be made from containerd to run a local OCI container image.
 
 The "hello world" image contains only 2 files, the [`spin.toml`](./images/spin/spin.toml) file and the `spin_rust_hello.wasm` file created by compiling the "hello world" spin example by running `cargo build --target wasm32-wasi --release` in [the example directory](./images/spin). **The image is only 1.9MB!**
+
+To run either shim locally using k3d and exercise it using sample services, see [the README in deployments/k3d](./deployments/k3d/README.md).
 
 ### Cleaning up
 To clean up, run `make clean`.

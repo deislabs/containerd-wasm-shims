@@ -18,9 +18,12 @@ $ tree .
 The shell script below will create a k3d cluster locally with the Wasm shims installed and containerd configured. The script then applies the runtime classes for the shims and an example service and deployment. Finally, we curl the `/hello` and receive a response from the example workload.
 ```shell
 k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.2 -p "8081:80@loadbalancer" --agents 2
-kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.3.1/slight_runtime.yaml
-kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/releases/download/v0.3.1/slight_workload.yaml
-curl -v http://0.0.0.0:8081/hello
+kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/raw/main/deployments/workloads/runtime.yaml
+kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/raw/main/deployments/workloads/workload.yaml
+echo "waiting 5 seconds for workload to be ready"
+sleep 5
+curl -v http://127.0.0.1:8081/spin/hello
+curl -v http://127.0.0.1:8081/slight/hello
 ```
 
 To tear down the cluster, run the following.
