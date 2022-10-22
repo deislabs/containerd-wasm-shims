@@ -18,7 +18,7 @@ wasmtime = "0.39"
 toml = "0.5"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing = { version = "0.1", features = ["log"] }
-slight = { git = "https://github.com/deislabs/spiderlightning", rev = "732acf471c8a4225b0333ee5b2085e0aaf2ef892"}
+slight = { git = "https://github.com/deislabs/spiderlightning", rev = "13ef06502c809d47263bd2fb21bdf9f79a435ebf"} # fixed install script on MacOS
 openssl = { version = "0.10", features = ["vendored"] }
 
 [workspace]

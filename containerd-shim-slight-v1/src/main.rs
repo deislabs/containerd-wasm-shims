@@ -126,9 +126,11 @@ impl Instance for Wasi {
                     info!(" >>> notifying main thread we are about to start");
                     tx.send(Ok(())).unwrap();
                     tokio::select! {
-                        _ = f => {
+                        res = f => {
                             log::info!(" >>> server shut down: exiting");
-
+                            if res.is_err() {
+                                log::error!(" >>> error: {:?}", res);
+                            }
                             let (lock, cvar) = &*exit_code;
                             let mut ec = lock.lock().unwrap();
                             *ec = Some((137, Utc::now()));
