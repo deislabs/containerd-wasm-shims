@@ -3603,6 +3603,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "routerify-cors"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53844cd732937d7c582a93d6b6875e11f18aa90cc65cac780591837655841244"
+dependencies = [
+ "hyper",
+ "routerify",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3948,8 +3958,8 @@ checksum = "03b634d87b960ab1a38c4fe143b508576f075e7c978bfad18217645ebfdfa2ec"
 
 [[package]]
 name = "slight"
-version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+version = "0.2.0"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "as-any",
@@ -3980,7 +3990,7 @@ dependencies = [
 [[package]]
 name = "slight-common"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "as-any",
@@ -3993,7 +4003,7 @@ dependencies = [
 [[package]]
 name = "slight-events"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4013,7 +4023,7 @@ dependencies = [
 [[package]]
 name = "slight-events-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "cloudevents-sdk",
@@ -4024,7 +4034,7 @@ dependencies = [
 [[package]]
 name = "slight-http"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "crossbeam-channel",
@@ -4032,6 +4042,7 @@ dependencies = [
  "futures",
  "hyper",
  "routerify",
+ "routerify-cors",
  "slight-common",
  "slight-events-api",
  "slight-http-api",
@@ -4045,7 +4056,7 @@ dependencies = [
 [[package]]
 name = "slight-http-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4058,7 +4069,7 @@ dependencies = [
 [[package]]
 name = "slight-kv"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4087,7 +4098,7 @@ dependencies = [
 [[package]]
 name = "slight-lockd"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4107,7 +4118,7 @@ dependencies = [
 [[package]]
 name = "slight-mq"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4130,7 +4141,7 @@ dependencies = [
 [[package]]
 name = "slight-pubsub"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-channel",
@@ -4151,7 +4162,7 @@ dependencies = [
 [[package]]
 name = "slight-runtime"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "as-any",
@@ -4179,7 +4190,7 @@ dependencies = [
 [[package]]
 name = "slight-runtime-configs"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4249,7 +4260,7 @@ dependencies = [
 [[package]]
 name = "spiderlightning"
 version = "0.2.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=13ef06502c809d47263bd2fb21bdf9f79a435ebf#13ef06502c809d47263bd2fb21bdf9f79a435ebf"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "openssl",

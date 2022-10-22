@@ -1,37 +1,80 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wasm-slight
+  name: http-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: wasm-slight
+      app: http-server
   template:
     metadata:
       labels:
-        app: wasm-slight
+        app: http-server
     spec:
       runtimeClassName: wasmtime-slight
       containers:
-        - name: testwasm
-          image: docker.io/mossaka/chat-app:v1
+        - name: http-server
+          image: webassemblies.azurecr.io/http-server:v2
           command: ["/"]
           env:
           - name: REDIS_ADDRESS
             value: redis://redis-service.default.svc.cluster.local:6379
+          - name: TMPDIR
+            value: /data/group
+          volumeMounts:
+          - name: group
+            mountPath: /data/group
+      volumes:
+      - name: group
+        persistentVolumeClaim:
+          claimName: group
+      nodeName: k3d-k3s-default-agent-0
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: wasm-slight
+  name: http-server
 spec:
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
   selector:
-    app: wasm-slight
+    app: http-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dispatcher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dispatcher
+  template:
+    metadata:
+      labels:
+        app: dispatcher
+    spec:
+      runtimeClassName: wasmtime-slight
+      containers:
+        - name: dispatcher
+          image: webassemblies.azurecr.io/dispatcher:v2
+          command: ["/"]
+          env:
+          - name: REDIS_ADDRESS
+            value: redis://redis-service.default.svc.cluster.local:6379
+          - name: TMPDIR
+            value: /data/group
+          volumeMounts:
+          - name: group
+            mountPath: /data/group
+      volumes:
+      - name: group
+        persistentVolumeClaim:
+          claimName: group
+      nodeName: k3d-k3s-default-agent-0
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -48,6 +91,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: wasm-slight
+                name: http-server
                 port:
                   number: 80
