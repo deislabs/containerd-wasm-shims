@@ -18,7 +18,7 @@ wasmtime = "0.39"
 toml = "0.5"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing = { version = "0.1", features = ["log"] }
-slight = { git = "https://github.com/deislabs/spiderlightning", rev = "732acf471c8a4225b0333ee5b2085e0aaf2ef892"}
+slight = { git = "https://github.com/deislabs/spiderlightning", rev = "01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"} # shim
 openssl = { version = "0.10", features = ["vendored"] }
 
 [workspace]

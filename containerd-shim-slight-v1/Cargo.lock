@@ -1791,6 +1791,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
 
 [[package]]
+name = "flate2"
+version = "1.0.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f82b0f4c27ad9f8bfd1f3208d882da2b09c301bc1c828fd3a00d0216d2fbbff6"
+dependencies = [
+ "crc32fast",
+ "miniz_oxide",
+]
+
+[[package]]
 name = "flume"
 version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3593,6 +3603,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "routerify-cors"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53844cd732937d7c582a93d6b6875e11f18aa90cc65cac780591837655841244"
+dependencies = [
+ "hyper",
+ "routerify",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3938,14 +3958,16 @@ checksum = "03b634d87b960ab1a38c4fe143b508576f075e7c978bfad18217645ebfdfa2ec"
 
 [[package]]
 name = "slight"
-version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+version = "0.2.0"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "as-any",
  "clap",
  "env_logger",
+ "flate2",
  "log",
+ "reqwest",
  "slight-common",
  "slight-events",
  "slight-events-api",
@@ -3957,6 +3979,7 @@ dependencies = [
  "slight-runtime",
  "slight-runtime-configs",
  "spiderlightning",
+ "tar",
  "tokio",
  "toml",
  "tracing",
@@ -3967,7 +3990,7 @@ dependencies = [
 [[package]]
 name = "slight-common"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "as-any",
@@ -3980,9 +4003,10 @@ dependencies = [
 [[package]]
 name = "slight-events"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
+ "async-trait",
  "crossbeam-channel",
  "crossbeam-utils",
  "futures",
@@ -3999,7 +4023,7 @@ dependencies = [
 [[package]]
 name = "slight-events-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "cloudevents-sdk",
@@ -4010,7 +4034,7 @@ dependencies = [
 [[package]]
 name = "slight-http"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "crossbeam-channel",
@@ -4018,6 +4042,7 @@ dependencies = [
  "futures",
  "hyper",
  "routerify",
+ "routerify-cors",
  "slight-common",
  "slight-events-api",
  "slight-http-api",
@@ -4031,7 +4056,7 @@ dependencies = [
 [[package]]
 name = "slight-http-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4044,7 +4069,7 @@ dependencies = [
 [[package]]
 name = "slight-kv"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4073,7 +4098,7 @@ dependencies = [
 [[package]]
 name = "slight-lockd"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4093,7 +4118,7 @@ dependencies = [
 [[package]]
 name = "slight-mq"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4116,13 +4141,12 @@ dependencies = [
 [[package]]
 name = "slight-pubsub"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-channel",
  "async-trait",
  "crossbeam-channel",
- "futures",
  "mosquitto-rs",
  "slight-common",
  "slight-events-api",
@@ -4138,7 +4162,7 @@ dependencies = [
 [[package]]
 name = "slight-runtime"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "as-any",
@@ -4166,13 +4190,14 @@ dependencies = [
 [[package]]
 name = "slight-runtime-configs"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
  "async-trait",
  "azure-app-configuration",
  "crossbeam-channel",
  "rand 0.8.5",
+ "regex",
  "short-crypt",
  "slight-common",
  "slight-events-api",
@@ -4234,10 +4259,11 @@ dependencies = [
 
 [[package]]
 name = "spiderlightning"
-version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+version = "0.2.0"
+source = "git+https://github.com/deislabs/spiderlightning?rev=01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e#01c5c31a7d9c1c885bb5432b96eb66e4ceae0c0e"
 dependencies = [
  "anyhow",
+ "openssl",
  "rand 0.8.5",
  "serde",
  "short-crypt",
@@ -4390,6 +4416,17 @@ dependencies = [
  "rustix 0.35.9",
  "windows-sys",
  "winx 0.33.0",
+]
+
+[[package]]
+name = "tar"
+version = "0.4.38"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4b55807c0344e1e6c04d7c965f5289c39a8d94ae23ed5c0b57aabac549f871c6"
+dependencies = [
+ "filetime",
+ "libc",
+ "xattr",
 ]
 
 [[package]]
@@ -5732,6 +5769,15 @@ dependencies = [
  "log",
  "thiserror",
  "wast 35.0.2",
+]
+
+[[package]]
+name = "xattr"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d1526bbe5aaeb5eb06885f4d987bcdfa5e23187055de9b83fe00156a821fabc"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
