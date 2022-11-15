@@ -244,3 +244,7 @@ Delete the cluster:
 ```bash
 k3d cluster delete wasm-cluster
 ```
+
+## Next steps
+
+Try running Wasm applications on [Docker Desktop](https://docs.docker.com/desktop/wasm/) or on Kubernetes, such as [AKS](https://learn.microsoft.com/en-us/azure/aks/use-wasi-node-pools).
