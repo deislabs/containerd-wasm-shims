@@ -18,8 +18,9 @@ use log::info;
 use slight_lib::commands::run::handle_run;
 use tokio::runtime::Runtime;
 
+type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 pub struct Wasi {
-    exit_code: Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>,
+    exit_code: ExitCode,
     id: String,
     stdin: String,
     stdout: String,
@@ -46,7 +47,7 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
     for v in env {
         match v.split_once('=') {
             None => {}
-            Some(t) => std::env::set_var(t.0.to_string(), t.1.to_string()),
+            Some(t) => std::env::set_var(t.0, t.1),
         };
     }
 

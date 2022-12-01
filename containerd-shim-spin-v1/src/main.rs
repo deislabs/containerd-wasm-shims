@@ -29,8 +29,10 @@ mod podio;
 
 static SPIN_ADDR: &str = "0.0.0.0:80";
 
+type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
+
 pub struct Wasi {
-    exit_code: Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>,
+    exit_code: ExitCode,
     id: String,
     stdin: String,
     stdout: String,
