@@ -1,3 +1,4 @@
+import time
 import os
 
 def which(binary_name):
@@ -45,6 +46,15 @@ def setup_test():
     # wait for the cluster to be ready
     os.system("kubectl wait --for=condition=ready node --all --timeout=120s")
     
+    # wait for 30 seconds
+    time.sleep(30)
+
+    print(">>> apply workloads")
+    os.system("kubectl apply -f deployments/workloads")
+    
+    # wait for 30 seconds
+    time.sleep(30)
+
     print(">>> cluster is ready")
 
 if __name__ == '__main__':
