@@ -2,28 +2,28 @@ use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::{Arc, Condvar, Mutex};
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Sender;
+use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
 use anyhow::Context;
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
-use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
 use containerd_shim_wasm::sandbox::error::Error;
-use containerd_shim_wasm::sandbox::Instance;
 use containerd_shim_wasm::sandbox::instance::EngineGetter;
 use containerd_shim_wasm::sandbox::oci;
+use containerd_shim_wasm::sandbox::Instance;
+use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
 use log::info;
 use spin_http::HttpTrigger;
 use spin_manifest::Application;
 use spin_trigger::{loader, TriggerExecutor, TriggerExecutorBuilder};
 
+use anyhow::{anyhow, Result};
+use reqwest::Url;
 use tokio::runtime::Runtime;
 use wasmtime::OptLevel;
-use reqwest::Url;
-use anyhow::{Result, anyhow};
 
 mod podio;
 
@@ -40,10 +40,7 @@ pub struct Wasi {
 }
 
 pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
-    let mut spec = oci::load(Path::new(&bundle)
-        .join("config.json")
-        .to_str()
-        .unwrap())
+    let mut spec = oci::load(Path::new(&bundle).join("config.json").to_str().unwrap())
         .expect("unable to load OCI bundle");
 
     spec.canonicalize_rootfs(&bundle)
@@ -53,7 +50,6 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
     let mod_path = working_dir.join("spin.toml");
     Ok((working_dir.to_path_buf(), mod_path))
 }
-
 
 impl Wasi {
     async fn build_spin_application(
@@ -70,14 +66,15 @@ impl Wasi {
         stderr_pipe_path: PathBuf,
         stdin_pipe_path: PathBuf,
     ) -> Result<HttpTrigger> {
-
         // Build and write app lock file
         let locked_app = spin_trigger::locked::build_locked_app(app, &working_dir)?;
         let locked_path = working_dir.join("spin.lock");
         let locked_app_contents =
             serde_json::to_vec_pretty(&locked_app).expect("could not serialize locked app");
         std::fs::write(&locked_path, locked_app_contents).expect("could not write locked app");
-        let locked_url = Url::from_file_path(&locked_path).map_err(|_| anyhow!("cannot convert to file URL: {locked_path:?}"))?.to_string();
+        let locked_url = Url::from_file_path(&locked_path)
+            .map_err(|_| anyhow!("cannot convert to file URL: {locked_path:?}"))?
+            .to_string();
 
         // Build trigger config
         let loader = loader::TriggerLoader::new(working_dir, true);
@@ -89,7 +86,11 @@ impl Wasi {
                 .cache_config_load_default()?
                 .cranelift_opt_level(OptLevel::Speed);
 
-            let logging_hooks = podio::PodioLoggingTriggerHooks::new(stdout_pipe_path, stderr_pipe_path, stdin_pipe_path);
+            let logging_hooks = podio::PodioLoggingTriggerHooks::new(
+                stdout_pipe_path,
+                stderr_pipe_path,
+                stdin_pipe_path,
+            );
             builder.hooks(logging_hooks);
 
             builder.build(locked_url).await?
@@ -145,13 +146,14 @@ impl Instance for Wasi {
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
                     info!(" >>> building spin application");
-                    let app = match Wasi::build_spin_application(mod_path, working_dir.clone()).await {
-                        Ok(app) => app,
-                        Err(err) => {
-                            tx.send(Err(err)).unwrap();
-                            return;
-                        }
-                    };
+                    let app =
+                        match Wasi::build_spin_application(mod_path, working_dir.clone()).await {
+                            Ok(app) => app,
+                            Err(err) => {
+                                tx.send(Err(err)).unwrap();
+                                return;
+                            }
+                        };
 
                     info!(" >>> building spin trigger");
                     let http_trigger = match Wasi::build_spin_trigger(
@@ -161,13 +163,15 @@ impl Instance for Wasi {
                         PathBuf::from(stderr),
                         PathBuf::from(stdin),
                     )
-                        .await
+                    .await
                     {
                         Ok(http_trigger) => http_trigger,
                         Err(err) => {
-                            tx.send(Err(
-                                Error::Others(format!("could not build spin trigger: {}", err)),
-                            )).unwrap();
+                            tx.send(Err(Error::Others(format!(
+                                "could not build spin trigger: {}",
+                                err
+                            ))))
+                            .unwrap();
                             return;
                         }
                     };
@@ -205,8 +209,7 @@ impl Instance for Wasi {
                             *ec = Some((0, Utc::now()));
                             cvar.notify_all();
                         },
-                    }
-                    ;
+                    };
                 })
             })?;
 
