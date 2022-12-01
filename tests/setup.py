@@ -23,6 +23,10 @@ def setup_test():
     slight_shim_path = "deployments/k3d/.tmp/containerd-shim-slight-v1"
     spin_shim_path = "deployments/k3d/.tmp/containerd-shim-spin-v1"
     
+    # create bin_path if not exists
+    if not os.path.exists(bin_path):
+        os.makedirs(bin_path)
+
     try:
         which(slight_shim_path)
     except RuntimeError:
