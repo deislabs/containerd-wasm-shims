@@ -1,3 +1,5 @@
+use std::net::SocketAddr;
+use std::net::ToSocketAddrs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, Condvar, Mutex};
@@ -5,6 +7,7 @@ use std::sync::mpsc::channel;
 use std::sync::mpsc::Sender;
 use std::thread;
 
+use anyhow::Context;
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
 use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
@@ -14,6 +17,7 @@ use containerd_shim_wasm::sandbox::instance::EngineGetter;
 use containerd_shim_wasm::sandbox::oci;
 use log::info;
 use spin_http::HttpTrigger;
+use spin_manifest::Application;
 use spin_trigger::{loader, TriggerExecutor, TriggerExecutorBuilder};
 
 use tokio::runtime::Runtime;
@@ -55,13 +59,13 @@ impl Wasi {
     async fn build_spin_application(
         mod_path: PathBuf,
         working_dir: PathBuf,
-    ) -> Result<spin_manifest::Application, Error> {
+    ) -> Result<Application, Error> {
         Ok(spin_loader::from_file(mod_path, working_dir, &None).await?)
     }
 
     async fn build_spin_trigger(
         working_dir: PathBuf,
-        app: spin_manifest::Application,
+        app: Application,
         stdout_pipe_path: PathBuf,
         stderr_pipe_path: PathBuf,
         stdin_pipe_path: PathBuf,
@@ -178,7 +182,7 @@ impl Instance for Wasi {
 
                     info!(" >>> running spin trigger");
                     let f = http_trigger.run(spin_http::CliArgs {
-                        address: SPIN_ADDR.to_string(),
+                        address: parse_addr(SPIN_ADDR).unwrap(),
                         tls_cert: None,
                         tls_key: None,
                     });
@@ -257,6 +261,11 @@ impl Instance for Wasi {
 
         Ok(())
     }
+}
+
+fn parse_addr(addr: &str) -> anyhow::Result<SocketAddr> {
+    let addrs: Vec<SocketAddr> = addr.to_socket_addrs()?.collect();
+    addrs.into_iter().next().context("couldn't resolve address")
 }
 
 impl EngineGetter for Wasi {
