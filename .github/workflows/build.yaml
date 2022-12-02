@@ -33,6 +33,11 @@ jobs:
       - name: build
         run: |
           make build
+      - name: install k3d
+        run: make install-k3d
+        working-directory: ./deployments/k3d
+      - name: run integration tests
+        run: make test
       - name: lowercase the runner OS name
         shell: bash
         run: |

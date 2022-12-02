@@ -4,8 +4,14 @@ TEST_IMG_NAME_SPIN ?= wasmtest_spin:latest
 TEST_IMG_NAME_SLIGHT ?= wasmtest_slight:latest
 ARCH ?= x86_64
 TARGET ?= $(ARCH)-unknown-linux-musl
-
+PYTHON ?= python3
 CONTAINERD_NAMESPACE ?= default
+
+.PHONY: test
+test:
+	$(PYTHON) tests/setup.py
+	cargo test -- --nocapture
+	$(PYTHON) tests/teardown.py
 
 .PHONY: build
 build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET)

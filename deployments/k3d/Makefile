@@ -27,6 +27,9 @@ test:
 	curl localhost:8081/spin/hello 
 	curl localhost:8081/slight/hello
 
+integration: move-musl-to-tmp
+	cd ../.. && cargo test -- --nocapture
+
 clean: 
 	k3d cluster delete $(CLUSTER_NAME)
 
