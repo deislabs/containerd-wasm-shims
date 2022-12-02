@@ -7,7 +7,7 @@ use std::sync::mpsc::Sender;
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
-use anyhow::Context;
+
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
 use containerd_shim_wasm::sandbox::error::Error;
@@ -269,8 +269,11 @@ impl Instance for Wasi {
 }
 
 fn parse_addr(addr: &str) -> anyhow::Result<SocketAddr> {
-    let addrs: Vec<SocketAddr> = addr.to_socket_addrs()?.collect();
-    addrs.into_iter().next().context("couldn't resolve address")
+    let addrs: SocketAddr = addr
+        .to_socket_addrs()?
+        .next()
+        .ok_or_else(|| anyhow!("could not parse address: {}", addr))?;
+    Ok(addrs)
 }
 
 impl EngineGetter for Wasi {
