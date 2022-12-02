@@ -10,12 +10,12 @@ clap = { version = "3.1.15", features = ["derive", "env"] }
 containerd-shim = "~0.3"
 containerd-shim-wasm = { git = "https://github.com/deislabs/runwasi", branch = "main" }
 log = "~0.4"
-spin-trigger = { git = "https://github.com/fermyon/spin", rev = "96942a2d760e2989298fabf6f2141edfcb41fa30" } # main branch
-spin-app = { git = "https://github.com/fermyon/spin", rev = "96942a2d760e2989298fabf6f2141edfcb41fa30"  }
-spin-core = { git = "https://github.com/fermyon/spin", rev = "96942a2d760e2989298fabf6f2141edfcb41fa30"  }
-spin-http = { git = "https://github.com/fermyon/spin", rev = "96942a2d760e2989298fabf6f2141edfcb41fa30"  }
-spin-loader =  { git = "https://github.com/fermyon/spin", rev = "96942a2d760e2989298fabf6f2141edfcb41fa30"  }
-spin-manifest = { git = "https://github.com/fermyon/spin", rev = "96942a2d760e2989298fabf6f2141edfcb41fa30"  }
+spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v0.6.0" }
+spin-app = { git = "https://github.com/fermyon/spin", tag = "v0.6.0"  }
+spin-core = { git = "https://github.com/fermyon/spin", tag = "v0.6.0"  }
+spin-http = { git = "https://github.com/fermyon/spin", tag = "v0.6.0"  }
+spin-loader =  { git = "https://github.com/fermyon/spin", tag = "v0.6.0"  }
+spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v0.6.0"  }
 tokio = { version = "1", features = [ "rt" ] }
 tokio-util = { version = "0.6.10", features = [ "codec" ]}
 wasmtime = "^0.39"
