@@ -7,7 +7,6 @@ use std::sync::mpsc::Sender;
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
-
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
 use containerd_shim_wasm::sandbox::error::Error;
