@@ -30,6 +30,9 @@ jobs:
         run: |
           rustup target add wasm32-wasi
           rustup target add wasm32-unknown-unknown
+      - name: fmt
+        run: |
+          make fmt
       - name: build
         run: |
           make build

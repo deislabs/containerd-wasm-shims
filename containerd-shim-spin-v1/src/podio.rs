@@ -1,4 +1,7 @@
-use std::{path::PathBuf, fs::{OpenOptions, File}};
+use std::{
+    fs::{File, OpenOptions},
+    path::{Path, PathBuf},
+};
 
 use spin_trigger::TriggerHooks;
 
@@ -8,7 +11,7 @@ pub struct PodioLoggingTriggerHooks {
     stdin_pipe: Option<File>,
 }
 
-fn maybe_open_stdio(pipe_path: &PathBuf) -> Option<std::fs::File> {
+fn maybe_open_stdio(pipe_path: &Path) -> Option<std::fs::File> {
     if pipe_path.as_os_str().is_empty() {
         None
     } else {
@@ -16,14 +19,18 @@ fn maybe_open_stdio(pipe_path: &PathBuf) -> Option<std::fs::File> {
             OpenOptions::new()
                 .read(true)
                 .write(true)
-                .open(pipe_path.clone())
+                .open(pipe_path)
                 .expect("could not open pipe"),
         )
     }
 }
 
 impl PodioLoggingTriggerHooks {
-    pub fn new(stdout_pipe_path: PathBuf, stderr_pipe_path: PathBuf, stdin_pipe_path: PathBuf) -> Self {
+    pub fn new(
+        stdout_pipe_path: PathBuf,
+        stderr_pipe_path: PathBuf,
+        stdin_pipe_path: PathBuf,
+    ) -> Self {
         let stdout_pipe = maybe_open_stdio(&stdout_pipe_path);
         let stderr_pipe = maybe_open_stdio(&stderr_pipe_path);
         let stdin_pipe = maybe_open_stdio(&stdin_pipe_path);

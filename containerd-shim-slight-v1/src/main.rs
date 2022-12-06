@@ -1,25 +1,26 @@
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::Arc;
-use std::sync::{Condvar, Mutex};
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Sender;
+use std::sync::Arc;
+use std::sync::{Condvar, Mutex};
 use std::thread;
 
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
-use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
 use containerd_shim_wasm::sandbox::error::Error;
-use containerd_shim_wasm::sandbox::Instance;
 use containerd_shim_wasm::sandbox::instance::EngineGetter;
 use containerd_shim_wasm::sandbox::oci;
+use containerd_shim_wasm::sandbox::Instance;
+use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
 use log::info;
 
-use tokio::runtime::Runtime;
 use slight_lib::commands::run::handle_run;
+use tokio::runtime::Runtime;
 
+type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 pub struct Wasi {
-    exit_code: Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>,
+    exit_code: ExitCode,
     id: String,
     stdin: String,
     stdout: String,
@@ -28,17 +29,12 @@ pub struct Wasi {
     shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
 }
 
-
 pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
-    let mut spec = oci::load(Path::new(&bundle)
-        .join("config.json")
-        .to_str()
-        .unwrap())
+    let mut spec = oci::load(Path::new(&bundle).join("config.json").to_str().unwrap())
         .expect("unable to load OCI bundle");
 
     spec.canonicalize_rootfs(&bundle)
         .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {}", err)))?;
-    
 
     let working_dir = oci::get_root(&spec);
 
@@ -47,17 +43,11 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
     std::env::set_current_dir("/").unwrap();
 
     // add env to current proc
-    let env = spec
-        .process()
-        .as_ref()
-        .unwrap()
-        .env()
-        .as_ref()
-        .unwrap();
+    let env = spec.process().as_ref().unwrap().env().as_ref().unwrap();
     for v in env {
         match v.split_once('=') {
             None => {}
-            Some(t) => std::env::set_var(t.0.to_string(), t.1.to_string()),
+            Some(t) => std::env::set_var(t.0, t.1),
         };
     }
 
@@ -88,7 +78,7 @@ impl Instance for Wasi {
         let shutdown_signal = self.shutdown_signal.clone();
         let (tx, rx) = channel::<Result<(), Error>>();
         let bundle = self.bundle.clone();
-        
+
         // FIXME: redirect slight stdio to pod stdio
         let _pod_stdin = self.stdin.clone();
         let _pod_stdout = self.stdout.clone();
@@ -112,7 +102,7 @@ impl Instance for Wasi {
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
                     let toml_file_path = mod_path;
-                    
+
                     let rx_future = tokio::task::spawn_blocking(move || {
                         let (lock, cvar) = &*shutdown_signal;
                         let mut shutdown = lock.lock().unwrap();
@@ -143,8 +133,7 @@ impl Instance for Wasi {
                             *ec = Some((0, Utc::now()));
                             cvar.notify_all();
                         },
-                    }
-                    ;
+                    };
                 })
             })?;
 
@@ -184,7 +173,7 @@ impl Instance for Wasi {
     fn delete(&self) -> Result<(), Error> {
         Ok(())
     }
-    
+
     fn wait(&self, channel: Sender<(u32, DateTime<Utc>)>) -> Result<(), Error> {
         let code = self.exit_code.clone();
         thread::spawn(move || {

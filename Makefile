@@ -13,6 +13,13 @@ test:
 	cargo test -- --nocapture
 	$(PYTHON) tests/teardown.py
 
+.PHONY: fmt
+fmt: 
+	cargo fmt --all --manifest-path=containerd-shim-slight-v1/Cargo.toml -- --check
+	cargo fmt --all --manifest-path=containerd-shim-spin-v1/Cargo.toml -- --check
+	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-slight-v1/Cargo.toml -- -D warnings 
+	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-spin-v1/Cargo.toml -- -D warnings
+
 .PHONY: build
 build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET)
 	echo "Build complete"
