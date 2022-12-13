@@ -11,3 +11,6 @@ wit-error-rs = { git = "https://github.com/danbugs/wit-error-rs", rev = "05362f1
 slight-http-handler-macro = { git = "https://github.com/deislabs/spiderlightning", rev = "732acf471c8a4225b0333ee5b2085e0aaf2ef892"}
 
 [workspace]
+
+[profile.release]
+strip = true
