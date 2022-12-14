@@ -11,7 +11,10 @@ crate-type = ["cdylib"]
 anyhow = "1"
 bytes = "1"
 http = "0.2"
-spin-sdk = { git = "https://github.com/fermyon/spin", rev = "c86f027cb72f4b59b4f30cc7971950de69245f87" }
-wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "dde4694aaa6acf9370206527a798ac4ba6a8c5b8" }
+spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v0.6.0" }
+wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", rev = "cb871cfa1ee460b51eb1d144b175b9aab9c50aba" }
 
 [workspace]
+
+[profile.release]
+strip = true
