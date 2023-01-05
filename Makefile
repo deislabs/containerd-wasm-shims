@@ -8,7 +8,15 @@ PYTHON ?= python3
 CONTAINERD_NAMESPACE ?= default
 
 .PHONY: test
-test:
+test: unit-tests integration-tests
+
+.PHONY: unit-tests
+unit-tests:
+	cargo test --manifest-path=containerd-shim-slight-v1/Cargo.toml
+	cargo test --manifest-path=containerd-shim-spin-v1/Cargo.toml
+
+.PHONY: integration-tests
+integration-tests:
 	$(PYTHON) tests/setup.py
 	cargo test -- --nocapture
 	$(PYTHON) tests/teardown.py
@@ -17,7 +25,7 @@ test:
 fmt: 
 	cargo fmt --all --manifest-path=containerd-shim-slight-v1/Cargo.toml -- --check
 	cargo fmt --all --manifest-path=containerd-shim-spin-v1/Cargo.toml -- --check
-	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-slight-v1/Cargo.toml -- -D warnings 
+	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-slight-v1/Cargo.toml -- -D warnings
 	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-spin-v1/Cargo.toml -- -D warnings
 
 .PHONY: build
@@ -76,7 +84,15 @@ run_slight: install load
 	sudo ctr run --net-host --rm --runtime=io.containerd.slight.v1 docker.io/library/$(TEST_IMG_NAME_SLIGHT) testslight
 
 .PHONY: clean
-clean:
-	sudo rm -rf $(PREFIX)/bin/containerd-shim-spin-v1
-	sudo rm -rf $(PREFIX)/bin/containerd-shim-slight-v1
-	sudo rm -rf ./test
+clean: clean-slight clean-spin
+	test -f $(PREFIX)/bin/containerd-shim-spin-v1 && sudo rm -rf $(PREFIX)/bin/containerd-shim-spin-v1 || true
+	test -f  $(PREFIX)/bin/containerd-shim-slight-v1 && sudo rm -rf $(PREFIX)/bin/containerd-shim-slight-v1 || true
+	test -d ./test && sudo rm -rf ./test || true
+
+.PHONY: clean-spin
+clean-spin:
+	cargo clean --manifest-path containerd-shim-spin-v1/Cargo.toml
+
+.PHONY: clean-slight
+clean-slight:
+	cargo clean --manifest-path containerd-shim-slight-v1/Cargo.toml
