@@ -1,16 +1,9 @@
-use std::time::Duration;
-
 use anyhow::Result;
-
-use common::{k_apply, list_pods, random_payload, retry_get, retry_put, setup_test, teardown_test};
-
+use common::{list_pods, random_payload, retry_get, retry_put};
 mod common;
 
-static WORKLOAD_PATH: &str = "deployments/workloads";
-
-static CLUSTER_SETUP_TIME: u64 = 30;
-static RETRY_TIMES: u32 = 5;
-static INTERVAL_IN_SECS: u64 = 10;
+const RETRY_TIMES: u32 = 5;
+const INTERVAL_IN_SECS: u64 = 10;
 
 #[tokio::test]
 async fn slight_test() -> Result<()> {
