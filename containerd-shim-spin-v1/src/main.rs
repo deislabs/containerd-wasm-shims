@@ -1,5 +1,6 @@
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
+use std::option::Option;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
@@ -7,26 +8,28 @@ use std::sync::mpsc::Sender;
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
+use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
-use containerd_shim_wasm::sandbox::error::Error;
-use containerd_shim_wasm::sandbox::instance::EngineGetter;
-use containerd_shim_wasm::sandbox::oci;
-use containerd_shim_wasm::sandbox::Instance;
-use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
+use containerd_shim_wasm::sandbox::{
+    error::Error,
+    instance::{EngineGetter, InstanceConfig},
+    oci, Instance, ShimCli,
+};
 use log::info;
+use reqwest::Url;
 use spin_http::HttpTrigger;
 use spin_manifest::Application;
-use spin_trigger::{loader, TriggerExecutor, TriggerExecutorBuilder};
-
-use anyhow::{anyhow, Result};
-use reqwest::Url;
+use spin_trigger::{
+    config::TriggerExecutorBuilderConfig, loader, TriggerExecutor, TriggerExecutorBuilder,
+};
 use tokio::runtime::Runtime;
 use wasmtime::OptLevel;
 
 mod podio;
 
-static SPIN_ADDR: &str = "0.0.0.0:80";
+const SPIN_ADDR: &str = "0.0.0.0:80";
+const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
@@ -57,7 +60,7 @@ impl Wasi {
         mod_path: PathBuf,
         working_dir: PathBuf,
     ) -> Result<Application, Error> {
-        Ok(spin_loader::from_file(mod_path, working_dir, &None).await?)
+        Ok(spin_loader::from_file(mod_path, Some(working_dir), &None).await?)
     }
 
     async fn build_spin_trigger(
@@ -78,7 +81,7 @@ impl Wasi {
             .to_string();
 
         // Build trigger config
-        let loader = loader::TriggerLoader::new(working_dir, true);
+        let loader = loader::TriggerLoader::new(working_dir.clone(), true);
 
         let executor: HttpTrigger = {
             let mut builder = TriggerExecutorBuilder::<HttpTrigger>::new(loader);
@@ -93,8 +96,12 @@ impl Wasi {
                 stdin_pipe_path,
             );
             builder.hooks(logging_hooks);
-
-            builder.build(locked_url).await?
+            let runtime_config = working_dir.clone().join(RUNTIME_CONFIG_FILE_PATH);
+            let trigger_config = match runtime_config.as_path().try_exists() {
+                Ok(true) => TriggerExecutorBuilderConfig::load_from_file(Some(runtime_config))?,
+                _ => TriggerExecutorBuilderConfig::load_from_file(None)?,
+            };
+            builder.build(locked_url, trigger_config).await?
         };
 
         Ok(executor)
@@ -210,7 +217,7 @@ impl Instance for Wasi {
                             *ec = Some((0, Utc::now()));
                             cvar.notify_all();
                         },
-                    };
+                    }
                 })
             })?;
 
@@ -267,7 +274,7 @@ impl Instance for Wasi {
     }
 }
 
-fn parse_addr(addr: &str) -> anyhow::Result<SocketAddr> {
+fn parse_addr(addr: &str) -> Result<SocketAddr> {
     let addrs: SocketAddr = addr
         .to_socket_addrs()?
         .next()
@@ -284,4 +291,16 @@ impl EngineGetter for Wasi {
 
 fn main() {
     shim::run::<ShimCli<Wasi, _>>("io.containerd.spin.v1", None);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_parse_spin_address() {
+        let parsed = parse_addr(SPIN_ADDR).unwrap();
+        assert_eq!(parsed.clone().port(), 80);
+        assert_eq!(parsed.ip().to_string(), "0.0.0.0");
+    }
 }
