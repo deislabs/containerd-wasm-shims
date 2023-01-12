@@ -1,0 +1,14 @@
+spin_version = "1"
+authors = ["DeisLabs Engineering Team"]
+name = "spin-outbound-redis"
+trigger = { type = "http", base = "/" }
+version = "1.0.0"
+
+[[component]]
+environment = { REDIS_ADDRESS = "redis://localhost:6380", REDIS_CHANNEL = "messages" }
+id = "hello"
+source = "spin_outbound_redis.wasm"
+[component.trigger]
+route = "/hello"
+[component.build]
+command = "cargo build --target wasm32-wasi --release"
