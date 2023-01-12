@@ -10,3 +10,9 @@ id = "hello"
 source = "spin_rust_hello.wasm"
 [component.trigger]
 route = "/hello"
+
+[[component]]
+id = "go-hello"
+source = "spin_go_hello.wasm"
+[component.trigger]
+route = "/go-hello"
