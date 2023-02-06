@@ -48,7 +48,7 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
         .expect("unable to load OCI bundle");
 
     spec.canonicalize_rootfs(&bundle)
-        .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {}", err)))?;
+        .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {err}")))?;
 
     let working_dir = oci::get_root(&spec);
     let mod_path = working_dir.join("spin.toml");
@@ -176,8 +176,7 @@ impl Instance for Wasi {
                         Ok(http_trigger) => http_trigger,
                         Err(err) => {
                             tx.send(Err(Error::Others(format!(
-                                "could not build spin trigger: {}",
-                                err
+                                "could not build spin trigger: {err}"
                             ))))
                             .unwrap();
                             return;
@@ -225,7 +224,7 @@ impl Instance for Wasi {
         match rx.recv().unwrap() {
             Ok(_) => (),
             Err(err) => {
-                info!(" >>> error starting instance: {}", err);
+                info!(" >>> error starting instance: {err}");
                 let code = self.exit_code.clone();
 
                 let (lock, cvar) = &*code;

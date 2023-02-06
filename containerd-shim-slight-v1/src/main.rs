@@ -34,7 +34,7 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
         .expect("unable to load OCI bundle");
 
     spec.canonicalize_rootfs(&bundle)
-        .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {}", err)))?;
+        .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {err}")))?;
 
     let working_dir = oci::get_root(&spec);
 
