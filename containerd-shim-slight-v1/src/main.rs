@@ -156,9 +156,9 @@ impl Instance for Wasi {
     }
 
     fn kill(&self, signal: u32) -> Result<(), Error> {
-        if signal != 9 {
+        if signal != 9 && signal != 2 {
             return Err(Error::InvalidArgument(
-                "only SIGKILL is supported".to_string(),
+                "only SIGKILL and SIGINT are supported".to_string(),
             ));
         }
 
