@@ -41,7 +41,7 @@ jobs:
         run: make install-k3d
         working-directory: ./deployments/k3d
       - name: run integration tests
-        run: make test
+        run: ARCH=${{matrix.config.arch}} make test
       - name: lowercase the runner OS name
         shell: bash
         run: |

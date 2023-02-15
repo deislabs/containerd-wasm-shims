@@ -12,8 +12,8 @@ test: unit-tests integration-tests
 
 .PHONY: unit-tests
 unit-tests:
-	cargo test --manifest-path=containerd-shim-slight-v1/Cargo.toml
-	cargo test --manifest-path=containerd-shim-spin-v1/Cargo.toml
+	cross test --release --manifest-path=containerd-shim-slight-v1/Cargo.toml --target $(TARGET)
+	cross test --release --manifest-path=containerd-shim-spin-v1/Cargo.toml --target $(TARGET)
 
 .PHONY: integration-tests
 integration-tests:
@@ -32,14 +32,6 @@ fmt:
 build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET)
 	echo "Build complete"
 
-.PHONY: build-spin
-build-spin:
-	cargo build --release --manifest-path=containerd-shim-spin-v1/Cargo.toml
-
-.PHONY: build-slight
-build-slight:
-	cargo build --release --manifest-path=containerd-shim-slight-v1/Cargo.toml
-
 .PHONY: install-cross
 install-cross:
 	@if [ -z $$(which cross) ]; then cargo install cross --git https://github.com/cross-rs/cross; fi
@@ -52,6 +44,14 @@ build-spin-cross-%: install-cross
 .PHONY: build-slight-cross-%
 build-slight-cross-%: install-cross
 	cross build --release --target $* --manifest-path=containerd-shim-slight-v1/Cargo.toml
+
+.PHONY: build-spin
+build-spin:
+	cargo build --release --manifest-path=containerd-shim-spin-v1/Cargo.toml
+
+.PHONY: build-slight
+build-slight:
+	cargo build --release --manifest-path=containerd-shim-slight-v1/Cargo.toml
 
 .PHONY: install
 install: build-spin build-slight
