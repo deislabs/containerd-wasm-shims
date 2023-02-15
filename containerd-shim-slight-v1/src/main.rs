@@ -7,6 +7,7 @@ use std::sync::{Condvar, Mutex};
 use std::thread;
 
 use chrono::{DateTime, Utc};
+use clap::Parser;
 use containerd_shim as shim;
 use containerd_shim_wasm::sandbox::error::Error;
 use containerd_shim_wasm::sandbox::instance::EngineGetter;
@@ -17,6 +18,11 @@ use log::info;
 
 use slight_lib::commands::run::handle_run;
 use tokio::runtime::Runtime;
+
+/// Helper for passing VERSION to opt.
+fn version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 pub struct Wasi {
@@ -197,6 +203,12 @@ impl EngineGetter for Wasi {
     }
 }
 
+/// The slight shim
+#[derive(Parser, Debug)]
+#[command(version = version())]
+struct Args {}
+
 fn main() {
+    Args::parse();
     shim::run::<ShimCli<Wasi, _>>("io.containerd.slight.v1", None);
 }

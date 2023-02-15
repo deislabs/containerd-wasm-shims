@@ -527,13 +527,28 @@ checksum = "71655c45cb9845d3270c9d6df84ebe72b4dad3c2ba3f7023ad47c144e4e473a5"
 dependencies = [
  "atty",
  "bitflags",
- "clap_derive",
- "clap_lex",
+ "clap_derive 3.2.18",
+ "clap_lex 0.2.4",
  "indexmap",
  "once_cell",
  "strsim",
  "termcolor",
  "textwrap",
+]
+
+[[package]]
+name = "clap"
+version = "4.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f13b9c79b5d1dd500d20ef541215a6423c75829ef43117e1b4d17fd8af0b5d76"
+dependencies = [
+ "bitflags",
+ "clap_derive 4.1.0",
+ "clap_lex 0.3.1",
+ "is-terminal 0.4.2",
+ "once_cell",
+ "strsim",
+ "termcolor",
 ]
 
 [[package]]
@@ -550,10 +565,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "clap_derive"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "684a277d672e91966334af371f1a7b5833f9aa00b07c84e92fbce95e00208ce8"
+dependencies = [
+ "heck 0.4.0",
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "clap_lex"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "783fe232adfca04f90f56201b26d79682d4cd2625e0bc7290b95123afe558ade"
 dependencies = [
  "os_str_bytes",
 ]
@@ -662,7 +699,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "chrono",
- "clap",
+ "clap 4.1.4",
  "containerd-shim",
  "containerd-shim-wasm",
  "log",
@@ -1871,6 +1908,18 @@ dependencies = [
  "io-lifetimes 0.7.5",
  "rustix 0.35.13",
  "windows-sys 0.36.1",
+]
+
+[[package]]
+name = "is-terminal"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28dfb6c8100ccc63462345b67d1bbc3679177c75ee4bf59bf29c8b1d110b8189"
+dependencies = [
+ "hermit-abi 0.2.6",
+ "io-lifetimes 1.0.3",
+ "rustix 0.36.6",
+ "windows-sys 0.42.0",
 ]
 
 [[package]]
@@ -3721,7 +3770,7 @@ source = "git+https://github.com/fermyon/spin?tag=v0.7.1#6cf7447036b7c9238cfa638
 dependencies = [
  "anyhow",
  "async-trait",
- "clap",
+ "clap 3.2.23",
  "futures",
  "futures-util",
  "http",
@@ -3786,7 +3835,7 @@ source = "git+https://github.com/fermyon/spin?tag=v0.7.1#6cf7447036b7c9238cfa638
 dependencies = [
  "anyhow",
  "async-trait",
- "clap",
+ "clap 3.2.23",
  "ctrlc",
  "dirs",
  "futures",
@@ -4454,7 +4503,7 @@ dependencies = [
  "fs-set-times 0.17.1",
  "io-extras 0.15.0",
  "io-lifetimes 0.7.5",
- "is-terminal",
+ "is-terminal 0.3.0",
  "once_cell",
  "rustix 0.35.13",
  "system-interface",

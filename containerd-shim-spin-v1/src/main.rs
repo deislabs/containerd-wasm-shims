@@ -9,6 +9,7 @@ use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
 use anyhow::{anyhow, Result};
+use clap::Parser;
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
 use containerd_shim_wasm::sandbox::{
@@ -30,6 +31,11 @@ mod podio;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
 const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
+
+/// Helper for passing VERSION to opt.
+fn version() -> &'static str {
+    env!("CARGO_PKG_VERSION")
+}
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
@@ -288,7 +294,13 @@ impl EngineGetter for Wasi {
     }
 }
 
+/// The spin shim
+#[derive(Parser, Debug)]
+#[command(version = version())]
+struct Args {}
+
 fn main() {
+    Args::parse();
     shim::run::<ShimCli<Wasi, _>>("io.containerd.spin.v1", None);
 }
 

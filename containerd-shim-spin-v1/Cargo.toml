@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 chrono = "~0.4"
-clap = { version = "3.1.15", features = ["derive", "env"] }
+clap = { version = "4", features = ["derive", "env"] }
 containerd-shim = "~0.3"
 containerd-shim-wasm = { git = "https://github.com/deislabs/runwasi", branch = "main" }
 log = "~0.4"
