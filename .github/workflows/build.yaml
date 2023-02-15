@@ -30,6 +30,10 @@ jobs:
         run: |
           rustup target add wasm32-wasi
           rustup target add wasm32-unknown-unknown
+      - name: "Install dependencies"
+        run: |
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler -y
       - name: build
         run: |
           make build
