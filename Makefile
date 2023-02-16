@@ -54,8 +54,8 @@ build-slight-cross-%: install-cross
 	cross build --release --target $* --manifest-path=containerd-shim-slight-v1/Cargo.toml
 
 .PHONY: install
-install: build-spin build-slight
-	sudo $(INSTALL) target/release/containerd-shim-*-v1 $(PREFIX)/bin
+install: build
+	sudo $(INSTALL) ./containerd-shim*/target/$(TARGET)/release/containerd-shim-*-v1 $(PREFIX)/bin
 
 .PHONY: update-deps
 update-deps:
