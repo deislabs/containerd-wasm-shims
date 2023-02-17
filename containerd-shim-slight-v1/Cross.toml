@@ -2,7 +2,7 @@
 default-target = "x86_64-unknown-linux-musl"
 
 [target.x86_64-unknown-linux-musl]
-pre-build = ["apt-get update && apt-get install --assume-yes protobuf-compiler"]
+dockerfile = "./containerd-shim-slight-v1/Dockerfile"
 
 [target.aarch64-unknown-linux-musl]
-pre-build = ["apt-get update && apt-get install --assume-yes protobuf-compiler"]
+dockerfile = "./containerd-shim-slight-v1/Dockerfile"
