@@ -11,12 +11,12 @@ CONTAINERD_NAMESPACE ?= default
 test: unit-tests integration-tests
 
 .PHONY: unit-tests
-unit-tests:
+unit-tests: build
 	cross test --release --manifest-path=containerd-shim-slight-v1/Cargo.toml --target $(TARGET)
 	cross test --release --manifest-path=containerd-shim-spin-v1/Cargo.toml --target $(TARGET)
 
 .PHONY: integration-tests
-integration-tests:
+integration-tests: build
 	$(PYTHON) tests/setup.py
 	cargo test -- --nocapture
 	$(PYTHON) tests/teardown.py
@@ -39,11 +39,11 @@ install-cross:
 # build-cross can be be used to build any cross supported target (make build-cross-x86_64-unknown-linux-musl)
 .PHONY: build-spin-cross-%
 build-spin-cross-%: install-cross
-	cross build --release --target $* --manifest-path=containerd-shim-spin-v1/Cargo.toml
+	cross build --release --target $* --manifest-path=containerd-shim-spin-v1/Cargo.toml -vvv
 
 .PHONY: build-slight-cross-%
 build-slight-cross-%: install-cross
-	cross build --release --target $* --manifest-path=containerd-shim-slight-v1/Cargo.toml
+	cross build --release --target $* --manifest-path=containerd-shim-slight-v1/Cargo.toml -vvv
 
 .PHONY: build-spin
 build-spin:

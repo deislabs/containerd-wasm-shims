@@ -31,14 +31,12 @@ def setup_test():
         which(slight_shim_path)
     except RuntimeError:
         print(">>> install containerd-shim-slight-v1")
-        os.system("cross build --target x86_64-unknown-linux-musl --release --manifest-path=containerd-shim-slight-v1/Cargo.toml -vvv")
         os.system(f"mv containerd-shim-slight-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-slight-v1 {bin_path}")
     
     try:
         which(spin_shim_path)
     except RuntimeError:
         print(">>> install containerd-shim-spin-v1")
-        os.system("cross build --target x86_64-unknown-linux-musl --release --manifest-path=containerd-shim-spin-v1/Cargo.toml -vvv")
         os.system(f"mv containerd-shim-spin-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-spin-v1 {bin_path}")
 
     # build the docker image
