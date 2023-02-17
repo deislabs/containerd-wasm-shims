@@ -1,0 +1,29 @@
+/// a keyvalue interface
+resource keyvalue {
+	/// open a key-value store
+	static open: func(name: string) -> expected<keyvalue, keyvalue-error>
+
+	/// get the payload for a given key
+	get: func(key: string) -> expected<list<u8>, keyvalue-error> 
+
+	/// set the payload for a given key
+	set: func(key: string, value: list<u8>) -> expected<unit, keyvalue-error>
+
+	/// list the keys in the store
+	keys: func() -> expected<list<string>, keyvalue-error>
+
+	/// delete the payload for a given key
+	delete: func(key:string) -> expected<unit, keyvalue-error>
+}
+
+/// common keyvalue errors
+variant keyvalue-error {
+	key-not-found(string),
+	invalid-key(string),
+	invalid-value(string),
+	connection-error(string),
+	authentication-error(string),
+	timeout-error(string),
+	io-error(string),
+	unexpected-error(string)
+}
