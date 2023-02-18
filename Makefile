@@ -17,7 +17,7 @@ unit-tests: build
 
 .PHONY: integration-tests
 integration-tests: build
-	$(PYTHON) tests/setup.py
+	$(PYTHON) tests/setup.py $(TARGET)
 	cargo test -- --nocapture
 	$(PYTHON) tests/teardown.py
 
