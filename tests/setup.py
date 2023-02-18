@@ -74,8 +74,10 @@ def setup_test(target):
     print(">>> apply workloads")
     os.system("kubectl apply -f tests/workloads")
     
-    # wait for 30 seconds
-    time.sleep(30)
+    # wait for 45 seconds
+    time.sleep(45)
+
+    os.system("kubectl descirbe pods")
 
     print(">>> cluster is ready")
 
