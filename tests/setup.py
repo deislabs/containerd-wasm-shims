@@ -22,6 +22,7 @@ def setup_test():
     bin_path = "deployments/k3d/.tmp/"
     slight_shim_path = "deployments/k3d/.tmp/containerd-shim-slight-v1"
     spin_shim_path = "deployments/k3d/.tmp/containerd-shim-spin-v1"
+    cluster_name = "test-cluster"
     
     # create bin_path if not exists
     if not os.path.exists(bin_path):
@@ -43,7 +44,7 @@ def setup_test():
     os.system(f"docker build -t k3d-shim-test {dockerfile_path}")
 
     # create the cluster
-    os.system("k3d cluster create test-cluster --image k3d-shim-test --api-port 6551 -p '8082:80@loadbalancer' --agents 2")
+    os.system(f"k3d cluster create {cluster_name} --image k3d-shim-test --api-port 6551 -p '8082:80@loadbalancer' --agents 2")
 
     # wait for the cluster to be ready
     os.system("kubectl wait --for=condition=ready node --all --timeout=120s")
@@ -52,13 +53,19 @@ def setup_test():
     os.system("docker buildx build -t slight-hello-world:latest ./images/slight --load")
     os.system("docker buildx build -t spin-hello-world:latest ./images/spin --load")
     
+    # create dir if not exists
+    if not os.path.exists("test/out_slight"):
+        os.makedirs("test/out_slight")
+    if not os.path.exists("test/out_spin"):
+        os.makedirs("test/out_spin")
+    
     # save docker images to tar ball
     os.system("docker save -o test/out_slight/img.tar slight-hello-world:latest")
     os.system("docker save -o test/out_spin/img.tar spin-hello-world:latest")
 
     # load tar ball to k3d cluster
-    os.system("k3d image import test/out_slight/img.tar -c test-cluster")
-    os.system("k3d image import test/out_spin/img.tar -c test-cluster")
+    os.system(f"k3d image import test/out_slight/img.tar -c {cluster_name}")
+    os.system(f"k3d image import test/out_spin/img.tar -c {cluster_name}")
 
     # wait for 10 seconds
     time.sleep(10)
