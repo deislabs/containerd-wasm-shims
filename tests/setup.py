@@ -32,13 +32,13 @@ def setup_test():
         which(slight_shim_path)
     except RuntimeError:
         print(">>> install containerd-shim-slight-v1")
-        os.system(f"mv containerd-shim-slight-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-slight-v1 {bin_path}")
+        os.system(f"cp containerd-shim-slight-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-slight-v1 {bin_path}/containerd-shim-slight-v1")
     
     try:
         which(spin_shim_path)
     except RuntimeError:
         print(">>> install containerd-shim-spin-v1")
-        os.system(f"mv containerd-shim-spin-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-spin-v1 {bin_path}")
+        os.system(f"cp containerd-shim-spin-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-spin-v1 {bin_path}/containerd-shim-spin-v1")
 
     # build the docker image
     os.system(f"docker build -t k3d-shim-test {dockerfile_path}")
