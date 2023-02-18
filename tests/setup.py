@@ -23,6 +23,9 @@ def setup_test():
     slight_shim_path = "deployments/k3d/.tmp/containerd-shim-slight-v1"
     spin_shim_path = "deployments/k3d/.tmp/containerd-shim-spin-v1"
     cluster_name = "test-cluster"
+
+    # read ARCH env var
+    ARCH = os.environ.get("ARCH", "x86_64")
     
     # create bin_path if not exists
     if not os.path.exists(bin_path):
@@ -32,13 +35,13 @@ def setup_test():
         which(slight_shim_path)
     except RuntimeError:
         print(">>> install containerd-shim-slight-v1")
-        os.system(f"cp containerd-shim-slight-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-slight-v1 {bin_path}/containerd-shim-slight-v1")
+        os.system(f"cp containerd-shim-slight-v1/target/{ARCH}-unknown-linux-musl/release/containerd-shim-slight-v1 {bin_path}/containerd-shim-slight-v1")
     
     try:
         which(spin_shim_path)
     except RuntimeError:
         print(">>> install containerd-shim-spin-v1")
-        os.system(f"cp containerd-shim-spin-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-spin-v1 {bin_path}/containerd-shim-spin-v1")
+        os.system(f"cp containerd-shim-spin-v1/target/{ARCH}-unknown-linux-musl/release/containerd-shim-spin-v1 {bin_path}/containerd-shim-spin-v1")
 
     # build the docker image
     os.system(f"docker build -t k3d-shim-test {dockerfile_path}")
