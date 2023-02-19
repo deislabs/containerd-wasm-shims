@@ -77,7 +77,7 @@ def setup_test(target):
     # wait for 45 seconds
     time.sleep(45)
 
-    os.system("kubectl descirbe pods")
+    os.system("kubectl describe pods")
 
     print(">>> cluster is ready")
 
