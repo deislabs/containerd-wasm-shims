@@ -3,8 +3,12 @@ name = "containerd-shim-slight-v1"
 version = "0.4.0"
 authors = ["DeisLabs Engineering Team"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = 'https://github.com/deislabs/containerd-wasm-shims'
+license = "Apache-2.0"
+homepage = 'https://github.com/deislabs/containerd-wasm-shims'
+description = """
+Containerd shim for running Slight workloads.
+"""
 
 [dependencies]
 chrono = "~0.4"
