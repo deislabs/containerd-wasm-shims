@@ -5,6 +5,49 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
+  rustfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            "containerd-shim-slight-v1 -> target"
+            "containerd-shim-spin-v1 -> target"
+      - name: "Install Rust Wasm targets"
+        run: |
+          rustup target add wasm32-wasi
+          rustup target add wasm32-unknown-unknown
+      - name: "Install dependencies"
+        run: |
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler -y
+      - name: fmt
+        run: |
+          make fmt
   build:
     uses: ./.github/workflows/build.yaml
-      
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ARCH: x86_64
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            "containerd-shim-slight-v1 -> target"
+            "containerd-shim-spin-v1 -> target"
+      - name: "Install Rust Wasm targets"
+        run: |
+          rustup target add wasm32-wasi
+          rustup target add wasm32-unknown-unknown
+      - name: "Install dependencies"
+        run: |
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler -y
+      - name: install k3d
+        run: make install-k3d
+        working-directory: ./deployments/k3d
+      - name: run integration tests
+        run: make test

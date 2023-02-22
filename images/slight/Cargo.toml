@@ -8,7 +8,7 @@ edition = "2021"
 anyhow = "1"
 wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", tag = "v0.2.0" }
 wit-error-rs = { git = "https://github.com/danbugs/wit-error-rs", rev = "05362f1a4a3a9dc6a1de39195e06d2d5d6491a5e" }
-slight-http-handler-macro = { git = "https://github.com/deislabs/spiderlightning", rev = "732acf471c8a4225b0333ee5b2085e0aaf2ef892"}
+slight-http-handler-macro = { git = "https://github.com/deislabs/spiderlightning", branch = "main"}
 
 [workspace]
 

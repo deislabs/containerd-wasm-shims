@@ -30,17 +30,13 @@ jobs:
         run: |
           rustup target add wasm32-wasi
           rustup target add wasm32-unknown-unknown
-      - name: fmt
+      - name: "Install dependencies"
         run: |
-          make fmt
+          sudo apt-get update
+          sudo apt-get install protobuf-compiler -y
       - name: build
         run: |
           make build
-      - name: install k3d
-        run: make install-k3d
-        working-directory: ./deployments/k3d
-      - name: run integration tests
-        run: make test
       - name: lowercase the runner OS name
         shell: bash
         run: |

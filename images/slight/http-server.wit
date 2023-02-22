@@ -1,0 +1,38 @@
+use { uri, http-status } from http-types
+
+/// HTTP errors returned by the runtime.
+variant http-router-error {
+    invalid-url(string),
+    timeout-error(string),
+    protocol-error(string),
+    status-error(http-status),
+    unexpected-error(string)
+}
+
+resource router {
+	/// create a new HTTP router
+	static new: func() -> expected<router, http-router-error>
+
+    /// create a new HTTP router
+	static new-with-base: func(base: uri) -> expected<router, http-router-error>
+
+	/// register a HTTP GET route
+	get: func(route: string, handler: string) -> expected<router, http-router-error>
+
+	/// register a HTTP PUT route
+	put: func(route: string, handler: string) -> expected<router, http-router-error>
+
+	/// register a HTTP POST route
+	post: func(route: string, handler: string) -> expected<router, http-router-error>
+
+	/// register a HTTP DELETE route
+	delete: func(route: string, handler: string) -> expected<router, http-router-error>
+}
+
+resource server {
+	/// create a new HTTP server and serve the given router
+    static serve: func(address: string, router: router) -> expected<server, http-router-error> // non-blocking
+
+	/// stop the server
+    stop: func() -> expected<unit, http-router-error>
+}

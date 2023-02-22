@@ -1,4 +1,0 @@
-record observable {
-	rd: string,
-	key: string,
-}
