@@ -1,8 +1,14 @@
 [package]
 name = "containerd-shim-spin-v1"
-version = "0.1.0"
+version = "0.4.0"
 authors = ["DeisLabs Engineering Team"]
 edition = "2021"
+repository = 'https://github.com/deislabs/containerd-wasm-shims'
+license = "Apache-2.0"
+homepage = 'https://github.com/deislabs/containerd-wasm-shims'
+description = """
+Containerd shim for running Spin workloads.
+"""
 
 [dependencies]
 chrono = "~0.4"
@@ -26,4 +32,5 @@ url = "2.2.2"
 reqwest = { version = "0.11", features = ["stream"] }
 anyhow = "1.0"
 async-trait = "0.1"
+
 [workspace]
