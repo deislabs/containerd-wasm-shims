@@ -55,7 +55,7 @@ build-slight:
 
 .PHONY: install
 install: build-spin build-slight
-	sudo $(INSTALL) target/release/containerd-shim-*-v1 $(PREFIX)/bin
+	sudo $(INSTALL) containerd-shim-*/target/release/containerd-shim-*-v1 $(PREFIX)/bin
 
 .PHONY: update-deps
 update-deps:
