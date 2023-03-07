@@ -1750,19 +1750,6 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a12e6657c4c97ebab115a42dcee77225f7f482cdd841cf7088c657a42e9e00e7"
-dependencies = [
- "atty",
- "humantime",
- "log",
- "regex",
- "termcolor",
-]
-
-[[package]]
-name = "env_logger"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85cdab6a89accf66733ad5a1693a4dcced6aeff64602b634530dd73c1f3ee9f0"
@@ -1838,7 +1825,7 @@ version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84f2e425d9790201ba4af4630191feac6dcc98765b118d4d18e91d23c2353866"
 dependencies = [
- "env_logger 0.10.0",
+ "env_logger",
  "log",
 ]
 
@@ -4046,17 +4033,17 @@ checksum = "03b634d87b960ab1a38c4fe143b508576f075e7c978bfad18217645ebfdfa2ec"
 
 [[package]]
 name = "slight"
-version = "0.3.1"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+version = "0.3.2"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "as-any",
  "clap 4.1.6",
- "env_logger 0.9.3",
  "flate2",
  "log",
  "reqwest",
  "slight-common",
+ "slight-core",
  "slight-distributed-locking",
  "slight-http-client",
  "slight-http-server",
@@ -4065,7 +4052,6 @@ dependencies = [
  "slight-runtime",
  "slight-runtime-configs",
  "slight-sql",
- "spiderlightning",
  "tar",
  "tokio",
  "toml",
@@ -4077,7 +4063,7 @@ dependencies = [
 [[package]]
 name = "slight-common"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "as-any",
@@ -4087,9 +4073,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "slight-core"
+version = "0.3.2"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
+dependencies = [
+ "anyhow",
+ "clap 4.1.6",
+ "rand 0.8.5",
+ "semver 1.0.16",
+ "serde",
+ "short-crypt",
+ "toml",
+]
+
+[[package]]
 name = "slight-distributed-locking"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4106,7 +4106,7 @@ dependencies = [
 [[package]]
 name = "slight-http-api"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4119,7 +4119,7 @@ dependencies = [
 [[package]]
 name = "slight-http-client"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4132,7 +4132,7 @@ dependencies = [
 [[package]]
 name = "slight-http-server"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "crossbeam-channel",
@@ -4153,7 +4153,7 @@ dependencies = [
 [[package]]
 name = "slight-keyvalue"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4177,7 +4177,7 @@ dependencies = [
 [[package]]
 name = "slight-messaging"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-channel",
@@ -4201,7 +4201,7 @@ dependencies = [
 [[package]]
 name = "slight-runtime"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "as-any",
@@ -4221,7 +4221,7 @@ dependencies = [
 [[package]]
 name = "slight-runtime-configs"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4230,7 +4230,7 @@ dependencies = [
  "regex",
  "short-crypt",
  "slight-common",
- "spiderlightning",
+ "slight-core",
  "toml",
  "tracing",
  "wit-bindgen-wasmtime 0.2.0 (git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0)",
@@ -4240,7 +4240,7 @@ dependencies = [
 [[package]]
 name = "slight-sql"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
+source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.2#5ec5324f513265e651f7bcf962a2edddedc75b22"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4279,18 +4279,6 @@ checksum = "02e2d2db9033d13a1567121ddd7a095ee144db4e1ca1b1bda3419bc0da294ebd"
 dependencies = [
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "spiderlightning"
-version = "0.3.1"
-source = "git+https://github.com/deislabs/spiderlightning?tag=v0.3.1#061d7b5c073a1f3b1b016509199ff4111c63ad0f"
-dependencies = [
- "anyhow",
- "rand 0.8.5",
- "serde",
- "short-crypt",
- "toml",
 ]
 
 [[package]]
