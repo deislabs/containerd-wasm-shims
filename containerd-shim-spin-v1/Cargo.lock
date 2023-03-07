@@ -658,8 +658,9 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-wasm"
-version = "0.1.0"
-source = "git+https://github.com/containerd/runwasi?branch=main#5037950bee1e8a616b0dd1a85daef4757a976e14"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "616df9e7d24526784140455fe593cecd168d04bc089c478ec3ab293a0ac39aa0"
 dependencies = [
  "anyhow",
  "caps",
@@ -675,7 +676,6 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
- "thirdparty",
  "thiserror",
  "ttrpc",
 ]
@@ -4021,15 +4021,6 @@ name = "textwrap"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "222a222a5bfe1bba4a77b45ec488a741b3cb8872e5e499451fd7d0129c9c7c3d"
-
-[[package]]
-name = "thirdparty"
-version = "0.1.0"
-source = "git+https://github.com/containerd/runwasi?branch=main#5037950bee1e8a616b0dd1a85daef4757a976e14"
-dependencies = [
- "nix 0.26.2",
- "oci-spec 0.6.0",
-]
 
 [[package]]
 name = "thiserror"
