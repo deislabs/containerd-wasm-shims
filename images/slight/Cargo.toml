@@ -1,16 +1,18 @@
 [package]
-name = "slight"
+name = "http-server-lib"
 version = "0.1.0"
-authors = ["DeisLabs Engineering Team"]
 edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
 
 [dependencies]
 anyhow = "1"
-wit-bindgen-rust = { git = "https://github.com/bytecodealliance/wit-bindgen", tag = "v0.2.0" }
+wit-bindgen-rust = { git = "https://github.com/fermyon/wit-bindgen-backport" }
 wit-error-rs = { git = "https://github.com/danbugs/wit-error-rs", rev = "05362f1a4a3a9dc6a1de39195e06d2d5d6491a5e" }
-slight-http-handler-macro = { git = "https://github.com/deislabs/spiderlightning", tag = "v0.3.2"}
+slight-http-handler-macro = { git = "https://github.com/deislabs/spiderlightning", version = "0.1.0" }
+slight-http-server-macro = { git = "https://github.com/deislabs/spiderlightning", version = "0.1.0" }
+tracing = { version = "0.1", features = ["log"] }
 
 [workspace]
-
-[profile.release]
-strip = true

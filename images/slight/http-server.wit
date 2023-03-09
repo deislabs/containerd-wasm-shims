@@ -1,13 +1,4 @@
-use { uri, http-status } from http-types
-
-/// HTTP errors returned by the runtime.
-variant http-router-error {
-    invalid-url(string),
-    timeout-error(string),
-    protocol-error(string),
-    status-error(http-status),
-    unexpected-error(string)
-}
+use { uri, http-status, http-router-error } from http-types
 
 resource router {
 	/// create a new HTTP router

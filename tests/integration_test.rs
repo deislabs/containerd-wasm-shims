@@ -26,20 +26,20 @@ async fn slight_test() -> Result<()> {
 
     // put and get
     println!(
-        " >>> curl -X PUT http://localhost:{}/slight/bar -d <value>",
+        " >>> curl -X PUT http://localhost:{}/slight/set -d <value>",
         host_port
     );
     let payload = random_payload().await;
     let mut res = Vec::new();
     retry_put(
-        &format!("http://localhost:{}/slight/bar", host_port),
+        &format!("http://localhost:{}/slight/set", host_port),
         &payload,
         RETRY_TIMES,
         INTERVAL_IN_SECS,
     )
     .await?;
     retry_get(
-        &format!("http://localhost:{}/slight/foo", host_port),
+        &format!("http://localhost:{}/slight/get", host_port),
         &mut res,
         RETRY_TIMES,
         INTERVAL_IN_SECS,

@@ -14,9 +14,17 @@ spec:
     spec:
       runtimeClassName: wasmtime-slight
       containers:
-        - name: testwasm
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:latest
+        - name: slight-hello
+          imagePullPolicy: Never
+          image: wasmtest_slight:latest
           command: ["/"]
+          resources: # limit the resources to 128Mi of memory and 100m of CPU
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
@@ -26,7 +34,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 3000
   selector:
     app: wasm-slight
 ---
@@ -35,7 +43,7 @@ kind: Deployment
 metadata:
   name: wasm-spin
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: wasm-spin
@@ -46,8 +54,9 @@ spec:
     spec:
       runtimeClassName: wasmtime-spin
       containers:
-        - name: testwasm
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
+        - name: spin-hello
+          imagePullPolicy: Never
+          image: wasmtest_spin:latest
           command: ["/"]
 ---
 apiVersion: v1

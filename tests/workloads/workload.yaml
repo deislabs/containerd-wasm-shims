@@ -34,7 +34,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 3000
   selector:
     app: wasm-slight
 ---
@@ -43,7 +43,7 @@ kind: Deployment
 metadata:
   name: wasm-spin
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: wasm-spin

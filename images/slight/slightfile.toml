@@ -1,8 +1,11 @@
-specversion = "0.1"
-secret_store = "configs.envvars"
+specversion = "0.2"
 
 [[capability]]
-name = "http"
+resource = "http"
+name = "my-rest-api"
+    # This capability does not require any configs
 
 [[capability]]
-name = "kv.filesystem"
+resource = "keyvalue.filesystem"
+name = "my-container"
+
