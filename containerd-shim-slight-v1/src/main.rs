@@ -15,7 +15,7 @@ use containerd_shim_wasm::sandbox::Instance;
 use containerd_shim_wasm::sandbox::{instance::InstanceConfig, ShimCli};
 use log::info;
 
-use slight_lib::commands::run::handle_run;
+use slight_lib::commands::run::{handle_run, IORedirects, RunArgs};
 use tokio::runtime::Runtime;
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
@@ -38,9 +38,11 @@ pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
 
     let working_dir = oci::get_root(&spec);
 
+    // TODO(DJ): use something like https://github.com/containerd/runwasi/pull/78 rather than chroot.
+    //
     // change the working directory to the rootfs
-    std::os::unix::fs::chroot(working_dir).unwrap();
-    std::env::set_current_dir("/").unwrap();
+    // std::os::unix::fs::chroot(working_dir).unwrap();
+    std::env::set_current_dir(working_dir).unwrap();
 
     // add env to current proc
     let env = spec.process().as_ref().unwrap().env().as_ref().unwrap();
@@ -64,9 +66,9 @@ impl Instance for Wasi {
         Wasi {
             exit_code: Arc::new((Mutex::new(None), Condvar::new())),
             id,
-            stdin: cfg.get_stdin().unwrap_or_default(),
-            stdout: cfg.get_stdout().unwrap_or_default(),
-            stderr: cfg.get_stderr().unwrap_or_default(),
+            stdin: cfg.get_stdin().unwrap(),
+            stdout: cfg.get_stdout().unwrap(),
+            stderr: cfg.get_stderr().unwrap(),
             bundle: cfg.get_bundle().unwrap_or_default(),
             shutdown_signal: Arc::new((Mutex::new(false), Condvar::new())),
         }
@@ -78,11 +80,9 @@ impl Instance for Wasi {
         let shutdown_signal = self.shutdown_signal.clone();
         let (tx, rx) = channel::<Result<(), Error>>();
         let bundle = self.bundle.clone();
-
-        // FIXME: redirect slight stdio to pod stdio
-        let _pod_stdin = self.stdin.clone();
-        let _pod_stdout = self.stdout.clone();
-        let _pod_stderr = self.stderr.clone();
+        let pod_stdin = self.stdin.clone();
+        let pod_stdout = self.stdout.clone();
+        let pod_stderr = self.stderr.clone();
 
         thread::Builder::new()
             .name(self.id.clone())
@@ -101,8 +101,6 @@ impl Instance for Wasi {
 
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
-                    let toml_file_path = mod_path;
-
                     let rx_future = tokio::task::spawn_blocking(move || {
                         let (lock, cvar) = &*shutdown_signal;
                         let mut shutdown = lock.lock().unwrap();
@@ -111,7 +109,16 @@ impl Instance for Wasi {
                         }
                     });
 
-                    let f = handle_run(wasm_path, &toml_file_path);
+                    let args = RunArgs {
+                        module: wasm_path,
+                        slightfile: PathBuf::from(&mod_path),
+                        io_redirects: Some(IORedirects {
+                            stdin_path: Some(PathBuf::from(pod_stdin)),
+                            stdout_path: Some(PathBuf::from(pod_stdout)),
+                            stderr_path: Some(PathBuf::from(pod_stderr)),
+                        }),
+                    };
+                    let f = handle_run(args);
 
                     info!(" >>> notifying main thread we are about to start");
                     tx.send(Ok(())).unwrap();
@@ -139,11 +146,12 @@ impl Instance for Wasi {
 
         info!(" >>> waiting for start notification");
         match rx.recv().unwrap() {
-            Ok(_) => (),
+            Ok(_) => {
+                info!(" >>> started the instance");
+            }
             Err(err) => {
                 info!(" >>> error starting instance: {}", err);
                 let code = self.exit_code.clone();
-
                 let (lock, cvar) = &*code;
                 let mut ec = lock.lock().unwrap();
                 *ec = Some((139, Utc::now()));

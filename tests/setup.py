@@ -68,14 +68,14 @@ def setup_test(target):
     os.system(f"k3d image import test/out_slight/img.tar -c {cluster_name}")
     os.system(f"k3d image import test/out_spin/img.tar -c {cluster_name}")
 
-    # wait for 10 seconds
-    time.sleep(10)
+    # wait for 5 seconds
+    time.sleep(5)
 
     print(">>> apply workloads")
     os.system("kubectl apply -f tests/workloads")
     
-    # wait for 45 seconds
-    time.sleep(45)
+    # wait for 25 seconds
+    time.sleep(25)
 
     os.system("kubectl describe pods")
 

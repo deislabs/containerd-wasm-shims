@@ -4,15 +4,15 @@ version = 3
 
 [[package]]
 name = "anyhow"
-version = "1.0.65"
+version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "98161a4e3e2184da77bb14f02184cdd111e83bbbcc9979dfee3c44b9a85f5602"
+checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
 name = "async-trait"
-version = "0.1.57"
+version = "0.1.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76464446b8bc32758d7e88ee1a804d9914cd9b1cb264c029899680b0be29826f"
+checksum = "b84f9ebcc6c1f5b8cb160f6990096a5c127f423fcb6e1ccc46c370cbdfb75dfc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -26,6 +26,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
+name = "cfg-if"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
 name = "heck"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -35,10 +41,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "http-server-lib"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "slight-http-handler-macro",
+ "slight-http-server-macro",
+ "tracing",
+ "wit-bindgen-rust",
+ "wit-error-rs",
+]
+
+[[package]]
 name = "id-arena"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25a2bc672d1148e28034f176e01fffebb08b35768468cc954630da77a1449005"
+
+[[package]]
+name = "log"
+version = "0.4.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "abb12e687cfb44aa40f41fc3978ef76448f9b6038cad6aef4259d3c095a2382e"
+dependencies = [
+ "cfg-if",
+]
 
 [[package]]
 name = "memchr"
@@ -47,10 +74,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dffe52ecf27772e601905b7522cb4ef790d2cc203488bbd0e2fe85fcb74566d"
 
 [[package]]
-name = "proc-macro2"
-version = "1.0.43"
+name = "once_cell"
+version = "1.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a2ca2c61bc9f3d74d2886294ab7b9853abd9c1ad903a3ac7815c58989bb7bab"
+checksum = "b7e5500299e16ebb147ae15a00a942af264cf3688f47923b8fc2cd5858f23ad3"
+
+[[package]]
+name = "pin-project-lite"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0a7ae3ac2f1173085d398531c705756c94a4c56843785df85a60c1a0afac116"
+
+[[package]]
+name = "proc-macro2"
+version = "1.0.52"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d0e1ae9e836cc3beddd63db0df682593d7e2d3d891ae8c9083d2113e1744224"
 dependencies = [
  "unicode-ident",
 ]
@@ -68,27 +107,30 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.21"
+version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbe448f377a7d6961e30f5955f9b8d106c3f5e449d493ee1b125c1d43c2b5179"
+checksum = "4424af4bf778aae2051a77b60283332f386554255d722233d09fbfc7e30da2fc"
 dependencies = [
  "proc-macro2",
 ]
 
 [[package]]
-name = "slight"
+name = "slight-http-handler-macro"
 version = "0.1.0"
+source = "git+https://github.com/deislabs/spiderlightning#d49b1ccde1ba27d2e93e791c8d40a80f6986fc8b"
 dependencies = [
  "anyhow",
- "slight-http-handler-macro",
- "wit-bindgen-rust",
- "wit-error-rs",
+ "proc-macro2",
+ "quote",
+ "syn",
+ "wit-bindgen-gen-core",
+ "wit-bindgen-gen-rust-wasm",
 ]
 
 [[package]]
-name = "slight-http-handler-macro"
+name = "slight-http-server-macro"
 version = "0.1.0"
-source = "git+https://github.com/deislabs/spiderlightning?rev=732acf471c8a4225b0333ee5b2085e0aaf2ef892#732acf471c8a4225b0333ee5b2085e0aaf2ef892"
+source = "git+https://github.com/deislabs/spiderlightning#d49b1ccde1ba27d2e93e791c8d40a80f6986fc8b"
 dependencies = [
  "anyhow",
  "proc-macro2",
@@ -100,9 +142,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.99"
+version = "1.0.109"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58dbef6ec655055e20b86b15a8cc6d439cca19b667537ac6a1369572d151ab13"
+checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -120,9 +162,42 @@ dependencies = [
 
 [[package]]
 name = "tinyvec_macros"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
+checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
+
+[[package]]
+name = "tracing"
+version = "0.1.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ce8c33a8d48bd45d624a6e523445fd21ec13d3653cd51f681abf67418f54eb8"
+dependencies = [
+ "cfg-if",
+ "log",
+ "pin-project-lite",
+ "tracing-attributes",
+ "tracing-core",
+]
+
+[[package]]
+name = "tracing-attributes"
+version = "0.1.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4017f8f45139870ca7e672686113917c71c7a6e02d4924eda67186083c03081a"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "tracing-core"
+version = "0.1.30"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24eb03ba0eab1fd845050058ce5e616558e8f8d8fca633e6b163fe25c797213a"
+dependencies = [
+ "once_cell",
+]
 
 [[package]]
 name = "unicase"
@@ -135,24 +210,24 @@ dependencies = [
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.4"
+version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcc811dc4066ac62f84f11307873c4850cb653bfa9b1719cee2bd2204a4bc5dd"
+checksum = "e5464a87b239f13a63a501f2701565754bae92d243d4bb7eb12f6d57d2269bf4"
 
 [[package]]
 name = "unicode-normalization"
-version = "0.1.21"
+version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "854cbdc4f7bc6ae19c820d44abdc3277ac3e1b2b93db20a636825d9322fb60e6"
+checksum = "5c5713f0fc4b5db668a2ac63cdb7bb4469d8c9fed047b1d0292cc7b0ce2ba921"
 dependencies = [
  "tinyvec",
 ]
 
 [[package]]
 name = "unicode-segmentation"
-version = "1.10.0"
+version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fdbf052a0783de01e944a6ce7a8cb939e295b1e7be835a1112c3b9a7f047a5a"
+checksum = "1dd624098567895118886609431a7c3b8f516e41d30e0643f03d94592a147e36"
 
 [[package]]
 name = "unicode-xid"
@@ -169,7 +244,7 @@ checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 [[package]]
 name = "wit-bindgen-gen-core"
 version = "0.2.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
+source = "git+https://github.com/fermyon/wit-bindgen-backport#b97517c7bfcc82f3cd6e730270d40cd4781aa789"
 dependencies = [
  "anyhow",
  "wit-parser",
@@ -178,7 +253,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-gen-rust"
 version = "0.2.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
+source = "git+https://github.com/fermyon/wit-bindgen-backport#b97517c7bfcc82f3cd6e730270d40cd4781aa789"
 dependencies = [
  "heck",
  "wit-bindgen-gen-core",
@@ -187,7 +262,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-gen-rust-wasm"
 version = "0.2.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
+source = "git+https://github.com/fermyon/wit-bindgen-backport#b97517c7bfcc82f3cd6e730270d40cd4781aa789"
 dependencies = [
  "heck",
  "wit-bindgen-gen-core",
@@ -197,7 +272,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust"
 version = "0.2.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
+source = "git+https://github.com/fermyon/wit-bindgen-backport#b97517c7bfcc82f3cd6e730270d40cd4781aa789"
 dependencies = [
  "async-trait",
  "bitflags",
@@ -207,7 +282,7 @@ dependencies = [
 [[package]]
 name = "wit-bindgen-rust-impl"
 version = "0.2.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
+source = "git+https://github.com/fermyon/wit-bindgen-backport#b97517c7bfcc82f3cd6e730270d40cd4781aa789"
 dependencies = [
  "proc-macro2",
  "syn",
@@ -227,7 +302,7 @@ dependencies = [
 [[package]]
 name = "wit-parser"
 version = "0.2.0"
-source = "git+https://github.com/bytecodealliance/wit-bindgen?tag=v0.2.0#cb871cfa1ee460b51eb1d144b175b9aab9c50aba"
+source = "git+https://github.com/fermyon/wit-bindgen-backport#b97517c7bfcc82f3cd6e730270d40cd4781aa789"
 dependencies = [
  "anyhow",
  "id-arena",

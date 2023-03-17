@@ -12,24 +12,24 @@ Containerd shim for running Slight workloads.
 
 [dependencies]
 chrono = "~0.4"
-clap = { version = "3.1.15", features = ["derive", "env"] }
+clap = { version = "4.1", features = ["derive", "env"] }
 containerd-shim = "~0.3"
 containerd-shim-wasm = "0.1.1"
 log = "~0.4"
 tokio = { version = "1", features = [ "full" ] }
-tokio-util = { version = "0.6.10", features = [ "codec" ]}
-wasmtime = "0.39"
-toml = "0.5"
+tokio-util = { version = "0.7", features = [ "codec" ]}
+wasmtime = "5.0"
+toml = "0.7"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 tracing = { version = "0.1", features = ["log"] }
-slight = { git = "https://github.com/deislabs/spiderlightning", tag = "v0.3.2" }
+slight = { git = "https://github.com/deislabs/spiderlightning", version = "0.4.0" }
 openssl = { version = "0.10", features = ["vendored"] }
 
 [dependencies.openssl-sys]
 features = ["vendored"]
 
 [dependencies.isahc]
-version = "0.9.14"
+version = "1.7"
 
 [dependencies.curl]
 features = ["zlib-ng-compat"]
