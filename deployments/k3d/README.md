@@ -17,7 +17,7 @@ $ tree .
 ## How to run the example
 The shell script below will create a k3d cluster locally with the Wasm shims installed and containerd configured. The script then applies the runtime classes for the shims and an example service and deployment. Finally, we curl the `/hello` and receive a response from the example workload.
 ```shell
-k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.2 -p "8081:80@loadbalancer" --agents 2
+k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.5.0 -p "8081:80@loadbalancer" --agents 2
 kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/raw/main/deployments/workloads/runtime.yaml
 kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/raw/main/deployments/workloads/workload.yaml
 echo "waiting 5 seconds for workload to be ready"
@@ -34,6 +34,5 @@ k3d cluster delete wasm-cluster
 ## How build get started from source
 - `make install-k3d`: will install k3d
 - `make up`: will build the shims and the k3d kubernetes cluster
-- `make deploy`: will deploy our runtime classes, services, and deployments of Wasm workloads. You can find these manifests in [the workloads directory](../workloads).
 - `make test`: will make a curl call to our deployed service
 - `make clean`: will tear down the cluster
