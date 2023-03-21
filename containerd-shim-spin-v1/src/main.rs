@@ -20,9 +20,8 @@ use log::info;
 use reqwest::Url;
 use spin_http::HttpTrigger;
 use spin_manifest::Application;
-use spin_trigger::{
-    config::TriggerExecutorBuilderConfig, loader, TriggerExecutor, TriggerExecutorBuilder,
-};
+use spin_trigger::runtime_config::RuntimeConfig;
+use spin_trigger::{loader, TriggerExecutor, TriggerExecutorBuilder};
 use tokio::runtime::Runtime;
 use wasmtime::OptLevel;
 
@@ -60,7 +59,7 @@ impl Wasi {
         mod_path: PathBuf,
         working_dir: PathBuf,
     ) -> Result<Application, Error> {
-        Ok(spin_loader::from_file(mod_path, Some(working_dir), &None).await?)
+        Ok(spin_loader::from_file(mod_path, Some(working_dir)).await?)
     }
 
     async fn build_spin_trigger(
@@ -82,28 +81,21 @@ impl Wasi {
 
         // Build trigger config
         let loader = loader::TriggerLoader::new(working_dir.clone(), true);
+        let runtime_config_path = working_dir.clone().join(RUNTIME_CONFIG_FILE_PATH);
+        let runtime_config = RuntimeConfig::new(runtime_config_path.into());
+        let mut builder = TriggerExecutorBuilder::new(loader);
+        let config = builder.wasmtime_config_mut();
+        config
+            .cache_config_load_default()?
+            .cranelift_opt_level(OptLevel::Speed);
 
-        let executor: HttpTrigger = {
-            let mut builder = TriggerExecutorBuilder::<HttpTrigger>::new(loader);
-            let config = builder.wasmtime_config_mut();
-            config
-                .cache_config_load_default()?
-                .cranelift_opt_level(OptLevel::Speed);
-
-            let logging_hooks = podio::PodioLoggingTriggerHooks::new(
-                stdout_pipe_path,
-                stderr_pipe_path,
-                stdin_pipe_path,
-            );
-            builder.hooks(logging_hooks);
-            let runtime_config = working_dir.clone().join(RUNTIME_CONFIG_FILE_PATH);
-            let trigger_config = match runtime_config.as_path().try_exists() {
-                Ok(true) => TriggerExecutorBuilderConfig::load_from_file(Some(runtime_config))?,
-                _ => TriggerExecutorBuilderConfig::load_from_file(None)?,
-            };
-            builder.build(locked_url, trigger_config).await?
-        };
-
+        let logging_hooks = podio::PodioLoggingTriggerHooks::new(
+            stdout_pipe_path,
+            stderr_pipe_path,
+            stdin_pipe_path,
+        );
+        builder.hooks(logging_hooks);
+        let executor = builder.build(locked_url, runtime_config).await?;
         Ok(executor)
     }
 }
