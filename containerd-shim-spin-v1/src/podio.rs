@@ -3,6 +3,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use spin_app::{App, AppComponent};
+use spin_core::StoreBuilder;
+use spin_trigger::runtime_config::RuntimeConfig;
 use spin_trigger::TriggerHooks;
 
 pub struct PodioLoggingTriggerHooks {
@@ -43,14 +46,18 @@ impl PodioLoggingTriggerHooks {
 }
 
 impl TriggerHooks for PodioLoggingTriggerHooks {
-    fn app_loaded(&mut self, _app: &spin_app::App) -> anyhow::Result<()> {
+    fn app_loaded(
+        &mut self,
+        _component: &App,
+        _store_builder: &RuntimeConfig,
+    ) -> anyhow::Result<()> {
         Ok(())
     }
 
     fn component_store_builder(
         &self,
-        _component: spin_app::AppComponent,
-        builder: &mut spin_core::StoreBuilder,
+        _component: &AppComponent<'_>,
+        builder: &mut StoreBuilder,
     ) -> anyhow::Result<()> {
         if let Some(stdout_pipe) = &self.stdout_pipe {
             builder.stdout_pipe(stdout_pipe.try_clone().unwrap());
