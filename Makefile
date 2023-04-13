@@ -33,7 +33,7 @@ fmt:
 	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-wws-v1/Cargo.toml -- -D warnings
 
 .PHONY: build
-build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET)
+build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET) build-wws-cross-$(TARGET)
 	echo "Build complete"
 
 .PHONY: install-cross
