@@ -14,6 +14,7 @@ jobs:
           workspaces: |
             "containerd-shim-slight-v1 -> target"
             "containerd-shim-spin-v1 -> target"
+            "containerd-shim-wws-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           rustup target add wasm32-wasi
@@ -38,6 +39,7 @@ jobs:
           workspaces: |
             "containerd-shim-slight-v1 -> target"
             "containerd-shim-spin-v1 -> target"
+            "containerd-shim-wws-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           rustup target add wasm32-wasi

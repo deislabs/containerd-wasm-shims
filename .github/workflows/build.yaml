@@ -26,6 +26,7 @@ jobs:
           workspaces: |
             "containerd-shim-slight-v1 -> target"
             "containerd-shim-spin-v1 -> target"
+            "containerd-shim-wws-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           rustup target add wasm32-wasi
@@ -47,6 +48,7 @@ jobs:
           mkdir _dist
           cp containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
           cp containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          cp containerd-shim-wws-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
           cd _dist
           tar czf containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: upload shim artifacts
