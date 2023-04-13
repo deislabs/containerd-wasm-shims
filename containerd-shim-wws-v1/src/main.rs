@@ -15,8 +15,8 @@ use std::sync::{Condvar, Mutex};
 use std::thread;
 use tokio::runtime::Runtime;
 use wws_config::Config;
-use wws_server::serve;
 use wws_router::Routes;
+use wws_server::serve;
 
 /// URL to listen to in wws
 const WWS_ADDR: &str = "0.0.0.0:80";
