@@ -653,8 +653,9 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-wasm"
-version = "0.1.0"
-source = "git+https://github.com/containerd/runwasi?branch=main#857623f55ded8320fc5551069adc63cfa5fdda2b"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2671b0d99b6656f32f8ff4e6d228ad547f199fb943f545fd7bfb36e666a57e72"
 dependencies = [
  "anyhow",
  "caps",
@@ -3735,7 +3736,7 @@ dependencies = [
 [[package]]
 name = "wws-config"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "anyhow",
  "serde",
@@ -3747,7 +3748,7 @@ dependencies = [
 [[package]]
 name = "wws-data-kv"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "anyhow",
  "serde",
@@ -3757,7 +3758,7 @@ dependencies = [
 [[package]]
 name = "wws-router"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "lazy_static",
  "regex",
@@ -3771,7 +3772,7 @@ dependencies = [
 [[package]]
 name = "wws-runtimes"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "anyhow",
  "serde",
@@ -3785,7 +3786,7 @@ dependencies = [
 [[package]]
 name = "wws-runtimes-manager"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3800,7 +3801,7 @@ dependencies = [
 [[package]]
 name = "wws-server"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "actix-files",
  "actix-web",
@@ -3813,7 +3814,7 @@ dependencies = [
 [[package]]
 name = "wws-store"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "anyhow",
  "blake3",
@@ -3822,7 +3823,7 @@ dependencies = [
 [[package]]
 name = "wws-worker"
 version = "1.1.0"
-source = "git+https://github.com/vmware-labs/wasm-workers-server?branch=main#b048d3e7f8e63fa22473451b37c870338378d3c5"
+source = "git+https://github.com/vmware-labs/wasm-workers-server#b048d3e7f8e63fa22473451b37c870338378d3c5"
 dependencies = [
  "actix-web",
  "anyhow",

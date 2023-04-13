@@ -1,2 +1,2 @@
 FROM scratch
-COPY ./index.js .
+COPY ./hello.js .

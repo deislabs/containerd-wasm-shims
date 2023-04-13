@@ -94,10 +94,17 @@ spec:
     spec:
       runtimeClassName: wasmtime-wws
       containers:
-        - name: wws-hello
-          imagePullPolicy: Never
-          image: wasmtest_wws:latest
+        - name: testwasm
+          image: docker.io/library/wws-hello-world:latest
+          imagePullPolicy: Never # prevent k8s from pulling the image from a registry
           command: ["/"]
+          resources: # limit the resources to 128Mi of memory and 100m of CPU
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service

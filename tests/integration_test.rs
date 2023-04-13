@@ -82,10 +82,10 @@ async fn wws_test() -> Result<()> {
     list_pods(&cluster_name).await?;
 
     // curl for hello
-    println!(" >>> curl http://localhost:{}/wws/", host_port);
+    println!(" >>> curl http://localhost:{}/wws/hello", host_port);
     let mut res = Vec::new();
     retry_get(
-        &format!("http://localhost:{}/wws/", host_port),
+        &format!("http://localhost:{}/wws/hello", host_port),
         &mut res,
         RETRY_TIMES,
         INTERVAL_IN_SECS,

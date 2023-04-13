@@ -5,7 +5,6 @@ use containerd_shim_wasm::sandbox::instance::{EngineGetter, InstanceConfig};
 use containerd_shim_wasm::sandbox::oci;
 use containerd_shim_wasm::sandbox::{Instance, ShimCli};
 use log::{error, info};
-use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc::channel;
@@ -137,7 +136,7 @@ impl Instance for Workers {
                     info!("[wws] Notify main thread we are about to start");
                     tx.send(Ok(())).unwrap();
                     tokio::select! {
-                        res = f => {
+                        _ = f => {
                             info!("[wws] Server shut down: exiting");
 
                             let (lock, cvar) = &*exit_code;

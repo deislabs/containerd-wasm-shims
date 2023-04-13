@@ -13,7 +13,7 @@ compile-musl-slight:
 	make build-slight-cross-$(TARGET) -C ../..
 
 compile-musl-wws:
-	make build-slight-cross-$(TARGET) -C ../..
+	make build-wws-cross-$(TARGET) -C ../..
 
 move-musl-to-tmp: compile-musl-spin compile-musl-slight
 	mkdir -p ./.tmp
@@ -47,6 +47,7 @@ up: create-k3d load-workload-images
 test:
 	curl localhost:8081/spin/hello
 	curl localhost:8081/slight/hello
+	curl localhost:8081/wws/hello
 
 integration: move-musl-to-tmp
 	cd ../.. && cargo test -- --nocapture
