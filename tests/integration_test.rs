@@ -72,3 +72,26 @@ async fn spin_test() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn wws_test() -> Result<()> {
+    let host_port = 8082;
+
+    // check the test pod is running
+    let cluster_name = format!("k3d-{}-{}", "test", "cluster");
+    list_pods(&cluster_name).await?;
+
+    // curl for hello
+    println!(" >>> curl http://localhost:{}/wws/", host_port);
+    let mut res = Vec::new();
+    retry_get(
+        &format!("http://localhost:{}/wws/", host_port),
+        &mut res,
+        RETRY_TIMES,
+        INTERVAL_IN_SECS,
+    )
+    .await?;
+    println!("{}", String::from_utf8_lossy(&res));
+
+    Ok(())
+}

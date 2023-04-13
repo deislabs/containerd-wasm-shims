@@ -4,6 +4,7 @@ ARCH ?= x86_64
 TARGET ?= $(ARCH)-unknown-linux-musl
 TEST_IMG_NAME_SPIN ?= wasmtest_spin:latest
 TEST_IMG_NAME_SLIGHT ?= wasmtest_slight:latest
+TEST_IMG_NAME_WWS ?= wasmtest_wws:latest
 
 compile-musl-spin:
 	make build-spin-cross-$(TARGET) -C ../..
@@ -11,10 +12,14 @@ compile-musl-spin:
 compile-musl-slight:
 	make build-slight-cross-$(TARGET) -C ../..
 
+compile-musl-wws:
+	make build-slight-cross-$(TARGET) -C ../..
+
 move-musl-to-tmp: compile-musl-spin compile-musl-slight
 	mkdir -p ./.tmp
 	cp ../../containerd-shim-slight-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
 	cp ../../containerd-shim-spin-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
+	cp ../../containerd-shim-wws-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
 
 build-multi-k3d-image: move-musl-to-tmp
 	docker buildx build -t $(IMAGE_NAME) --platform linux/amd64,linux/arm64 .
@@ -28,23 +33,25 @@ create-k3d: build-dev-k3d-image
 build-workload-images:
 	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_SPIN) ../../images/spin
 	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_SLIGHT) ../../images/slight
+	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_WWS) ../../images/wws
 
 load-workload-images: build-workload-images
 	k3d image load $(TEST_IMG_NAME_SPIN)
 	k3d image load $(TEST_IMG_NAME_SLIGHT)
+	k3d image load $(TEST_IMG_NAME_WWS)
 
 up: create-k3d load-workload-images
 	kubectl label nodes k3d-k3s-default-agent-0 spin-enabled=true slight-enabled=true
 	kubectl apply -f ./workload
 
 test:
-	curl localhost:8081/spin/hello 
+	curl localhost:8081/spin/hello
 	curl localhost:8081/slight/hello
 
 integration: move-musl-to-tmp
 	cd ../.. && cargo test -- --nocapture
 
-clean: 
+clean:
 	k3d cluster delete $(CLUSTER_NAME)
 
 install-k3d:

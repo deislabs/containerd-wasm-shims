@@ -1,0 +1,23 @@
+[package]
+name = "containerd-shim-wws-v1"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+containerd-shim = "~0.3"
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", branch = "main" }
+wws-config = { git = "https://github.com/vmware-labs/wasm-workers-server", branch = "main" }
+wws-server = { git = "https://github.com/vmware-labs/wasm-workers-server", branch = "main" }
+wws-router = { git = "https://github.com/vmware-labs/wasm-workers-server", branch = "main" }
+log = "~0.4"
+tokio = { version = "1", features = [ "full" ] }
+tokio-util = { version = "0.6.10", features = [ "codec" ]}
+chrono = "~0.4"
+
+[target.x86_64-unknown-linux-musl.dependencies]
+openssl = { version = "=0.10.48", features = ["vendored"] }
+
+[target.aarch64-unknown-linux-musl.dependencies]
+openssl = { version = "=0.10.48", features = ["vendored"] }

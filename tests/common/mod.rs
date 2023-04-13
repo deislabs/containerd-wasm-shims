@@ -42,6 +42,7 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
     let bin_path = "deployments/k3d/.tmp/";
     let slight_shim_path = "deployments/k3d/.tmp/containerd-shim-slight-v1";
     let spin_shim_path = "deployments/k3d/.tmp/containerd-shim-spin-v1";
+    let wws_shim_path = "deployments/k3d/.tmp/containerd-shim-wws-v1";
 
     if which_binary(slight_shim_path).await.is_err() {
         println!(" >>> install containerd-shim-slight-v1");
@@ -86,6 +87,29 @@ async fn setup_test_helper(test_ns: &str) -> Result<u16> {
         let output = cmd.output().await?;
         if !output.status.success() {
             anyhow::bail!("failed to install containerd-shim-spin-v1");
+        }
+    }
+
+    if which_binary(wws_shim_path).await.is_err() {
+        println!(" >>> install containerd-shim-wws-v1");
+        let mut cmd = Command::new("cross");
+        cmd.arg("build")
+            .arg("--target")
+            .arg("x86_64-unknown-linux-musl")
+            .arg("--release")
+            .arg("--manifest-path")
+            .arg("containerd-shim-wws-v1/Cargo.toml");
+        let output = cmd.output().await?;
+        if !output.status.success() {
+            anyhow::bail!("failed to build containerd-shim-wws-v1");
+        }
+        let mut cmd = Command::new("sudo");
+        cmd.arg("install")
+            .arg("containerd-shim-wws-v1/target/x86_64-unknown-linux-musl/release/containerd-shim-wws-v1")
+            .arg(bin_path);
+        let output = cmd.output().await?;
+        if !output.status.success() {
+            anyhow::bail!("failed to install containerd-shim-wws-v1");
         }
     }
 
