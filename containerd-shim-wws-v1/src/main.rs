@@ -19,16 +19,18 @@ use wws_router::Routes;
 use wws_server::serve;
 
 /// URL to listen to in wws
-const WWS_ADDR: &str = "0.0.0.0:80";
+const WWS_ADDR: &str = "0.0.0.0";
+const WWS_PORT: u16 = 80;
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
 pub struct Workers {
     exit_code: ExitCode,
     id: String,
-    stdin: String,
-    stdout: String,
-    stderr: String,
+    // TODO: Pass the stdio to wws so the logs are print from the pod
+    // stdin: String,
+    // stdout: String,
+    // stderr: String,
     bundle: String,
     shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
 }
@@ -46,10 +48,6 @@ pub fn prepare_module(bundle: String) -> Result<PathBuf, Error> {
     let working_dir = oci::get_root(&spec);
     info!("[wws] loading project: {}", working_dir.display());
 
-    // change the working directory to the rootfs
-    // std::os::unix::fs::chroot(working_dir).unwrap();
-    // std::env::set_current_dir("/").unwrap();
-
     Ok(working_dir.clone())
 }
 
@@ -63,9 +61,10 @@ impl Instance for Workers {
         Workers {
             exit_code: Arc::new((Mutex::new(None), Condvar::new())),
             id,
-            stdin: cfg.get_stdin().unwrap_or_default(),
-            stdout: cfg.get_stdout().unwrap_or_default(),
-            stderr: cfg.get_stderr().unwrap_or_default(),
+            // TODO: Pass the stdio to wws so the logs are print from the pod
+            // stdin: cfg.get_stdin().unwrap_or_default(),
+            // stdout: cfg.get_stdout().unwrap_or_default(),
+            // stderr: cfg.get_stderr().unwrap_or_default(),
             bundle: cfg.get_bundle().unwrap_or_default(),
             shutdown_signal: Arc::new((Mutex::new(false), Condvar::new())),
         }
@@ -78,6 +77,7 @@ impl Instance for Workers {
         let (tx, rx) = channel::<Result<(), Error>>();
         let bundle = self.bundle.clone();
 
+        // TODO: Pass the stdio to wws so the logs are print from the pod
         // let stdin = self.stdin.clone();
         // let stdout = self.stdout.clone();
         // let stderr = self.stderr.clone();
@@ -86,7 +86,6 @@ impl Instance for Workers {
             .name(self.id.clone())
             .spawn(move || {
                 info!("[wws] Starting the process!");
-                info!("[wws] Let's go!");
                 let working_dir = match prepare_module(bundle) {
                     Ok(f) => f,
                     Err(err) => {
@@ -96,18 +95,7 @@ impl Instance for Workers {
                     }
                 };
 
-                let paths = fs::read_dir(&working_dir).unwrap();
-
                 info!("[wws] working_dir: {}", &working_dir.display());
-
-                for path in paths {
-                    info!(
-                        "[wws] file in working_dir: {}",
-                        path.unwrap().path().display()
-                    )
-                }
-
-                info!("[wws] starting wws");
 
                 let rt = Runtime::new().unwrap();
                 rt.block_on(async {
@@ -120,7 +108,7 @@ impl Instance for Workers {
                     });
 
                     // Configure and run wws
-                    info!("[wws] running wws");
+                    info!("[wws] Starting wws");
 
                     let path = working_dir.clone();
 
@@ -128,8 +116,8 @@ impl Instance for Workers {
                     let config = match Config::load(&path) {
                         Ok(c) => c,
                         Err(err) => {
-                            info!("[wws] There was an error reading the .wws.toml file. It will be ignored");
-                            info!("[wws] Error: {err}");
+                            error!("[wws] There was an error reading the .wws.toml file. It will be ignored");
+                            error!("[wws] Error: {err}");
 
                             Config::default()
                         }
@@ -137,25 +125,20 @@ impl Instance for Workers {
 
                     // Check if there're missing runtimes
                     if config.is_missing_any_runtime(&path) {
-                        info!("[wws] Required language runtimes are not installed. Some files may not be considered workers");
-                        info!("[wws] You can install the missing runtimes with: wws runtimes install");
+                        error!("[wws] Required language runtimes are not installed. Some files may not be considered workers");
+                        error!("[wws] You can install the missing runtimes with: wws runtimes install");
                     }
 
-                    info!("[wws] Loading routes from: {}", &path.display());
                     let routes = Routes::new(&path, "", &config);
 
                     // Final server
-                    let f = serve(&path, routes, "0.0.0.0", 80).await.unwrap();
+                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT).await.unwrap();
 
-                    info!("[wws] notifying main thread we are about to start");
+                    info!("[wws] Notify main thread we are about to start");
                     tx.send(Ok(())).unwrap();
                     tokio::select! {
                         res = f => {
-                            info!("[wws] server shut down: exiting");
-
-                            if res.is_err() {
-                                error!("[wws] error!");
-                            }
+                            info!("[wws] Server shut down: exiting");
 
                             let (lock, cvar) = &*exit_code;
                             let mut ec = lock.lock().unwrap();
@@ -163,7 +146,7 @@ impl Instance for Workers {
                             cvar.notify_all();
                         },
                         _ = rx_future => {
-                            info!("[wws] user requested shutdown: exiting");
+                            info!("[wws] User requested shutdown: exiting");
                             let (lock, cvar) = &*exit_code;
                             let mut ec = lock.lock().unwrap();
                             *ec = Some((0, Utc::now()));
@@ -173,11 +156,11 @@ impl Instance for Workers {
                 })
             })?;
 
-        info!("[wws] waiting for start notification");
+        info!("[wws] Waiting for start notification");
         match rx.recv().unwrap() {
             Ok(_) => (),
             Err(err) => {
-                info!("[wws] error starting instance: {err}");
+                error!("[wws] Error starting instance: {err}");
                 let code = self.exit_code.clone();
 
                 let (lock, cvar) = &*code;
