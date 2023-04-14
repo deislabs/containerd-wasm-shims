@@ -94,7 +94,7 @@ spec:
       containers:
         - name: wws-hello
           imagePullPolicy: Never
-          image: wasmtest_wws:latest
+          image: ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:v0.5.1
           command: ["/"]
 ---
 apiVersion: v1

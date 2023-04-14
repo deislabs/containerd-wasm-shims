@@ -8,7 +8,7 @@ This project aims to provide containerd shim implementations that can run Wasm /
 - [Start k3d and run a sample WASM application](./deployments/k3d/README.md#how-to-run-the-example).
 - [Create a Spin application on k3d](./containerd-shim-spin-v1/quickstart.md)
 - [Deploy a SpiderLightning application with k3d](./containerd-shim-slight-v1/quickstart.md)
-- [Deploy a Wasm Workesrs Server application with k3d](./containerd-shim-slight-v1/quickstart.md)
+- [Deploy a Wasm Workers Server application with k3d](./containerd-shim-slight-v1/quickstart.md)
 
 ## Containerd Wasm Shims
 Each of the shims below leverage runwasi to provide the bridge between K8s and containerd.
@@ -24,7 +24,7 @@ The slight shim is powered by the [Deislabs SpiderLightning](https://github.com/
 If you are curious, [here is the Slight shim source code](./containerd-shim-slight-v1).
 
 ### Wasm Workers Server (wws) shim
-The `wws` shim is powered by the [Wasm Workers Server](https://github.com/vmware-labs/wasm-workers-server) engine. Wasm Workers Server is an open-source project to develop and run serverless applications on top of WebAssembly. It's based on the "workers" concept from the browser, where you have functions that receives a request, processes it, and provides response. It supports multiple languages, so you can develop your workers using Rust, JavaScript, Python, Ruby and more in the future.
+The `wws` shim is powered by the [Wasm Workers Server](https://github.com/vmware-labs/wasm-workers-server) engine. Wasm Workers Server is an open-source project to develop and run serverless applications on top of WebAssembly. It's based on the "workers" concept from the browser, where you have functions that receives a request, processes it, and provides response. It supports multiple languages, so you can develop your workers with Rust, JavaScript, Python, Ruby and more in the future.
 
 If you are curious, [here is the Wasm Workers Server shim source code](./containerd-shim-wws-v1).
 

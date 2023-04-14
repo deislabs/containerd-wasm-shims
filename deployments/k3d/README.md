@@ -24,6 +24,7 @@ echo "waiting 5 seconds for workload to be ready"
 sleep 5
 curl -v http://127.0.0.1:8081/spin/hello
 curl -v http://127.0.0.1:8081/slight/hello
+curl -v http://127.0.0.1:8081/wws/hello
 ```
 
 To tear down the cluster, run the following.
