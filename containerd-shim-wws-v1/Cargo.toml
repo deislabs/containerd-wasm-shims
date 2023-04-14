@@ -1,7 +1,14 @@
 [package]
 name = "containerd-shim-wws-v1"
-version = "0.1.0"
+version = "0.5.1"
+authors = ["Wasm Labs team <wasmlabs@vmware.com>"]
 edition = "2021"
+repository = 'https://github.com/deislabs/containerd-wasm-shims'
+license = "Apache-2.0"
+homepage = 'https://github.com/deislabs/containerd-wasm-shims'
+description = """
+Containerd shim for running Wasm Workers Server workloads.
+"""
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
