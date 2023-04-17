@@ -93,33 +93,35 @@ cargo build --target wasm32-wasi
 Use `slight run` to run the application on your development computer. For example:
 
 ```bash
-slight -c slightfile.toml run -m target/wasm32-wasi/debug/slight.wasm
+slight -c slightfile.toml run target/wasm32-wasi/debug/http_server_lib.wasm
 ```
 
-The application is running at `http://0.0.0.0/`.
+The application is running at `http://0.0.0.0:3000/`.
 
 Access the `/hello` route. For example, use `curl` in a new terminal window:
 
 ```bash
-$$ curl -v http://0.0.0.0/hello
-*   Trying 0.0.0.0:80...
-* TCP_NODELAY set
-* Connected to 0.0.0.0 (127.0.0.1) port 80 (#0)
+$$ curl -v http://0.0.0.0:3000/hello
+*   Trying 127.0.0.1:3000...
+* Connected to localhost (127.0.0.1) port 3000 (#0)
 > GET /hello HTTP/1.1
-> Host: 0.0.0.0
-> User-Agent: curl/7.68.0
+> Host: localhost:3000
+> User-Agent: curl/7.83.1
 > Accept: */*
-> 
+>
 * Mark bundle as not supporting multiuse
 < HTTP/1.1 200 OK
-< host: 0.0.0.0
-< user-agent: curl/7.68.0
+< host: localhost:3000
+< user-agent: curl/7.83.1
 < accept: */*
-< content-length: 5
-< date: Tue, 11 Oct 2022 20:15:47 GMT
-< 
-* Connection #0 to host 0.0.0.0 left intact
-hello
+< access-control-allow-origin: *
+< access-control-allow-methods: *
+< access-control-allow-headers: *
+< access-control-expose-headers: *
+< content-length: 12
+< date: Fri, 07 Apr 2023 22:58:18 GMT
+<
+hello world!* Connection #0 to host localhost left intact
 ```
 
 Return to the terminal window running `slight run` and stop the application.
