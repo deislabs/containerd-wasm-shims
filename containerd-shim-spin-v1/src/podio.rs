@@ -5,8 +5,7 @@ use std::{
 
 use spin_app::{App, AppComponent};
 use spin_core::StoreBuilder;
-use spin_trigger::runtime_config::RuntimeConfig;
-use spin_trigger::TriggerHooks;
+use spin_trigger::{RuntimeConfig, TriggerHooks};
 
 pub struct PodioLoggingTriggerHooks {
     stdout_pipe: Option<File>,

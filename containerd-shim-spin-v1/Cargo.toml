@@ -19,7 +19,7 @@ log = "~0.4"
 spin-trigger = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
 spin-app = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
 spin-core = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
-spin-http = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
+spin-trigger-http = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
 spin-loader = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
 spin-manifest = { git = "https://github.com/fermyon/spin", rev = "e040522a6d1b3250d97a41bc824f7d1c467d8309" }
 wasmtime = "8.0.1"

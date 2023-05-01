@@ -690,10 +690,10 @@ dependencies = [
  "serde_json",
  "spin-app",
  "spin-core",
- "spin-http",
  "spin-loader",
  "spin-manifest",
  "spin-trigger",
+ "spin-trigger-http",
  "tokio",
  "tokio-util 0.7.7",
  "url",
@@ -2879,7 +2879,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "059a34f111a9dee2ce1ac2826a68b24601c4298cfeb1a587c3cb493d5ab46f52"
 dependencies = [
  "libc",
- "nix 0.26.2",
+ "nix 0.22.3",
 ]
 
 [[package]]
@@ -3219,7 +3219,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "rustls",
- "rustls-pemfile",
+ "rustls-pemfile 1.0.2",
  "serde",
  "serde_json",
  "serde_urlencoded",
@@ -3381,6 +3381,15 @@ dependencies = [
  "ring",
  "sct",
  "webpki",
+]
+
+[[package]]
+name = "rustls-pemfile"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1ee86d63972a7c661d1536fefe8c3c8407321c3df668891286de28abcd087360"
+dependencies = [
+ "base64 0.13.1",
 ]
 
 [[package]]
@@ -3916,6 +3925,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "spin-trigger-http"
+version = "1.2.0-pre0"
+source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "clap 3.2.23",
+ "futures",
+ "futures-util",
+ "http",
+ "hyper",
+ "indexmap",
+ "percent-encoding",
+ "rustls-pemfile 0.3.0",
+ "serde",
+ "serde_json",
+ "spin-app",
+ "spin-core",
+ "spin-http",
+ "spin-trigger",
+ "tls-listener",
+ "tokio",
+ "tokio-rustls",
+ "tracing",
+ "wasi-common 8.0.1",
+ "wasmtime",
+ "wasmtime-wasi",
+ "wit-bindgen-wasmtime",
+]
+
+[[package]]
 name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4121,6 +4161,20 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
+
+[[package]]
+name = "tls-listener"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e8a215badde081a06ee0a7fbc9c9f0d580c022fbdc547065f62103aef71e178"
+dependencies = [
+ "futures-util",
+ "hyper",
+ "pin-project-lite",
+ "thiserror",
+ "tokio",
+ "tokio-rustls",
+]
 
 [[package]]
 name = "tokio"
@@ -4337,7 +4391,7 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 1.0.0",
+ "cfg-if 0.1.10",
  "rand 0.8.5",
  "static_assertions",
 ]
