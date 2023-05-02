@@ -2611,7 +2611,7 @@ dependencies = [
 [[package]]
 name = "outbound-http"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "http",
@@ -2626,7 +2626,7 @@ dependencies = [
 [[package]]
 name = "outbound-mysql"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "mysql_async",
@@ -2641,7 +2641,7 @@ dependencies = [
 [[package]]
 name = "outbound-pg"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "native-tls",
@@ -2656,7 +2656,7 @@ dependencies = [
 [[package]]
 name = "outbound-redis"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "redis",
@@ -3733,7 +3733,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 [[package]]
 name = "spin-app"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3758,7 +3758,7 @@ dependencies = [
 [[package]]
 name = "spin-config"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3776,7 +3776,7 @@ dependencies = [
 [[package]]
 name = "spin-core"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3795,7 +3795,7 @@ dependencies = [
 [[package]]
 name = "spin-http"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "http",
@@ -3809,7 +3809,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "lru 0.9.0",
@@ -3823,7 +3823,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-redis"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "redis",
@@ -3836,7 +3836,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-sqlite"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "once_cell",
@@ -3849,7 +3849,7 @@ dependencies = [
 [[package]]
 name = "spin-loader"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3882,7 +3882,7 @@ dependencies = [
 [[package]]
 name = "spin-manifest"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "indexmap",
  "serde",
@@ -3893,7 +3893,7 @@ dependencies = [
 [[package]]
 name = "spin-trigger"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3927,7 +3927,7 @@ dependencies = [
 [[package]]
 name = "spin-trigger-http"
 version = "1.2.0-pre0"
-source = "git+https://github.com/fermyon/spin?rev=e040522a6d1b3250d97a41bc824f7d1c467d8309#e040522a6d1b3250d97a41bc824f7d1c467d8309"
+source = "git+https://github.com/fermyon/spin?rev=2f50f3e5db61bc68339882f903a283e8bc82185c#2f50f3e5db61bc68339882f903a283e8bc82185c"
 dependencies = [
  "anyhow",
  "async-trait",
