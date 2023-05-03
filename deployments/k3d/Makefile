@@ -15,7 +15,7 @@ compile-musl-slight:
 compile-musl-wws:
 	make build-wws-cross-$(TARGET) -C ../..
 
-move-musl-to-tmp: compile-musl-spin compile-musl-slight
+move-musl-to-tmp: compile-musl-spin compile-musl-slight compile-musl-wws
 	mkdir -p ./.tmp
 	cp ../../containerd-shim-slight-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
 	cp ../../containerd-shim-spin-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
@@ -41,7 +41,7 @@ load-workload-images: build-workload-images
 	k3d image load $(TEST_IMG_NAME_WWS)
 
 up: create-k3d load-workload-images
-	kubectl label nodes k3d-k3s-default-agent-0 spin-enabled=true slight-enabled=true
+	kubectl label nodes k3d-k3s-default-agent-0 spin-enabled=true slight-enabled=true wws-enabled=true
 	kubectl apply -f ./workload
 
 test:

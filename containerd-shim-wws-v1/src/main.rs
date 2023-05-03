@@ -19,7 +19,7 @@ use wws_server::serve;
 
 /// URL to listen to in wws
 const WWS_ADDR: &str = "0.0.0.0";
-const WWS_PORT: u16 = 80;
+const WWS_PORT: u16 = 3000;
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
