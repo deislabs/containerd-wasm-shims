@@ -18,10 +18,9 @@ use containerd_shim_wasm::sandbox::{
 };
 use log::info;
 use reqwest::Url;
-use spin_http::HttpTrigger;
 use spin_manifest::Application;
-use spin_trigger::runtime_config::RuntimeConfig;
-use spin_trigger::{loader, TriggerExecutor, TriggerExecutorBuilder};
+use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
+use spin_trigger_http::HttpTrigger;
 use tokio::runtime::Runtime;
 use wasmtime::OptLevel;
 
@@ -184,7 +183,7 @@ impl Instance for Wasi {
                     });
 
                     info!(" >>> running spin trigger");
-                    let f = http_trigger.run(spin_http::CliArgs {
+                    let f = http_trigger.run(spin_trigger_http::CliArgs {
                         address: parse_addr(SPIN_ADDR).unwrap(),
                         tls_cert: None,
                         tls_key: None,
