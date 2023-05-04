@@ -117,6 +117,7 @@ impl Instance for Wasi {
                             stdout_path: Some(PathBuf::from(pod_stdout)),
                             stderr_path: Some(PathBuf::from(pod_stderr)),
                         }),
+                        link_all_capabilities: false,
                     };
                     let f = handle_run(args);
 
