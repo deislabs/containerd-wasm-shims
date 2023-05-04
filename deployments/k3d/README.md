@@ -36,3 +36,12 @@ k3d cluster delete wasm-cluster
 - `make up`: will build the shims and the k3d kubernetes cluster
 - `make test`: will make a curl call to our deployed service
 - `make clean`: will tear down the cluster
+
+## Trouble shooting
+
+If `make up` fails on this step:
+```shell
+build-workload-images
+```
+
+It might be because you have not setup Docker+Wasm integration correctly. Please refer to this document to setup Docker+Wasm integration: [Docker Setup](./Docker%20Setup.md)
