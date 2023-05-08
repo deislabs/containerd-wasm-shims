@@ -116,6 +116,7 @@ impl Instance for Workers {
                     info!("[wws] Starting wws");
 
                     let path = working_dir.clone();
+                    let stderr_path = Path::new(&stderr);
 
                     // Check the runtimes
                     let config = match Config::load(&path) {
@@ -137,8 +138,7 @@ impl Instance for Workers {
                     let routes = Routes::new(&path, "", &config);
 
                     // Final server
-                    let path = Path::new(&stderr);
-                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT, Some(&path)).await.unwrap();
+                    let f = serve(path, routes, WWS_ADDR, WWS_PORT, Some(stderr_path)).await.unwrap();
 
                     info!("[wws] Notify main thread we are about to start");
                     tx.send(Ok(())).unwrap();
