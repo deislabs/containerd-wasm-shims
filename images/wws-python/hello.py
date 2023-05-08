@@ -34,6 +34,8 @@ Host header: {host}</code></pre>
         host=req.headers["host"]
     )
 
+    print("Log from the Python module!", file=sys.stderr)
+
     # Build a new response
     res = Response(body)
 

@@ -1,5 +1,6 @@
 IMAGE_NAME ?= k3swithshims
 CLUSTER_NAME ?= k3s-default
+PLATFORM ?= linux/amd64
 ARCH ?= x86_64
 TARGET ?= $(ARCH)-unknown-linux-musl
 TEST_IMG_NAME_SPIN ?= wasmtest_spin:latest
@@ -25,7 +26,7 @@ build-multi-k3d-image: move-musl-to-tmp
 	docker buildx build -t $(IMAGE_NAME) --platform linux/amd64,linux/arm64 .
 
 build-dev-k3d-image: move-musl-to-tmp
-	docker buildx build -t $(IMAGE_NAME) --load --platform linux/amd64 .
+	docker buildx build -t $(IMAGE_NAME) --load --platform $(PLATFORM) .
 
 create-k3d: build-dev-k3d-image
 	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1

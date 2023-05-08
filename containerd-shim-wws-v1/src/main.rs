@@ -26,10 +26,12 @@ type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 pub struct Workers {
     exit_code: ExitCode,
     id: String,
-    // TODO: Pass the stdio to wws so the logs are print from the pod
+    // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
+    // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
+    // will change in the future.
     // stdin: String,
     // stdout: String,
-    // stderr: String,
+    stderr: String,
     bundle: String,
     shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
 }
@@ -60,10 +62,12 @@ impl Instance for Workers {
         Workers {
             exit_code: Arc::new((Mutex::new(None), Condvar::new())),
             id,
-            // TODO: Pass the stdio to wws so the logs are print from the pod
+            // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
+            // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
+            // will change in the future.
             // stdin: cfg.get_stdin().unwrap_or_default(),
             // stdout: cfg.get_stdout().unwrap_or_default(),
-            // stderr: cfg.get_stderr().unwrap_or_default(),
+            stderr: cfg.get_stderr().unwrap_or_default(),
             bundle: cfg.get_bundle().unwrap_or_default(),
             shutdown_signal: Arc::new((Mutex::new(false), Condvar::new())),
         }
@@ -76,10 +80,12 @@ impl Instance for Workers {
         let (tx, rx) = channel::<Result<(), Error>>();
         let bundle = self.bundle.clone();
 
-        // TODO: Pass the stdio to wws so the logs are print from the pod
+        // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
+        // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
+        // will change in the future.
         // let stdin = self.stdin.clone();
         // let stdout = self.stdout.clone();
-        // let stderr = self.stderr.clone();
+        let stderr = self.stderr.clone();
 
         thread::Builder::new()
             .name(self.id.clone())
@@ -131,7 +137,8 @@ impl Instance for Workers {
                     let routes = Routes::new(&path, "", &config);
 
                     // Final server
-                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT).await.unwrap();
+                    let path = Path::new(&stderr);
+                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT, Some(&path)).await.unwrap();
 
                     info!("[wws] Notify main thread we are about to start");
                     tx.send(Ok(())).unwrap();
