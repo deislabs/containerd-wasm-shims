@@ -2,6 +2,7 @@ PREFIX ?= /usr/local
 INSTALL ?= install
 TEST_IMG_NAME_SPIN ?= wasmtest_spin:latest
 TEST_IMG_NAME_SLIGHT ?= wasmtest_slight:latest
+TEST_IMG_NAME_WWS ?= wasmtest_wws:latest
 ARCH ?= x86_64
 TARGET ?= $(ARCH)-unknown-linux-musl
 PYTHON ?= python3
@@ -14,6 +15,7 @@ test: unit-tests integration-tests
 unit-tests: build
 	cross test --release --manifest-path=containerd-shim-slight-v1/Cargo.toml --target $(TARGET)
 	cross test --release --manifest-path=containerd-shim-spin-v1/Cargo.toml --target $(TARGET)
+	cross test --release --manifest-path=containerd-shim-wws-v1/Cargo.toml --target $(TARGET)
 
 .PHONY: integration-tests
 integration-tests: build
@@ -22,14 +24,16 @@ integration-tests: build
 	$(PYTHON) tests/teardown.py
 
 .PHONY: fmt
-fmt: 
+fmt:
 	cargo fmt --all --manifest-path=containerd-shim-slight-v1/Cargo.toml -- --check
 	cargo fmt --all --manifest-path=containerd-shim-spin-v1/Cargo.toml -- --check
+	cargo fmt --all --manifest-path=containerd-shim-wws-v1/Cargo.toml -- --check
 	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-slight-v1/Cargo.toml -- -D warnings
 	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-spin-v1/Cargo.toml -- -D warnings
+	cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-wws-v1/Cargo.toml -- -D warnings
 
 .PHONY: build
-build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET)
+build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET) build-wws-cross-$(TARGET)
 	echo "Build complete"
 
 .PHONY: install-cross
@@ -45,6 +49,10 @@ build-spin-cross-%: install-cross
 build-slight-cross-%: install-cross
 	cross build --release --target $* --manifest-path=containerd-shim-slight-v1/Cargo.toml -vvv
 
+.PHONY: build-wws-cross-%
+build-wws-cross-%: install-cross
+	cross build --release --target $* --manifest-path=containerd-shim-wws-v1/Cargo.toml -vvv
+
 .PHONY: build-spin
 build-spin:
 	cargo build --release --manifest-path=containerd-shim-spin-v1/Cargo.toml
@@ -53,8 +61,12 @@ build-spin:
 build-slight:
 	cargo build --release --manifest-path=containerd-shim-slight-v1/Cargo.toml
 
+.PHONY: build-wws
+build-slight:
+	cargo build --release --manifest-path=containerd-shim-wws-v1/Cargo.toml
+
 .PHONY: install
-install: build-spin build-slight
+install: build-spin build-slight build-wws
 	sudo $(INSTALL) containerd-shim-*/target/release/containerd-shim-*-v1 $(PREFIX)/bin
 
 .PHONY: update-deps
@@ -71,9 +83,15 @@ test/out_slight/img.tar: images/slight/Dockerfile
 	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_SLIGHT) ./images/slight
 	docker save -o $@ $(TEST_IMG_NAME_SLIGHT)
 
-load: test/out_spin/img.tar test/out_slight/img.tar
+test/out_wws/img.tar: images/wws/Dockerfile
+	mkdir -p $(@D)
+	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_WWS) ./images/wws
+	docker save -o $@ $(TEST_IMG_NAME_WWS)
+
+load: test/out_spin/img.tar test/out_slight/img.tar test/out_wws/img.tar
 	sudo ctr -n $(CONTAINERD_NAMESPACE) image import test/out_spin/img.tar
 	sudo ctr -n $(CONTAINERD_NAMESPACE) image import test/out_slight/img.tar
+	sudo ctr -n $(CONTAINERD_NAMESPACE) image import test/out_wws/img.tar
 
 .PHONY: run_spin
 run_spin: install load
@@ -83,10 +101,15 @@ run_spin: install load
 run_slight: install load
 	sudo ctr run --net-host --rm --runtime=io.containerd.slight.v1 docker.io/library/$(TEST_IMG_NAME_SLIGHT) testslight
 
+.PHONY: run_wws
+run_wws: install load
+	sudo ctr run --net-host --rm --runtime=io.containerd.wws.v1 docker.io/library/$(TEST_IMG_NAME_WWS) testwws
+
 .PHONY: clean
-clean: clean-slight clean-spin
+clean: clean-slight clean-spin clean-wws
 	test -f $(PREFIX)/bin/containerd-shim-spin-v1 && sudo rm -rf $(PREFIX)/bin/containerd-shim-spin-v1 || true
 	test -f  $(PREFIX)/bin/containerd-shim-slight-v1 && sudo rm -rf $(PREFIX)/bin/containerd-shim-slight-v1 || true
+	test -f  $(PREFIX)/bin/containerd-shim-wws-v1 && sudo rm -rf $(PREFIX)/bin/containerd-shim-wws-v1 || true
 	test -d ./test && sudo rm -rf ./test || true
 
 .PHONY: clean-spin
@@ -96,3 +119,7 @@ clean-spin:
 .PHONY: clean-slight
 clean-slight:
 	cargo clean --manifest-path containerd-shim-slight-v1/Cargo.toml
+
+.PHONY: clean-wws
+clean-slight:
+	cargo clean --manifest-path containerd-shim-wws-v1/Cargo.toml

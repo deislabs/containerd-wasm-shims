@@ -76,6 +76,39 @@ spec:
   selector:
     app: wasm-spin
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasm-wws
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasm-wws
+  template:
+    metadata:
+      labels:
+        app: wasm-wws
+    spec:
+      runtimeClassName: wasmtime-wws
+      containers:
+        - name: wws-hello
+          imagePullPolicy: Never
+          image: ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:v0.5.1
+          command: ["/"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wasm-wws
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  selector:
+    app: wasm-wws
+---
 # Middleware
 # Strip prefix /spin
 apiVersion: traefik.containo.us/v1alpha1
@@ -88,6 +121,7 @@ spec:
     prefixes:
       - /spin
       - /slight
+      - /wws
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -113,5 +147,12 @@ spec:
             backend:
               service:
                 name: wasm-slight
+                port:
+                  number: 80
+          - path: /wws
+            pathType: Prefix
+            backend:
+              service:
+                name: wasm-wws
                 port:
                   number: 80
