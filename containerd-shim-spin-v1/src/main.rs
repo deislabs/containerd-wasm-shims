@@ -94,7 +94,8 @@ impl Wasi {
             stdin_pipe_path,
         );
         builder.hooks(logging_hooks);
-        let executor = builder.build(locked_url, runtime_config).await?;
+        let init_data = Default::default();
+        let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
     }
 }
