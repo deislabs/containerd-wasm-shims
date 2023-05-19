@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} rust:1.67 AS build
+FROM --platform=${BUILDPLATFORM} rust:1.69 AS build
 WORKDIR /opt/build
 COPY . .
 RUN rustup target add wasm32-wasi && cargo build --target wasm32-wasi --release
