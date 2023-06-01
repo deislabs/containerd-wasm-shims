@@ -135,7 +135,7 @@ impl Instance for Workers {
                         error!("[wws] You can install the missing runtimes with: wws runtimes install");
                     }
 
-                    let routes = Routes::new(&path, "", &config);
+                    let routes = Routes::new(&path, "", Vec::new(), &config);
 
                     // Final server
                     let f = serve(&path, routes, WWS_ADDR, WWS_PORT, Some(stderr_path)).await.unwrap();
