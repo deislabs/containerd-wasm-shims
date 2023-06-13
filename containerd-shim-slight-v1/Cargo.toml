@@ -11,11 +11,11 @@ Containerd shim for running Slight workloads.
 """
 
 [dependencies]
-chrono = "~0.4"
+chrono = "0.4"
 clap = { version = "4.1", features = ["derive", "env"] }
-containerd-shim = "~0.3"
-containerd-shim-wasm = "0.1.1"
-log = "~0.4"
+containerd-shim = "0.3"
+containerd-shim-wasm = "0.1"
+log = "0.4"
 tokio = { version = "1", features = [ "full" ] }
 tokio-util = { version = "0.7", features = [ "codec" ]}
 wasmtime = "8.0"
