@@ -666,7 +666,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-wws-v1"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "chrono",
  "containerd-shim",
