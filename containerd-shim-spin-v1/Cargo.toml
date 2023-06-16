@@ -1,6 +1,6 @@
 [package]
 name = "containerd-shim-spin-v1"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["DeisLabs Engineering Team"]
 edition = "2021"
 repository = 'https://github.com/deislabs/containerd-wasm-shims'

@@ -675,7 +675,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-spin-v1"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "anyhow",
  "async-trait",

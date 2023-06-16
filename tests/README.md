@@ -1,3 +1,3 @@
 # Run
 
-`cargo test -- --nocapture`
+`make test`
