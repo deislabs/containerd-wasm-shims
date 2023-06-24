@@ -45,4 +45,4 @@ If `make up` fails on this step:
 build-workload-images
 ```
 
-It might be because you have not setup Docker+Wasm integration correctly. Please refer to this document to setup Docker+Wasm integration: [Docker Setup](./Docker%20Setup.md)
+It might be because you have not setup Docker+Wasm integration correctly. Please refer to this document to setup Docker+Wasm integration: [Docker Setup](./DockerSetup.md)
