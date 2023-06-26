@@ -93,9 +93,15 @@ spec:
       runtimeClassName: wasmtime-wws
       containers:
         - name: wws-hello
-          imagePullPolicy: Never
           image: ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:v0.7.0
           command: ["/"]
+          resources: # limit the resources to 128Mi of memory and 100m of CPU
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service

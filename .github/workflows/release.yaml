@@ -87,7 +87,7 @@ jobs:
           tags: |
             ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:latest
-          context: images/slight
+          context: images/wws
           platforms: wasi/wasm
       - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
         run: |
