@@ -49,8 +49,8 @@ To use one of these containerd shims in Kubernetes, you must do the following:
 1. Install the shim binary somewhere on the path of your Kubernetes worker nodes. For example, copy `containerd-shim-spin-v1` to  `/bin`.
 2. Add the following to the containerd config.toml that maps the runtime type to the shim binary from step 1.
   ```toml
-    [plugins.cri.containerd.runtimes.spin]
-      runtime_type = "io.containerd.spin.v1"
+  [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.spin]
+    runtime_type = "io.containerd.spin.v1"
   ```
 3. Apply a runtime class that contains a handler that matches the "spin" config runtime name from step 2.
   ```yaml
