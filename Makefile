@@ -40,6 +40,10 @@ build: build-spin-cross-$(TARGET) build-slight-cross-$(TARGET) build-wws-cross-$
 install-cross:
 	@if [ -z $$(which cross) ]; then cargo install cross --git https://github.com/cross-rs/cross; fi
 
+.PHONY: install-rust-targets
+install-rust-targets:
+	rustup target add wasm32-wasi && rustup target add wasm32-unknown-unknown
+
 # build-cross can be be used to build any cross supported target (make build-cross-x86_64-unknown-linux-musl)
 .PHONY: build-spin-cross-%
 build-spin-cross-%: install-cross
@@ -54,15 +58,15 @@ build-wws-cross-%: install-cross
 	cross build --release --target $* --manifest-path=containerd-shim-wws-v1/Cargo.toml -vvv
 
 .PHONY: build-spin
-build-spin:
+build-spin: install-rust-targets
 	cargo build --release --manifest-path=containerd-shim-spin-v1/Cargo.toml
 
 .PHONY: build-slight
-build-slight:
+build-slight: install-rust-targets
 	cargo build --release --manifest-path=containerd-shim-slight-v1/Cargo.toml
 
 .PHONY: build-wws
-build-slight:
+build-wss:
 	cargo build --release --manifest-path=containerd-shim-wws-v1/Cargo.toml
 
 .PHONY: install
@@ -121,5 +125,5 @@ clean-slight:
 	cargo clean --manifest-path containerd-shim-slight-v1/Cargo.toml
 
 .PHONY: clean-wws
-clean-slight:
+clean-wss:
 	cargo clean --manifest-path containerd-shim-wws-v1/Cargo.toml

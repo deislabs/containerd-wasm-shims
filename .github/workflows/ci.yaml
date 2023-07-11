@@ -17,8 +17,7 @@ jobs:
             "containerd-shim-wws-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
-          rustup target add wasm32-wasi
-          rustup target add wasm32-unknown-unknown
+          make install-rust-targets
       - name: "Install dependencies"
         run: |
           sudo apt-get update
@@ -42,8 +41,7 @@ jobs:
             "containerd-shim-wws-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
-          rustup target add wasm32-wasi
-          rustup target add wasm32-unknown-unknown
+          make install-rust-targets
       - name: "Install dependencies"
         run: |
           sudo apt-get update
