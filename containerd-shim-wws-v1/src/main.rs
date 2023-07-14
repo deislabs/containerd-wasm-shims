@@ -138,7 +138,7 @@ impl Instance for Workers {
                     let routes = Routes::new(&path, "", Vec::new(), &config);
 
                     // Final server
-                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT, Some(stderr_path)).await.unwrap();
+                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT, false, Some(stderr_path)).await.unwrap();
 
                     info!("[wws] Notify main thread we are about to start");
                     tx.send(Ok(())).unwrap();

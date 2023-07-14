@@ -15,12 +15,12 @@ Containerd shim for running Wasm Workers Server workloads.
 [dependencies]
 containerd-shim = "0.3"
 containerd-shim-wasm = "0.1"
-wws-config = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.2.0" }
-wws-server = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.2.0" }
-wws-router = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.2.0" }
+wws-config = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.4.0" }
+wws-server = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.4.0" }
+wws-router = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.4.0" }
 log = "0.4"
 tokio = { version = "1", features = [ "full" ] }
-tokio-util = { version = "0.6.10", features = [ "codec" ]}
+tokio-util = { version = "0.7", features = [ "codec" ]}
 chrono = "0.4"
 
 [target.x86_64-unknown-linux-musl.dependencies]
