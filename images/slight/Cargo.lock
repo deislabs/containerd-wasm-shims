@@ -42,7 +42,7 @@ dependencies = [
 
 [[package]]
 name = "http-server-lib"
-version = "0.6.0"
+version = "0.8.0"
 dependencies = [
  "anyhow",
  "slight-http-handler-macro",
