@@ -1,6 +1,6 @@
 [package]
 name = "containerd-shim-spin-v1"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["DeisLabs Engineering Team"]
 edition = "2021"
 repository = 'https://github.com/deislabs/containerd-wasm-shims'
@@ -20,6 +20,7 @@ spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-core = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-trigger-http = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
+spin-redis-engine = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-loader = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 wasmtime = "10.0.1"

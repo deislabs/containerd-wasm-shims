@@ -738,7 +738,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-spin-v1"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -755,6 +755,7 @@ dependencies = [
  "spin-core",
  "spin-loader",
  "spin-manifest",
+ "spin-redis-engine",
  "spin-trigger",
  "spin-trigger-http",
  "tokio",
@@ -2987,7 +2988,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "059a34f111a9dee2ce1ac2826a68b24601c4298cfeb1a587c3cb493d5ab46f52"
 dependencies = [
  "libc",
- "nix 0.26.2",
+ "nix 0.22.3",
 ]
 
 [[package]]
@@ -3997,6 +3998,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "spin-redis-engine"
+version = "1.4.0"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "futures",
+ "redis",
+ "serde",
+ "spin-app",
+ "spin-core",
+ "spin-trigger",
+ "spin-world",
+ "tracing",
+]
+
+[[package]]
 name = "spin-sqlite"
 version = "1.4.0"
 source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
@@ -4613,7 +4631,7 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 1.0.0",
+ "cfg-if 0.1.10",
  "rand 0.8.5",
  "static_assertions",
 ]
