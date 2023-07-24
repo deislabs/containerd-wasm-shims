@@ -20,6 +20,7 @@ spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-core = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-trigger-http = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
+spin-redis-engine = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-loader = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 wasmtime = "10.0.1"

@@ -1,8 +1,10 @@
+use std::future::Future;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::option::Option;
 use std::path::Path;
 use std::path::PathBuf;
+use std::pin::Pin;
 use std::sync::mpsc::channel;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Condvar, Mutex};
@@ -19,6 +21,7 @@ use containerd_shim_wasm::sandbox::{
 use log::info;
 use reqwest::Url;
 use spin_manifest::Application;
+use spin_redis_engine::RedisTrigger;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
 use tokio::runtime::Runtime;
@@ -61,13 +64,16 @@ impl Wasi {
         Ok(spin_loader::from_file(mod_path, Some(working_dir)).await?)
     }
 
-    async fn build_spin_trigger(
+    async fn build_spin_trigger<T: spin_trigger::TriggerExecutor>(
         working_dir: PathBuf,
         app: Application,
         stdout_pipe_path: PathBuf,
         stderr_pipe_path: PathBuf,
         stdin_pipe_path: PathBuf,
-    ) -> Result<HttpTrigger> {
+    ) -> Result<T>
+    where
+        for<'de> <T as TriggerExecutor>::TriggerConfig: serde::de::Deserialize<'de>,
+    {
         // Build and write app lock file
         let locked_app = spin_trigger::locked::build_locked_app(app, &working_dir)?;
         let locked_path = working_dir.join("spin.lock");
@@ -155,26 +161,6 @@ impl Instance for Wasi {
                             }
                         };
 
-                    info!(" >>> building spin trigger");
-                    let http_trigger = match Wasi::build_spin_trigger(
-                        working_dir,
-                        app,
-                        PathBuf::from(stdout),
-                        PathBuf::from(stderr),
-                        PathBuf::from(stdin),
-                    )
-                    .await
-                    {
-                        Ok(http_trigger) => http_trigger,
-                        Err(err) => {
-                            tx.send(Err(Error::Others(format!(
-                                "could not build spin trigger: {err}"
-                            ))))
-                            .unwrap();
-                            return;
-                        }
-                    };
-
                     let rx_future = tokio::task::spawn_blocking(move || {
                         let (lock, cvar) = &*shutdown_signal;
                         let mut shutdown = lock.lock().unwrap();
@@ -183,12 +169,64 @@ impl Instance for Wasi {
                         }
                     });
 
-                    info!(" >>> running spin trigger");
-                    let f = http_trigger.run(spin_trigger_http::CliArgs {
-                        address: parse_addr(SPIN_ADDR).unwrap(),
-                        tls_cert: None,
-                        tls_key: None,
-                    });
+                    let trigger = app.info.trigger.clone();
+                    info!(" >>> building spin trigger {:?}", trigger);
+
+                    let f: Pin<Box<dyn Future<Output = Result<(), anyhow::Error>> + Send>>;
+
+                    match trigger {
+                        spin_manifest::ApplicationTrigger::Http(_config) => {
+                            let http_trigger: HttpTrigger = match Wasi::build_spin_trigger(
+                                working_dir,
+                                app,
+                                PathBuf::from(stdout),
+                                PathBuf::from(stderr),
+                                PathBuf::from(stdin),
+                            )
+                            .await
+                            {
+                                Ok(http_trigger) => http_trigger,
+                                Err(err) => {
+                                    tx.send(Err(Error::Others(format!(
+                                        "could not build spin trigger: {err}"
+                                    ))))
+                                    .unwrap();
+                                    return;
+                                }
+                            };
+
+                            info!(" >>> running spin trigger");
+                            f = http_trigger.run(spin_trigger_http::CliArgs {
+                                address: parse_addr(SPIN_ADDR).unwrap(),
+                                tls_cert: None,
+                                tls_key: None,
+                            });
+                        }
+                        spin_manifest::ApplicationTrigger::Redis(_config) => {
+                            let redis_trigger: RedisTrigger = match Wasi::build_spin_trigger(
+                                working_dir,
+                                app,
+                                PathBuf::from(stdout),
+                                PathBuf::from(stderr),
+                                PathBuf::from(stdin),
+                            )
+                            .await
+                            {
+                                Ok(redis_trigger) => redis_trigger,
+                                Err(err) => {
+                                    tx.send(Err(Error::Others(format!(
+                                        "could not build spin trigger: {err}"
+                                    ))))
+                                    .unwrap();
+                                    return;
+                                }
+                            };
+
+                            info!(" >>> running spin trigger");
+                            f = redis_trigger.run(spin_trigger::cli::NoArgs);
+                        }
+                        _ => todo!("Only Http and Redis triggers are currently supported."),
+                    }
 
                     info!(" >>> notifying main thread we are about to start");
                     tx.send(Ok(())).unwrap();
