@@ -24,9 +24,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
-            "containerd-shim-slight-v1 -> target"
-            "containerd-shim-spin-v1 -> target"
-            "containerd-shim-wws-v1 -> target"
+            "containerd-shim-*-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           make install-rust-targets
@@ -36,7 +34,7 @@ jobs:
           sudo apt-get install protobuf-compiler -y
       - name: build
         run: |
-          make build
+          VERBOSE=1 make build
       - name: lowercase the runner OS name
         shell: bash
         run: |
@@ -45,9 +43,9 @@ jobs:
       - name: package release assets
         run: |
           mkdir _dist
-          cp containerd-shim-slight-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
-          cp containerd-shim-spin-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
-          cp containerd-shim-wws-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          for shim in slight spin wws; do
+            cp containerd-shim-$shim-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          done
           cd _dist
           tar czf containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: upload shim artifacts

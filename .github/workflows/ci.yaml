@@ -12,9 +12,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
-            "containerd-shim-slight-v1 -> target"
-            "containerd-shim-spin-v1 -> target"
-            "containerd-shim-wws-v1 -> target"
+            "containerd-shim-*-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           make install-rust-targets
@@ -36,9 +34,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
-            "containerd-shim-slight-v1 -> target"
-            "containerd-shim-spin-v1 -> target"
-            "containerd-shim-wws-v1 -> target"
+            "containerd-shim-*-v1 -> target"
       - name: "Install Rust Wasm targets"
         run: |
           make install-rust-targets

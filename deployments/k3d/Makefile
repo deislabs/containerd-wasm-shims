@@ -1,26 +1,21 @@
+SHIMS = spin slight wws
+
 IMAGE_NAME ?= k3swithshims
 CLUSTER_NAME ?= k3s-default
 PLATFORM ?= linux/amd64
 ARCH ?= x86_64
 TARGET ?= $(ARCH)-unknown-linux-musl
-TEST_IMG_NAME_SPIN ?= wasmtest_spin:latest
-TEST_IMG_NAME_SLIGHT ?= wasmtest_slight:latest
-TEST_IMG_NAME_WWS ?= wasmtest_wws:latest
+TEST_IMG_NAME_spin ?= wasmtest_spin:latest
+TEST_IMG_NAME_slight ?= wasmtest_slight:latest
+TEST_IMG_NAME_wws ?= wasmtest_wws:latest
 
-compile-musl-spin:
-	make build-spin-cross-$(TARGET) -C ../..
+compile-musl-%:
+	make build-$*-cross-$(TARGET) -C ../..
 
-compile-musl-slight:
-	make build-slight-cross-$(TARGET) -C ../..
-
-compile-musl-wws:
-	make build-wws-cross-$(TARGET) -C ../..
-
-move-musl-to-tmp: compile-musl-spin compile-musl-slight compile-musl-wws
+move-musl-to-tmp: $(addprefix compile-musl-,$(SHIMS))
 	mkdir -p ./.tmp
-	cp ../../containerd-shim-slight-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
-	cp ../../containerd-shim-spin-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
-	cp ../../containerd-shim-wws-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/
+	$(foreach shim,$(SHIMS),cp ../../containerd-shim-$(shim)-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/;)
+
 
 build-multi-k3d-image: move-musl-to-tmp
 	docker buildx build -t $(IMAGE_NAME) --platform linux/amd64,linux/arm64 .
@@ -32,23 +27,17 @@ create-k3d: build-dev-k3d-image
 	k3d cluster create $(CLUSTER_NAME) --image $(IMAGE_NAME) --api-port 6550 -p "8081:80@loadbalancer" --agents 1
 
 build-workload-images:
-	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_SPIN) ../../images/spin
-	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_SLIGHT) ../../images/slight
-	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_WWS) ../../images/wws
+	$(foreach shim,$(SHIMS),docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_$(shim)) ../../images/$(shim);)
 
 load-workload-images: build-workload-images
-	k3d image load $(TEST_IMG_NAME_SPIN)
-	k3d image load $(TEST_IMG_NAME_SLIGHT)
-	k3d image load $(TEST_IMG_NAME_WWS)
+	$(foreach shim,$(SHIMS),k3d image load $(TEST_IMG_NAME_$(shim));)
 
 up: create-k3d load-workload-images
 	kubectl label nodes k3d-k3s-default-agent-0 spin-enabled=true slight-enabled=true wws-enabled=true
 	kubectl apply -f ./workload
 
 test:
-	curl localhost:8081/spin/hello
-	curl localhost:8081/slight/hello
-	curl localhost:8081/wws/hello
+	$(foreach shim,$(SHIMS),curl localhost:8081/$(shim)/hello;)
 
 integration: move-musl-to-tmp
 	cd ../.. && cargo test -- --nocapture
