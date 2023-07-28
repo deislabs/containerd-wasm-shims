@@ -48,7 +48,6 @@ pub struct Wasi {
     stdout: String,
     stderr: String,
     bundle: String,
-    shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
     rootdir: PathBuf,
 }
 
@@ -121,7 +120,6 @@ impl Instance for Wasi {
             stdout: cfg.get_stdout().unwrap_or_default(),
             stderr: cfg.get_stderr().unwrap_or_default(),
             bundle: cfg.get_bundle().unwrap_or_default(),
-            shutdown_signal: Arc::new((Mutex::new(false), Condvar::new())),
             rootdir,
         }
     }

@@ -31,7 +31,7 @@ impl SpinExecutor {
         mod_path: PathBuf,
         working_dir: PathBuf,
     ) -> anyhow::Result<Application> {
-        Ok(spin_loader::from_file(mod_path, Some(working_dir)).await?)
+        spin_loader::from_file(mod_path, Some(working_dir)).await
     }
 
     async fn build_spin_trigger<T: spin_trigger::TriggerExecutor>(
@@ -84,12 +84,8 @@ impl Executor for SpinExecutor {
         }
 
         prepare_stdio(self.stdin, self.stdout, self.stderr).map_err(|err| {
-            ExecutorError::Other(format!(
-                "failed to prepare stdio for container: {}",
-                err
-            ))
+            ExecutorError::Other(format!("failed to prepare stdio for container: {}", err))
         })?;
-
 
         let rt = Runtime::new().unwrap();
         let res = rt.block_on(async {
@@ -178,11 +174,7 @@ impl Executor for SpinExecutor {
     }
 }
 
-fn prepare_stdio(
-    stdin: Option<RawFd>,
-    stdout: Option<RawFd>,
-    stderr: Option<RawFd>,
-) -> Result<()> {
+fn prepare_stdio(stdin: Option<RawFd>, stdout: Option<RawFd>, stderr: Option<RawFd>) -> Result<()> {
     if let Some(stdin) = stdin {
         dup(STDIN_FILENO)?;
         dup2(stdin, STDIN_FILENO)?;
