@@ -1,36 +1,43 @@
-use std::future::Future;
+use std::fs::File;
+use std::io::ErrorKind;
+use std::io::Read;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::option::Option;
 use std::path::Path;
 use std::path::PathBuf;
-use std::pin::Pin;
-use std::sync::mpsc::channel;
-use std::sync::mpsc::Sender;
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
 
+use anyhow::Context;
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
 use containerd_shim as shim;
+use containerd_shim_wasm::sandbox::instance::Wait;
+use containerd_shim_wasm::sandbox::instance_utils::get_instance_root;
+use containerd_shim_wasm::sandbox::instance_utils::instance_exists;
+use containerd_shim_wasm::sandbox::instance_utils::maybe_open_stdio;
 use containerd_shim_wasm::sandbox::{
-    error::Error,
-    instance::{EngineGetter, InstanceConfig},
-    oci, Instance, ShimCli,
+    error::Error, EngineGetter, Instance, InstanceConfig, ShimCli,
 };
-use log::info;
-use reqwest::Url;
-use spin_manifest::Application;
-use spin_redis_engine::RedisTrigger;
-use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
-use spin_trigger_http::HttpTrigger;
-use tokio::runtime::Runtime;
-use wasmtime::OptLevel;
+use executor::SpinExecutor;
+use libc::{SIGINT, SIGKILL};
+use libcontainer::container::builder::ContainerBuilder;
+use libcontainer::container::Container;
+use libcontainer::container::ContainerStatus;
+use libcontainer::signal::Signal;
+use libcontainer::syscall::syscall::create_syscall;
+use log::error;
+use nix::errno::Errno;
+use nix::sys::wait::{waitid, Id as WaitID, WaitPidFlag, WaitStatus};
+use serde::Deserialize;
+use serde::Serialize;
 
+mod executor;
 mod podio;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
-const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
+static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/spin";
 
 type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
@@ -42,67 +49,62 @@ pub struct Wasi {
     stderr: String,
     bundle: String,
     shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
+    rootdir: PathBuf,
 }
 
-pub fn prepare_module(bundle: String) -> Result<(PathBuf, PathBuf), Error> {
-    let mut spec = oci::load(Path::new(&bundle).join("config.json").to_str().unwrap())
-        .expect("unable to load OCI bundle");
+#[derive(Serialize, Deserialize)]
+struct Options {
+    root: Option<PathBuf>,
+}
 
-    spec.canonicalize_rootfs(&bundle)
-        .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {err}")))?;
-
-    let working_dir = oci::get_root(&spec);
-    let mod_path = working_dir.join("spin.toml");
-    Ok((working_dir.to_path_buf(), mod_path))
+fn determine_rootdir<P: AsRef<Path>>(bundle: P, namespace: String) -> Result<PathBuf, Error> {
+    log::info!(
+        "determining rootdir for bundle: {}",
+        bundle.as_ref().display()
+    );
+    let mut file = match File::open(bundle.as_ref().join("options.json")) {
+        Ok(f) => f,
+        Err(err) => match err.kind() {
+            ErrorKind::NotFound => {
+                return Ok(<&str as Into<PathBuf>>::into(DEFAULT_CONTAINER_ROOT_DIR).join(namespace))
+            }
+            _ => return Err(err.into()),
+        },
+    };
+    let mut data = String::new();
+    file.read_to_string(&mut data)?;
+    let options: Options = serde_json::from_str(&data)?;
+    let path = options
+        .root
+        .unwrap_or(PathBuf::from(DEFAULT_CONTAINER_ROOT_DIR))
+        .join(namespace);
+    log::info!("youki root path is: {}", path.display());
+    Ok(path)
 }
 
 impl Wasi {
-    async fn build_spin_application(
-        mod_path: PathBuf,
-        working_dir: PathBuf,
-    ) -> Result<Application, Error> {
-        Ok(spin_loader::from_file(mod_path, Some(working_dir)).await?)
-    }
+    fn build_container(
+        &self,
+        stdin: &str,
+        stdout: &str,
+        stderr: &str,
+    ) -> anyhow::Result<Container> {
+        let syscall = create_syscall();
+        let stdin = maybe_open_stdio(stdin).context("could not open stdin")?;
+        let stdout = maybe_open_stdio(stdout).context("could not open stdout")?;
+        let stderr = maybe_open_stdio(stderr).context("could not open stderr")?;
 
-    async fn build_spin_trigger<T: spin_trigger::TriggerExecutor>(
-        working_dir: PathBuf,
-        app: Application,
-        stdout_pipe_path: PathBuf,
-        stderr_pipe_path: PathBuf,
-        stdin_pipe_path: PathBuf,
-    ) -> Result<T>
-    where
-        for<'de> <T as TriggerExecutor>::TriggerConfig: serde::de::Deserialize<'de>,
-    {
-        // Build and write app lock file
-        let locked_app = spin_trigger::locked::build_locked_app(app, &working_dir)?;
-        let locked_path = working_dir.join("spin.lock");
-        let locked_app_contents =
-            serde_json::to_vec_pretty(&locked_app).expect("could not serialize locked app");
-        std::fs::write(&locked_path, locked_app_contents).expect("could not write locked app");
-        let locked_url = Url::from_file_path(&locked_path)
-            .map_err(|_| anyhow!("cannot convert to file URL: {locked_path:?}"))?
-            .to_string();
-
-        // Build trigger config
-        let loader = loader::TriggerLoader::new(working_dir.clone(), true);
-        let runtime_config_path = working_dir.clone().join(RUNTIME_CONFIG_FILE_PATH);
-        let runtime_config = RuntimeConfig::new(runtime_config_path.into());
-        let mut builder = TriggerExecutorBuilder::new(loader);
-        let config = builder.wasmtime_config_mut();
-        config
-            .cache_config_load_default()?
-            .cranelift_opt_level(OptLevel::Speed);
-
-        let logging_hooks = podio::PodioLoggingTriggerHooks::new(
-            stdout_pipe_path,
-            stderr_pipe_path,
-            stdin_pipe_path,
-        );
-        builder.hooks(logging_hooks);
-        let init_data = Default::default();
-        let executor = builder.build(locked_url, runtime_config, init_data).await?;
-        Ok(executor)
+        let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
+            .with_executor(vec![Box::new(SpinExecutor {
+                stdin,
+                stdout,
+                stderr,
+            })])?
+            .with_root_path(self.rootdir.clone())?
+            .as_init(&self.bundle)
+            .with_systemd(false)
+            .build()?;
+        Ok(container)
     }
 }
 
@@ -110,6 +112,8 @@ impl Instance for Wasi {
     type E = ();
     fn new(id: String, cfg: Option<&InstanceConfig<Self::E>>) -> Self {
         let cfg = cfg.unwrap();
+        let bundle = cfg.get_bundle().unwrap_or_default();
+        let rootdir = determine_rootdir(bundle.as_str(), cfg.get_namespace()).unwrap();
         Wasi {
             exit_code: Arc::new((Mutex::new(None), Condvar::new())),
             id,
@@ -118,187 +122,123 @@ impl Instance for Wasi {
             stderr: cfg.get_stderr().unwrap_or_default(),
             bundle: cfg.get_bundle().unwrap_or_default(),
             shutdown_signal: Arc::new((Mutex::new(false), Condvar::new())),
+            rootdir,
         }
     }
     fn start(&self) -> Result<u32, Error> {
-        let exit_code = self.exit_code.clone();
-        let shutdown_signal = self.shutdown_signal.clone();
-        let (tx, rx) = channel::<Result<(), Error>>();
-        let bundle = self.bundle.clone();
-        let stdin = self.stdin.clone();
-        let stdout = self.stdout.clone();
-        let stderr = self.stderr.clone();
+        log::info!("starting instance: {}", self.id);
+        let mut container = self.build_container(
+            self.stdin.as_str(),
+            self.stdout.as_str(),
+            self.stderr.as_str(),
+        )?;
+        log::info!("created container: {}", self.id);
+        let code = self.exit_code.clone();
+        let pid = container.pid().unwrap();
 
-        info!(
-            " >>> stdin: {:#?}, stdout: {:#?}, stderr: {:#?}",
-            stdin, stdout, stderr
-        );
+        container
+            .start()
+            .map_err(|err| Error::Any(anyhow::anyhow!("failed to start container: {}", err)))?;
+        thread::spawn(move || {
+            let (lock, cvar) = &*code;
 
-        thread::Builder::new()
-            .name(self.id.clone())
-            .spawn(move || {
-                let (working_dir, mod_path) = match prepare_module(bundle) {
-                    Ok(f) => f,
-                    Err(err) => {
-                        tx.send(Err(err)).unwrap();
-                        return;
+            let status = match waitid(WaitID::Pid(pid), WaitPidFlag::WEXITED) {
+                Ok(WaitStatus::Exited(_, status)) => status,
+                Ok(WaitStatus::Signaled(_, sig, _)) => sig as i32,
+                Ok(_) => 0,
+                Err(e) => {
+                    if e == Errno::ECHILD {
+                        log::info!("no child process");
+                        0
+                    } else {
+                        panic!("waitpid failed: {}", e);
                     }
-                };
+                }
+            } as u32;
+            let mut ec = lock.lock().unwrap();
+            *ec = Some((status, Utc::now()));
+            drop(ec);
+            cvar.notify_all();
+        });
 
-                info!(" >>> loading module: {}", mod_path.display());
-                info!(" >>> working dir: {}", working_dir.display());
-                info!(" >>> starting spin");
-
-                let rt = Runtime::new().unwrap();
-                rt.block_on(async {
-                    info!(" >>> building spin application");
-                    let app =
-                        match Wasi::build_spin_application(mod_path, working_dir.clone()).await {
-                            Ok(app) => app,
-                            Err(err) => {
-                                tx.send(Err(err)).unwrap();
-                                return;
-                            }
-                        };
-
-                    let rx_future = tokio::task::spawn_blocking(move || {
-                        let (lock, cvar) = &*shutdown_signal;
-                        let mut shutdown = lock.lock().unwrap();
-                        while !*shutdown {
-                            shutdown = cvar.wait(shutdown).unwrap();
-                        }
-                    });
-
-                    let trigger = app.info.trigger.clone();
-                    info!(" >>> building spin trigger {:?}", trigger);
-
-                    let f: Pin<Box<dyn Future<Output = Result<(), anyhow::Error>> + Send>>;
-
-                    match trigger {
-                        spin_manifest::ApplicationTrigger::Http(_config) => {
-                            let http_trigger: HttpTrigger = match Wasi::build_spin_trigger(
-                                working_dir,
-                                app,
-                                PathBuf::from(stdout),
-                                PathBuf::from(stderr),
-                                PathBuf::from(stdin),
-                            )
-                            .await
-                            {
-                                Ok(http_trigger) => http_trigger,
-                                Err(err) => {
-                                    tx.send(Err(Error::Others(format!(
-                                        "could not build spin trigger: {err}"
-                                    ))))
-                                    .unwrap();
-                                    return;
-                                }
-                            };
-
-                            info!(" >>> running spin trigger");
-                            f = http_trigger.run(spin_trigger_http::CliArgs {
-                                address: parse_addr(SPIN_ADDR).unwrap(),
-                                tls_cert: None,
-                                tls_key: None,
-                            });
-                        }
-                        spin_manifest::ApplicationTrigger::Redis(_config) => {
-                            let redis_trigger: RedisTrigger = match Wasi::build_spin_trigger(
-                                working_dir,
-                                app,
-                                PathBuf::from(stdout),
-                                PathBuf::from(stderr),
-                                PathBuf::from(stdin),
-                            )
-                            .await
-                            {
-                                Ok(redis_trigger) => redis_trigger,
-                                Err(err) => {
-                                    tx.send(Err(Error::Others(format!(
-                                        "could not build spin trigger: {err}"
-                                    ))))
-                                    .unwrap();
-                                    return;
-                                }
-                            };
-
-                            info!(" >>> running spin trigger");
-                            f = redis_trigger.run(spin_trigger::cli::NoArgs);
-                        }
-                        _ => todo!("Only Http and Redis triggers are currently supported."),
-                    }
-
-                    info!(" >>> notifying main thread we are about to start");
-                    tx.send(Ok(())).unwrap();
-                    tokio::select! {
-                        _ = f => {
-                            log::info!(" >>> server shut down: exiting");
-
-                            let (lock, cvar) = &*exit_code;
-                            let mut ec = lock.lock().unwrap();
-                            *ec = Some((137, Utc::now()));
-                            cvar.notify_all();
-                        },
-                        _ = rx_future => {
-                            log::info!(" >>> user requested shutdown: exiting");
-                            let (lock, cvar) = &*exit_code;
-                            let mut ec = lock.lock().unwrap();
-                            *ec = Some((0, Utc::now()));
-                            cvar.notify_all();
-                        },
-                    }
-                })
-            })?;
-
-        info!(" >>> waiting for start notification");
-        match rx.recv().unwrap() {
-            Ok(_) => (),
-            Err(err) => {
-                info!(" >>> error starting instance: {err}");
-                let code = self.exit_code.clone();
-
-                let (lock, cvar) = &*code;
-                let mut ec = lock.lock().unwrap();
-                *ec = Some((139, Utc::now()));
-                cvar.notify_all();
-                return Err(err);
-            }
-        }
-
-        Ok(1) // TODO: PID: I wanted to use a thread ID here, but threads use a u64, the API wants a u32
+        Ok(pid.as_raw() as u32)
     }
 
     fn kill(&self, signal: u32) -> Result<(), Error> {
-        if signal != 9 && signal != 2 {
+        log::info!("killing instance: {}", self.id);
+        if signal as i32 != SIGKILL && signal as i32 != SIGINT {
             return Err(Error::InvalidArgument(
                 "only SIGKILL and SIGINT are supported".to_string(),
             ));
         }
-
-        let (lock, cvar) = &*self.shutdown_signal;
-        let mut shutdown = lock.lock().unwrap();
-        *shutdown = true;
-        cvar.notify_all();
-
-        Ok(())
+        let container_root = get_instance_root(&self.rootdir, self.id.as_str())?;
+        let mut container = Container::load(container_root).with_context(|| {
+            format!(
+                "could not load state for container {id}",
+                id = self.id.as_str()
+            )
+        })?;
+        let signal = Signal::try_from(signal as i32)
+            .map_err(|err| Error::InvalidArgument(format!("invalid signal number: {}", err)))?;
+        match container.kill(signal, true) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                if container.status() == ContainerStatus::Stopped {
+                    return Err(Error::Others("container not running".into()));
+                }
+                Err(Error::Others(e.to_string()))
+            }
+        }
     }
 
     fn delete(&self) -> Result<(), Error> {
+        log::info!("deleting instance: {}", self.id);
+        match instance_exists(&self.rootdir, self.id.as_str()) {
+            Ok(exists) => {
+                if !exists {
+                    return Ok(());
+                }
+            }
+            Err(err) => {
+                error!("could not find the container, skipping cleanup: {}", err);
+                return Ok(());
+            }
+        }
+        let container_root = get_instance_root(&self.rootdir, self.id.as_str())?;
+        let container = Container::load(container_root).with_context(|| {
+            format!(
+                "could not load state for container {id}",
+                id = self.id.as_str()
+            )
+        });
+        match container {
+            Ok(mut container) => container.delete(true).map_err(|err| {
+                Error::Any(anyhow::anyhow!(
+                    "failed to delete container {}: {}",
+                    self.id,
+                    err
+                ))
+            })?,
+            Err(err) => {
+                error!("could not find the container, skipping cleanup: {}", err);
+                return Ok(());
+            }
+        }
+
         Ok(())
     }
 
-    fn wait(&self, channel: Sender<(u32, DateTime<Utc>)>) -> Result<(), Error> {
+    fn wait(&self, waiter: &Wait) -> Result<(), Error> {
+        log::info!("waiting for instance: {}", self.id);
         let code = self.exit_code.clone();
-        thread::spawn(move || {
-            let (lock, cvar) = &*code;
-            let mut exit = lock.lock().unwrap();
-            while (*exit).is_none() {
-                exit = cvar.wait(exit).unwrap();
-            }
-            let ec = (*exit).unwrap();
-            channel.send(ec).unwrap();
-        });
+        waiter.set_up_exit_code_wait(code)
+    }
+}
 
+impl EngineGetter for Wasi {
+    type E = ();
+
+    fn new_engine() -> std::result::Result<Self::E, Error> {
         Ok(())
     }
 }
@@ -311,15 +251,8 @@ fn parse_addr(addr: &str) -> Result<SocketAddr> {
     Ok(addrs)
 }
 
-impl EngineGetter for Wasi {
-    type E = ();
-    fn new_engine() -> Result<Self::E, Error> {
-        Ok(())
-    }
-}
-
 fn main() {
-    shim::run::<ShimCli<Wasi, _>>("io.containerd.spin.v1", None);
+    shim::run::<ShimCli<Wasi, ()>>("io.containerd.spin.v1", None);
 }
 
 #[cfg(test)]
