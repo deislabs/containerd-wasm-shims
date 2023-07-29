@@ -56,8 +56,7 @@ impl SpinExecutor {
         let runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
         let mut builder = TriggerExecutorBuilder::new(loader);
         let config = builder.wasmtime_config_mut();
-        config
-            .cranelift_opt_level(OptLevel::Speed);
+        config.cranelift_opt_level(OptLevel::Speed);
         let init_data = Default::default();
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
@@ -97,18 +96,14 @@ impl Executor for SpinExecutor {
 
             match trigger {
                 spin_manifest::ApplicationTrigger::Http(_config) => {
-                    let http_trigger: HttpTrigger = match SpinExecutor::build_spin_trigger(
-                        PathBuf::from("/"),
-                        app,
-                    )
-                    .await
-                    {
-                        Ok(http_trigger) => http_trigger,
-                        Err(err) => {
-                            log::error!(" >>> failed to build spin trigger: {:?}", err);
-                            return err;
-                        }
-                    };
+                    let http_trigger: HttpTrigger =
+                        match SpinExecutor::build_spin_trigger(PathBuf::from("/"), app).await {
+                            Ok(http_trigger) => http_trigger,
+                            Err(err) => {
+                                log::error!(" >>> failed to build spin trigger: {:?}", err);
+                                return err;
+                            }
+                        };
 
                     info!(" >>> running spin trigger");
                     f = http_trigger.run(spin_trigger_http::CliArgs {
@@ -118,17 +113,13 @@ impl Executor for SpinExecutor {
                     });
                 }
                 spin_manifest::ApplicationTrigger::Redis(_config) => {
-                    let redis_trigger: RedisTrigger = match SpinExecutor::build_spin_trigger(
-                        PathBuf::from("/"),
-                        app,
-                    )
-                    .await
-                    {
-                        Ok(redis_trigger) => redis_trigger,
-                        Err(err) => {
-                            return err;
-                        }
-                    };
+                    let redis_trigger: RedisTrigger =
+                        match SpinExecutor::build_spin_trigger(PathBuf::from("/"), app).await {
+                            Ok(redis_trigger) => redis_trigger,
+                            Err(err) => {
+                                return err;
+                            }
+                        };
 
                     info!(" >>> running spin trigger");
                     f = redis_trigger.run(spin_trigger::cli::NoArgs);
