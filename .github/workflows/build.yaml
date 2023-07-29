@@ -43,9 +43,7 @@ jobs:
       - name: package release assets
         run: |
           mkdir _dist
-          for shim in slight spin wws; do
-            cp containerd-shim-$shim-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
-          done
+          cp containerd-shim-*-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
           cd _dist
           tar czf containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: upload shim artifacts
