@@ -90,6 +90,8 @@ def setup_test(target):
     time.sleep(25)
 
     os.system("kubectl describe pods")
+    os.system("kubectl describe deployments")
+    os.system("kubectl describe services")
 
     print(">>> cluster is ready")
 
