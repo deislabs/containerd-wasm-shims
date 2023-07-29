@@ -57,7 +57,6 @@ spec:
         - name: spin-hello
           imagePullPolicy: Never
           image: wasmtest_spin:latest
-          command: ["/"]
 ---
 apiVersion: v1
 kind: Service
