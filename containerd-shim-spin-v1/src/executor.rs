@@ -18,7 +18,7 @@ use oci_spec::runtime::Spec;
 use crate::{parse_addr, SPIN_ADDR};
 
 const EXECUTOR_NAME: &str = "spin";
-const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
+// const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
 
 pub struct SpinExecutor {
     pub stdin: Option<RawFd>,
@@ -37,9 +37,6 @@ impl SpinExecutor {
     async fn build_spin_trigger<T: spin_trigger::TriggerExecutor>(
         working_dir: PathBuf,
         app: Application,
-        // stdout_pipe_path: PathBuf,
-        // stderr_pipe_path: PathBuf,
-        // stdin_pipe_path: PathBuf,
     ) -> Result<T>
     where
         for<'de> <T as TriggerExecutor>::TriggerConfig: serde::de::Deserialize<'de>,
@@ -56,20 +53,11 @@ impl SpinExecutor {
 
         // Build trigger config
         let loader = loader::TriggerLoader::new(working_dir.clone(), true);
-        let runtime_config_path = working_dir.clone().join(RUNTIME_CONFIG_FILE_PATH);
-        let runtime_config = RuntimeConfig::new(runtime_config_path.into());
+        let runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
         let mut builder = TriggerExecutorBuilder::new(loader);
         let config = builder.wasmtime_config_mut();
         config
-            .cache_config_load_default()?
             .cranelift_opt_level(OptLevel::Speed);
-
-        // let logging_hooks = podio::PodioLoggingTriggerHooks::new(
-        //     stdout_pipe_path,
-        //     stderr_pipe_path,
-        //     stdin_pipe_path,
-        // );
-        // builder.hooks(logging_hooks);
         let init_data = Default::default();
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
@@ -112,14 +100,12 @@ impl Executor for SpinExecutor {
                     let http_trigger: HttpTrigger = match SpinExecutor::build_spin_trigger(
                         PathBuf::from("/"),
                         app,
-                        // PathBuf::from(stdout),
-                        // PathBuf::from(stderr),
-                        // PathBuf::from(stdin),
                     )
                     .await
                     {
                         Ok(http_trigger) => http_trigger,
                         Err(err) => {
+                            log::error!(" >>> failed to build spin trigger: {:?}", err);
                             return err;
                         }
                     };
@@ -135,9 +121,6 @@ impl Executor for SpinExecutor {
                     let redis_trigger: RedisTrigger = match SpinExecutor::build_spin_trigger(
                         PathBuf::from("/"),
                         app,
-                        // PathBuf::from(stdout),
-                        // PathBuf::from(stderr),
-                        // PathBuf::from(stdin),
                     )
                     .await
                     {

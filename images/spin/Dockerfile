@@ -10,6 +10,7 @@ RUN curl -LO https://github.com/tinygo-org/tinygo/releases/download/v0.25.0/tiny
 RUN cd go-hello && tinygo build -wasm-abi=generic -target=wasi -gc=leaking -o spin_go_hello.wasm main.go
 
 FROM scratch
-COPY --from=build /opt/build/target/wasm32-wasi/release/spin_rust_hello.wasm .
+COPY --from=build --chmod=0755 /opt/build/target/wasm32-wasi/release/spin_rust_hello.wasm .
 COPY --from=build /opt/build/spin.toml .
-COPY --from=build-go /opt/build/go-hello/spin_go_hello.wasm .
+COPY --from=build-go --chmod=0755 /opt/build/go-hello/spin_go_hello.wasm .
+ENTRYPOINT [ "./spin_rust_hello.wasm" ]

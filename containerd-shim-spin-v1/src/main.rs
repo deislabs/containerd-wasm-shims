@@ -34,7 +34,6 @@ use serde::Deserialize;
 use serde::Serialize;
 
 mod executor;
-mod podio;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
 static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/spin";
