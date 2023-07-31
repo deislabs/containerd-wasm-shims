@@ -53,41 +53,16 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: build and push Spin hello world
-        uses: docker/build-push-action@v3
+      - name: Build and push images
+        uses: ./.github/workflows/build_and_push.yaml
         with:
-          push: true
-          tags: |
-            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:${{ env.RELEASE_VERSION }}
-            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
-          context: images/spin
-          platforms: wasi/wasm
-      - name: build and push Spin DotNet
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: |
-            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-dotnet-hello:${{ env.RELEASE_VERSION }}
-            ghcr.io/deislabs/containerd-wasm-shims/examples/spin-dotnet-hello:latest
-          context: images/spin_dotnet
-          platforms: wasi/wasm
-      - name: build and push Slight hello world
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: |
-            ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:${{ env.RELEASE_VERSION }}
-            ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:latest
-          context: images/slight
-          platforms: wasi/wasm
-      - name: build and push Wasm Workers Server (wws) hello world (JS)
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: |
-            ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:${{ env.RELEASE_VERSION }}
-            ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:latest
-          context: images/wws
+          images: |
+            [{"imageName": "examples/spin-rust-hello", "context": "images/spin"},
+            {"imageName": "examples/spin-dotnet-hello", "context": "images/spin_dotnet"},
+            {"imageName": "examples/slight-rust-hello", "context": "images/slight"},
+            {"imageName": "examples/wws-js-hello", "context": "images/wws"},
+            {"imageName": "examples/spin-inbound-redis", "context": "images/spin-inbound-redis"},
+            {"imageName": "examples/spin-outbound-redis", "context": "images/spin-outbound-redis"}]
           platforms: wasi/wasm
       - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
         run: |

@@ -1,0 +1,29 @@
+name: 'Build and push Docker images'
+on:
+  workflow_call:
+    inputs:
+      images:
+        required: true
+        type: string
+      platforms:
+        required: true
+        type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ${{fromJson(github.event.inputs.images)}}
+    steps:
+    - name: build and push
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: |
+          ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:${{ env.RELEASE_VERSION }}
+          ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:latest
+        context: ${{ matrix.image.context }}
+        platforms: ${{ github.event.inputs.platforms }}
