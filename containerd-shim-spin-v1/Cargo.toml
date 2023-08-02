@@ -13,8 +13,8 @@ Containerd shim for running Spin workloads.
 [dependencies]
 chrono = "0.4"
 clap = { version = "4.3", features = ["derive", "env"] }
-containerd-shim = "0.3"
-containerd-shim-wasm = "0.1"
+containerd-shim = { git = "https://github.com/containerd/rust-extensions", rev = "7f7e3117a6ecb49e5e3b48b4f457a4914d2f2b93" }
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "006b95f8aec41b0872e5472b718381468c36cb8a" }
 log = "0.4"
 spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
 spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.4.0" }
@@ -33,5 +33,9 @@ url = "2.3"
 reqwest = { version = "0.11", features = ["stream"] }
 anyhow = "1.0"
 async-trait = "0.1"
+libcontainer = { version = "0.1", features = ["v2"], default-features = false }
+oci-spec = "0.6.2"
+libc = "0.2.147"
+nix = "0.26.2"
 
 [workspace]

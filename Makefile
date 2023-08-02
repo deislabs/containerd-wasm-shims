@@ -27,6 +27,9 @@ unit-tests: build
 integration-tests: build
 	$(PYTHON) tests/setup.py $(TARGET)
 	cargo test -- --nocapture
+
+.PHONY: tests/clean
+test/clean:
 	$(PYTHON) tests/teardown.py
 
 .PHONY: fmt

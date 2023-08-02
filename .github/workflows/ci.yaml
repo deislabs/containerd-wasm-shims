@@ -47,3 +47,6 @@ jobs:
         working-directory: ./deployments/k3d
       - name: run integration tests
         run: make test
+      - name: clean up k3d
+        if: always()
+        run: make test/clean
