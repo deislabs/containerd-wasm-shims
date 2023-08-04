@@ -27,6 +27,7 @@ use libcontainer::container::Container;
 use libcontainer::container::ContainerStatus;
 use libcontainer::signal::Signal;
 use libcontainer::syscall::syscall::create_syscall;
+use linux_executor::LinuxContainerExecutor;
 use log::error;
 use nix::errno::Errno;
 use nix::sys::wait::{waitid, Id as WaitID, WaitPidFlag, WaitStatus};
@@ -34,6 +35,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 mod executor;
+mod linux_executor;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
 static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/spin";
@@ -92,15 +94,19 @@ impl Wasi {
         let stdout = maybe_open_stdio(stdout).context("could not open stdout")?;
         let stderr = maybe_open_stdio(stderr).context("could not open stderr")?;
 
+        let spin_executor = Box::new(SpinExecutor {
+            stdin,
+            stdout,
+            stderr,
+        });
+        let default_executor = Box::<LinuxContainerExecutor>::default();
+
         let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
-            .with_executor(vec![Box::new(SpinExecutor {
-                stdin,
-                stdout,
-                stderr,
-            })])?
+            .with_executor(vec![default_executor, spin_executor])?
             .with_root_path(self.rootdir.clone())?
             .as_init(&self.bundle)
             .with_systemd(false)
+            .with_detach(true)
             .build()?;
         Ok(container)
     }
