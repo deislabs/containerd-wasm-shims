@@ -1,0 +1,8 @@
+[build]
+default-target = "x86_64-unknown-linux-musl"
+
+[target.x86_64-unknown-linux-musl]
+dockerfile = "./containerd-shim-lunatic-v1/Dockerfile"
+
+[target.aarch64-unknown-linux-musl]
+dockerfile = "./containerd-shim-lunatic-v1/Dockerfile"

@@ -24,3 +24,12 @@ handler: wws
 scheduling:
   nodeSelector:
     wws-enabled: "true"
+---
+apiVersion: node.k8s.io/v1
+kind: RuntimeClass
+metadata:
+  name: wasmtime-lunatic
+handler: lunatic
+scheduling:
+  nodeSelector:
+    lunatic-enabled: "true"

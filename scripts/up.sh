@@ -5,9 +5,9 @@ set -euo pipefail
 cluster_name="test-cluster"       # name of the k3d cluster
 dockerfile_path="deployments/k3d" # path to the Dockerfile
 
-DOCKER_IMAGES=("slight" "spin" "wws")
-OUT_DIRS=("test/out_slight" "test/out_spin" "test/out_wws")
-IMAGES=("slight-hello-world" "spin-hello-world" "wws-hello-world")
+DOCKER_IMAGES=("slight" "spin" "wws" "lunatic-submillisecond")
+OUT_DIRS=("test/out_slight" "test/out_spin" "test/out_wws" "test/out_lunatic")
+IMAGES=("slight-hello-world" "spin-hello-world" "wws-hello-world" "lunatic-submillisecond-hello-world")
 
 # build the Docker image for the k3d cluster
 docker build -t k3d-shim-test "$dockerfile_path"

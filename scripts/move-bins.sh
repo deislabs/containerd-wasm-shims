@@ -2,7 +2,7 @@
 
 # Containerd Shim Installer Script
 #
-# This script automates the installation of specific containerd shim versions (slight, spin, wws)
+# This script automates the installation of specific containerd shim versions (slight, spin, wws, lunatic)
 # by checking their existence and copying them to a desired location if not found.
 #
 # Usage:
@@ -31,6 +31,7 @@ declare -A shims=(
     [slight]="${default_shim_path}slight-v1"
     [spin]="${default_shim_path}spin-v1"
     [wws]="${default_shim_path}wws-v1"
+    [lunatic]="${default_shim_path}lunatic-v1"
 )
 
 mkdir -p "$bin_path"
