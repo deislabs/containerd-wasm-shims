@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 containerd-shim = "0.4.0"
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "0a2e3a11da05a68fc4c68c09fca901fe54ae4cd6", features = ["cgroupsv2"] }
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "6287dff637b0ac96a43a6bbe2c7919f8b2f2cf27", features = ["cgroupsv2"] }
 libcontainer = { version = "0.1", features = ["v2"], default-features = false }
 nix = "0.26.2"
 serde = "1.0.183"

@@ -105,10 +105,10 @@ async fn lunatic_test() -> Result<()> {
     list_pods(&cluster_name).await?;
 
     // curl for hello
-    println!(" >>> curl http://localhost:{}/lunatic", host_port);
+    println!(" >>> curl http://localhost:{}/lunatic/hello", host_port);
     let mut res = Vec::new();
     retry_get(
-        &format!("http://localhost:{}/lunatic", host_port),
+        &format!("http://localhost:{}/lunatic/hello", host_port),
         &mut res,
         RETRY_TIMES,
         INTERVAL_IN_SECS,

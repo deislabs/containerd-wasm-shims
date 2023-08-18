@@ -5,5 +5,5 @@ RUN rustup target add wasm32-wasi
 RUN cargo build --release --target wasm32-wasi
 
 FROM scratch
-COPY --link --from=build /build/target/wasm32-wasi/release/lunatic-spawn.wasm  /
+COPY --link --chmod=0755 --from=build /build/target/wasm32-wasi/release/lunatic-spawn.wasm  /
 ENTRYPOINT [ "./lunatic-spawn.wasm" ]

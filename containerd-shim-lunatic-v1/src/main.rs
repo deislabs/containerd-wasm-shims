@@ -6,11 +6,12 @@ use std::{
     sync::{Arc, Condvar, Mutex},
 };
 
-use chrono::{DateTime, Utc};
 use containerd_shim::run;
 use containerd_shim_wasm::{
     libcontainer_instance::LibcontainerInstance,
-    sandbox::{instance_utils::maybe_open_stdio, EngineGetter, Error, InstanceConfig, ShimCli},
+    sandbox::{
+        instance::ExitCode, instance_utils::maybe_open_stdio, Error, InstanceConfig, ShimCli,
+    },
 };
 use libcontainer::{
     container::{builder::ContainerBuilder, Container},
@@ -21,8 +22,6 @@ use serde::{Deserialize, Serialize};
 use anyhow::{Context, Result};
 
 use crate::executor::LunaticExecutor;
-
-type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
 mod common;
 mod executor;
@@ -64,9 +63,9 @@ fn determine_rootdir<P: AsRef<Path>>(bundle: P, namespace: String) -> Result<Pat
 }
 
 impl LibcontainerInstance for Wasi {
-    type E = ();
+    type Engine = ();
 
-    fn new_libcontainer(id: String, cfg: Option<&InstanceConfig<Self::E>>) -> Self {
+    fn new_libcontainer(id: String, cfg: Option<&InstanceConfig<Self::Engine>>) -> Self {
         let cfg = cfg.unwrap();
         let bundle = cfg.get_bundle().unwrap_or_default();
 
@@ -127,13 +126,6 @@ impl LibcontainerInstance for Wasi {
     }
 }
 
-impl EngineGetter for Wasi {
-    type E = ();
-
-    fn new_engine() -> std::result::Result<Self::E, Error> {
-        Ok(())
-    }
-}
 fn main() {
-    run::<ShimCli<Wasi, ()>>("io.containerd.lunatic.v1", None);
+    run::<ShimCli<Wasi>>("io.containerd.lunatic.v1", None);
 }

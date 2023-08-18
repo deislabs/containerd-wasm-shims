@@ -134,7 +134,6 @@ spec:
         - name: testwasm
           image: docker.io/library/lunatic-hello-world:latest
           imagePullPolicy: Never # prevent k8s from pulling the image from a registry
-          command: ["/"]
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
               cpu: 100m
