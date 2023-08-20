@@ -16,6 +16,8 @@ else
 VERBOSE_FLAG := -vvv
 endif
 
+BIN_DIR ?= 
+
 .PHONY: test
 test: unit-tests integration-tests
 
@@ -23,14 +25,33 @@ test: unit-tests integration-tests
 unit-tests: build
 	$(foreach shim,$(SHIMS),cross test --release --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml --target $(TARGET);)
 
+.PHONY: check-bins
+check-bins:
+	./scripts/check-bins.sh
+
+./PHONY: move-bins
+move-bins:
+	./scripts/move-bins.sh $(BIN_DIR)
+
+./PHONY: up
+up:
+	./scripts/up.sh
+
+./PHONY: pod-status-check
+pod-status-check:
+	./scripts/pod-status-check.sh
+
+./PHONY: workloads
+workloads:
+	./scripts/workloads.sh
+
 .PHONY: integration-tests
-integration-tests: build
-	$(PYTHON) tests/setup.py $(TARGET)
+integration-tests: install-cross check-bins move-bins up pod-status-check workloads
 	cargo test -- --nocapture
 
 .PHONY: tests/clean
 test/clean:
-	$(PYTHON) tests/teardown.py
+	./scripts/down.sh
 
 .PHONY: fmt
 fmt:
