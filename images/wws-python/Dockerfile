@@ -10,4 +10,5 @@ RUN ["/wws", "runtimes", "install", "python", "latest"]
 FROM scratch
 COPY --from=installer /.wws ./.wws
 COPY --from=installer /.wws.toml .
-COPY ./hello.py .
+COPY --chmod=0755 ./hello.py .
+ENTRYPOINT [ "/hello.py" ]
