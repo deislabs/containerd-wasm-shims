@@ -35,6 +35,9 @@ jobs:
       - name: build
         run: |
           VERBOSE=1 make build
+      - name: unit tests
+        run: |
+          VERBOSE=1 make unit-tests
       - name: lowercase the runner OS name
         shell: bash
         run: |
