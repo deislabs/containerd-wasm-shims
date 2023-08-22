@@ -26,27 +26,22 @@ jobs:
   build:
     uses: ./.github/workflows/build.yaml
   test:
+    needs: build
     runs-on: ubuntu-latest
     env:
       ARCH: x86_64
     steps:
       - uses: actions/checkout@v3
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: |
-            "containerd-shim-*-v1 -> target"
-      - name: "Install Rust Wasm targets"
+      - uses: actions/download-artifact@v3
+      - name: Extract containerd-wasm-shims-v1-linux-${{ env.ARCH }}
         run: |
-          make install-rust-targets
-      - name: "Install dependencies"
-        run: |
-          sudo apt-get update
-          sudo apt-get install protobuf-compiler -y
+          mkdir -p ./bin
+          tar -xzf containerd-wasm-shims-v1-linux-${{ env.ARCH }}/containerd-wasm-shims-v1-linux-${{ env.ARCH }}.tar.gz -C ./bin
       - name: install k3d
         run: make install-k3d
         working-directory: ./deployments/k3d
       - name: run integration tests
-        run: make test
+        run: BIN_DIR="./bin" make integration-tests
       - name: clean up k3d
         if: always()
         run: make test/clean
