@@ -36,7 +36,9 @@ jobs:
       - name: Extract containerd-wasm-shims-v1-linux-${{ env.ARCH }}
         run: |
           mkdir -p ./bin
-          tar -xzf containerd-wasm-shims-v1-linux-${{ env.ARCH }}/containerd-wasm-shims-v1-linux-${{ env.ARCH }}.tar.gz -C ./bin
+          for f in containerd-wasm-shims-v1-*-linux-${{ env.ARCH }}/containerd-wasm-shims-v1-*-linux-${{ env.ARCH }}.tar.gz
+            do tar -xzf "$f" -C ./bin
+          done
       - name: install k3d
         run: make install-k3d
         working-directory: ./deployments/k3d
