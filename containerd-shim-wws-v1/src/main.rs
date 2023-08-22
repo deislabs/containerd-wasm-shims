@@ -1,27 +1,27 @@
-use chrono::{DateTime, Utc};
+use anyhow::{Context, Result};
 use containerd_shim as shim;
-use containerd_shim_wasm::sandbox::error::Error;
-use containerd_shim_wasm::sandbox::instance::{EngineGetter, InstanceConfig};
-use containerd_shim_wasm::sandbox::oci;
-use containerd_shim_wasm::sandbox::{Instance, ShimCli};
-use log::{error, info};
+use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
+use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::instance::ExitCode;
+use containerd_shim_wasm::sandbox::instance_utils::maybe_open_stdio;
+use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
+use executor::WwsExecutor;
+use libcontainer::container::builder::ContainerBuilder;
+use libcontainer::container::Container;
+use libcontainer::syscall::syscall::create_syscall;
+use serde::Deserialize;
+use serde::Serialize;
+use std::fs::File;
+use std::io::ErrorKind;
+use std::io::Read;
+use std::option::Option;
+use std::os::fd::IntoRawFd;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::mpsc::channel;
-use std::sync::mpsc::Sender;
-use std::sync::Arc;
-use std::sync::{Condvar, Mutex};
-use std::thread;
-use tokio::runtime::Runtime;
-use wws_config::Config;
-use wws_router::Routes;
-use wws_server::serve;
 
-/// URL to listen to in wws
-const WWS_ADDR: &str = "0.0.0.0";
-const WWS_PORT: u16 = 3000;
+mod executor;
 
-type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
+static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/wws";
 
 pub struct Workers {
     exit_code: ExitCode,
@@ -33,34 +33,48 @@ pub struct Workers {
     // stdout: String,
     stderr: String,
     bundle: String,
-    shutdown_signal: Arc<(Mutex<bool>, Condvar)>,
+    rootdir: PathBuf,
+}
+#[derive(Serialize, Deserialize)]
+struct Options {
+    root: Option<PathBuf>,
 }
 
-pub fn prepare_module(bundle: String) -> Result<PathBuf, Error> {
-    info!("[wws] Preparing module");
-    let mut spec = oci::load(Path::new(&bundle).join("config.json").to_str().unwrap())
-        .expect("unable to load OCI bundle");
-
-    info!("[wws] Canonicalize roots");
-    spec.canonicalize_rootfs(&bundle)
-        .map_err(|err| Error::Others(format!("could not canonicalize rootfs: {err}")))?;
-
-    info!("[wws] Get root");
-    let working_dir = oci::get_root(&spec);
-    info!("[wws] loading project: {}", working_dir.display());
-
-    Ok(working_dir.clone())
+fn determine_rootdir<P: AsRef<Path>>(bundle: P, namespace: String) -> Result<PathBuf, Error> {
+    log::info!(
+        "determining rootdir for bundle: {}",
+        bundle.as_ref().display()
+    );
+    let mut file = match File::open(bundle.as_ref().join("options.json")) {
+        Ok(f) => f,
+        Err(err) => match err.kind() {
+            ErrorKind::NotFound => {
+                return Ok(<&str as Into<PathBuf>>::into(DEFAULT_CONTAINER_ROOT_DIR).join(namespace))
+            }
+            _ => return Err(err.into()),
+        },
+    };
+    let mut data = String::new();
+    file.read_to_string(&mut data)?;
+    let options: Options = serde_json::from_str(&data)?;
+    let path = options
+        .root
+        .unwrap_or(PathBuf::from(DEFAULT_CONTAINER_ROOT_DIR))
+        .join(namespace);
+    log::info!("youki root path is: {}", path.display());
+    Ok(path)
 }
 
 /// Implement the "default" interface from runwasi
-impl Instance for Workers {
-    type E = ();
-    fn new(id: String, cfg: Option<&InstanceConfig<Self::E>>) -> Self {
-        info!("[wws] new instance");
+impl LibcontainerInstance for Workers {
+    type Engine = ();
+    fn new_libcontainer(id: String, cfg: Option<&InstanceConfig<Self::Engine>>) -> Self {
+        log::info!("[wws] new instance");
         let cfg = cfg.unwrap();
-
+        let bundle = cfg.get_bundle().unwrap_or_default();
+        let rootdir = determine_rootdir(bundle.as_str(), cfg.get_namespace()).unwrap();
         Workers {
-            exit_code: Arc::new((Mutex::new(None), Condvar::new())),
+            exit_code: Default::default(),
             id,
             // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
             // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
@@ -68,161 +82,46 @@ impl Instance for Workers {
             // stdin: cfg.get_stdin().unwrap_or_default(),
             // stdout: cfg.get_stdout().unwrap_or_default(),
             stderr: cfg.get_stderr().unwrap_or_default(),
-            bundle: cfg.get_bundle().unwrap_or_default(),
-            shutdown_signal: Arc::new((Mutex::new(false), Condvar::new())),
+            bundle,
+            rootdir,
         }
     }
 
-    fn start(&self) -> Result<u32, Error> {
-        info!("[wws] Starting the wws shim");
-        let exit_code = self.exit_code.clone();
-        let shutdown_signal = self.shutdown_signal.clone();
-        let (tx, rx) = channel::<Result<(), Error>>();
-        let bundle = self.bundle.clone();
-
-        // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
-        // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
-        // will change in the future.
-        // let stdin = self.stdin.clone();
-        // let stdout = self.stdout.clone();
-        let stderr = self.stderr.clone();
-
-        thread::Builder::new()
-            .name(self.id.clone())
-            .spawn(move || {
-                info!("[wws] Starting the process!");
-                let working_dir = match prepare_module(bundle) {
-                    Ok(f) => f,
-                    Err(err) => {
-                        info!("[wws] Error when preparing the module!");
-                        tx.send(Err(err)).unwrap();
-                        return;
-                    }
-                };
-
-                info!("[wws] working_dir: {}", &working_dir.display());
-
-                let rt = Runtime::new().unwrap();
-                rt.block_on(async {
-                    let rx_future = tokio::task::spawn_blocking(move || {
-                        let (lock, cvar) = &*shutdown_signal;
-                        let mut shutdown = lock.lock().unwrap();
-                        while !*shutdown {
-                            shutdown = cvar.wait(shutdown).unwrap();
-                        }
-                    });
-
-                    // Configure and run wws
-                    info!("[wws] Starting wws");
-
-                    let path = working_dir.clone();
-                    let stderr_path = Path::new(&stderr);
-
-                    // Check the runtimes
-                    let config = match Config::load(&path) {
-                        Ok(c) => c,
-                        Err(err) => {
-                            error!("[wws] There was an error reading the .wws.toml file. It will be ignored");
-                            error!("[wws] Error: {err}");
-
-                            Config::default()
-                        }
-                    };
-
-                    // Check if there're missing runtimes
-                    if config.is_missing_any_runtime(&path) {
-                        error!("[wws] Required language runtimes are not installed. Some files may not be considered workers");
-                        error!("[wws] You can install the missing runtimes with: wws runtimes install");
-                    }
-
-                    let routes = Routes::new(&path, "", Vec::new(), &config);
-
-                    // Final server
-                    let f = serve(&path, routes, WWS_ADDR, WWS_PORT, false, Some(stderr_path)).await.unwrap();
-
-                    info!("[wws] Notify main thread we are about to start");
-                    tx.send(Ok(())).unwrap();
-                    tokio::select! {
-                        _ = f => {
-                            info!("[wws] Server shut down: exiting");
-
-                            let (lock, cvar) = &*exit_code;
-                            let mut ec = lock.lock().unwrap();
-                            *ec = Some((137, Utc::now()));
-                            cvar.notify_all();
-                        },
-                        _ = rx_future => {
-                            info!("[wws] User requested shutdown: exiting");
-                            let (lock, cvar) = &*exit_code;
-                            let mut ec = lock.lock().unwrap();
-                            *ec = Some((0, Utc::now()));
-                            cvar.notify_all();
-                        },
-                    }
-                })
-            })?;
-
-        info!("[wws] Waiting for start notification");
-        match rx.recv().unwrap() {
-            Ok(_) => (),
-            Err(err) => {
-                error!("[wws] Error starting instance: {err}");
-                let code = self.exit_code.clone();
-
-                let (lock, cvar) = &*code;
-                let mut ec = lock.lock().unwrap();
-                *ec = Some((139, Utc::now()));
-                cvar.notify_all();
-                return Err(err);
-            }
-        }
-
-        // TODO: Can we try to cast and default to 1 when it fails?
-        Ok(1) // TODO: PID: I wanted to use a thread ID here, but threads use a u64, the API wants a u32
+    fn get_exit_code(&self) -> ExitCode {
+        self.exit_code.clone()
     }
 
-    fn kill(&self, signal: u32) -> Result<(), Error> {
-        if signal != 9 && signal != 2 {
-            return Err(Error::InvalidArgument(
-                "only SIGKILL and SIGINT are supported".to_string(),
-            ));
-        }
-
-        let (lock, cvar) = &*self.shutdown_signal;
-        let mut shutdown = lock.lock().unwrap();
-        *shutdown = true;
-        cvar.notify_all();
-
-        Ok(())
+    fn get_id(&self) -> String {
+        self.id.clone()
     }
 
-    fn delete(&self) -> Result<(), Error> {
-        Ok(())
+    fn get_root_dir(&self) -> std::result::Result<PathBuf, Error> {
+        Ok(self.rootdir.clone())
     }
 
-    fn wait(&self, channel: Sender<(u32, DateTime<Utc>)>) -> Result<(), Error> {
-        let code = self.exit_code.clone();
-        thread::spawn(move || {
-            let (lock, cvar) = &*code;
-            let mut exit = lock.lock().unwrap();
-            while (*exit).is_none() {
-                exit = cvar.wait(exit).unwrap();
-            }
-            let ec = (*exit).unwrap();
-            channel.send(ec).unwrap();
-        });
+    fn build_container(&self) -> std::result::Result<Container, Error> {
+        let syscall = create_syscall();
+        let stderr = maybe_open_stdio(&self.stderr)
+            .context("could not open stderr")?
+            .map(|f| f.into_raw_fd());
+        let err_others = |err| Error::Others(format!("failed to create container: {}", err));
+        let spin_executor = Box::new(WwsExecutor { stderr });
+        let default_executor = Box::<LinuxContainerExecutor>::default();
 
-        Ok(())
-    }
-}
-
-impl EngineGetter for Workers {
-    type E = ();
-    fn new_engine() -> Result<Self::E, Error> {
-        Ok(())
+        let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
+            .with_executor(vec![default_executor, spin_executor])
+            .map_err(err_others)?
+            .with_root_path(self.rootdir.clone())
+            .map_err(err_others)?
+            .as_init(&self.bundle)
+            .with_systemd(false)
+            .with_detach(true)
+            .build()
+            .map_err(err_others)?;
+        Ok(container)
     }
 }
 
 fn main() {
-    shim::run::<ShimCli<Workers, _>>("io.containerd.wws.v1", None);
+    shim::run::<ShimCli<Workers>>("io.containerd.wws.v1", None);
 }

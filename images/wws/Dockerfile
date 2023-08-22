@@ -1,2 +1,3 @@
 FROM scratch
-COPY ./hello.js .
+COPY --chmod=0755 ./hello.js .
+ENTRYPOINT [ "/hello.js" ]

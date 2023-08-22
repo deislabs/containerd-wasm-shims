@@ -89,7 +89,6 @@ spec:
         - name: wws-hello
           imagePullPolicy: Never
           image: wasmtest_wws:latest
-          command: ["/"]
 ---
 apiVersion: v1
 kind: Service
