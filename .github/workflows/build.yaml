@@ -17,6 +17,7 @@ jobs:
               os: "ubuntu-latest",
               arch: "aarch64"
             }
+        shims: [slight, spin, wws]
     env:
       ARCH: ${{ matrix.config.arch }}
     steps:
@@ -32,12 +33,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install protobuf-compiler -y
-      - name: build
+      - name: build ${{ matrix.shims }}
         run: |
-          VERBOSE=1 make build
-      - name: unit tests
+          VERBOSE=1 make build SHIMS=${{ matrix.shims }}
+      - name: unit tests ${{ matrix.shims }}
         run: |
-          VERBOSE=1 make unit-tests
+          VERBOSE=1 make unit-tests  SHIMS=${{ matrix.shims }}
       - name: lowercase the runner OS name
         shell: bash
         run: |
@@ -48,10 +49,10 @@ jobs:
           mkdir _dist
           cp containerd-shim-*-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
           cd _dist
-          tar czf containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
+          tar czf containerd-wasm-shims-v1-${{ matrix.shims }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
       - name: upload shim artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}
-          path: _dist/containerd-wasm-shims-v1-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz
+          name: containerd-wasm-shims-v1-${{ matrix.shims }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}
+          path: _dist/containerd-wasm-shims-v1-${{ matrix.shims }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz
           retention-days: 5
