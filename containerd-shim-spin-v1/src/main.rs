@@ -7,38 +7,29 @@ use std::option::Option;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::{Arc, Condvar, Mutex};
-use std::thread;
 
 use anyhow::Context;
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, Utc};
 use containerd_shim as shim;
-use containerd_shim_wasm::sandbox::instance::Wait;
-use containerd_shim_wasm::sandbox::instance_utils::get_instance_root;
-use containerd_shim_wasm::sandbox::instance_utils::instance_exists;
+use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
+use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::instance::ExitCode;
 use containerd_shim_wasm::sandbox::instance_utils::maybe_open_stdio;
 use containerd_shim_wasm::sandbox::{
-    error::Error, EngineGetter, Instance, InstanceConfig, ShimCli,
+    error::Error, InstanceConfig, ShimCli,
 };
 use executor::SpinExecutor;
-use libc::{SIGINT, SIGKILL};
 use libcontainer::container::builder::ContainerBuilder;
 use libcontainer::container::Container;
-use libcontainer::container::ContainerStatus;
-use libcontainer::signal::Signal;
 use libcontainer::syscall::syscall::create_syscall;
-use log::error;
-use nix::errno::Errno;
-use nix::sys::wait::{waitid, Id as WaitID, WaitPidFlag, WaitStatus};
 use serde::Deserialize;
 use serde::Serialize;
+use std::os::fd::IntoRawFd;
 
 mod executor;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
 static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/spin";
-
-type ExitCode = Arc<(Mutex<Option<(u32, DateTime<Utc>)>>, Condvar)>;
 
 pub struct Wasi {
     exit_code: ExitCode,
@@ -80,35 +71,10 @@ fn determine_rootdir<P: AsRef<Path>>(bundle: P, namespace: String) -> Result<Pat
     Ok(path)
 }
 
-impl Wasi {
-    fn build_container(
-        &self,
-        stdin: &str,
-        stdout: &str,
-        stderr: &str,
-    ) -> anyhow::Result<Container> {
-        let syscall = create_syscall();
-        let stdin = maybe_open_stdio(stdin).context("could not open stdin")?;
-        let stdout = maybe_open_stdio(stdout).context("could not open stdout")?;
-        let stderr = maybe_open_stdio(stderr).context("could not open stderr")?;
+impl LibcontainerInstance for Wasi {
+    type Engine = ();
 
-        let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
-            .with_executor(vec![Box::new(SpinExecutor {
-                stdin,
-                stdout,
-                stderr,
-            })])?
-            .with_root_path(self.rootdir.clone())?
-            .as_init(&self.bundle)
-            .with_systemd(false)
-            .build()?;
-        Ok(container)
-    }
-}
-
-impl Instance for Wasi {
-    type E = ();
-    fn new(id: String, cfg: Option<&InstanceConfig<Self::E>>) -> Self {
+    fn new_libcontainer(id: String, cfg: Option<&InstanceConfig<Self::Engine>>) -> Self {
         let cfg = cfg.unwrap();
         let bundle = cfg.get_bundle().unwrap_or_default();
         let rootdir = determine_rootdir(bundle.as_str(), cfg.get_namespace()).unwrap();
@@ -122,122 +88,45 @@ impl Instance for Wasi {
             rootdir,
         }
     }
-    fn start(&self) -> Result<u32, Error> {
-        log::info!("starting instance: {}", self.id);
-        let mut container = self.build_container(
-            self.stdin.as_str(),
-            self.stdout.as_str(),
-            self.stderr.as_str(),
-        )?;
-        log::info!("created container: {}", self.id);
-        let code = self.exit_code.clone();
-        let pid = container.pid().unwrap();
 
-        container
-            .start()
-            .map_err(|err| Error::Any(anyhow::anyhow!("failed to start container: {}", err)))?;
-        thread::spawn(move || {
-            let (lock, cvar) = &*code;
+    fn get_exit_code(&self) -> ExitCode {
+        self.exit_code.clone()
+    }
 
-            let status = match waitid(WaitID::Pid(pid), WaitPidFlag::WEXITED) {
-                Ok(WaitStatus::Exited(_, status)) => status,
-                Ok(WaitStatus::Signaled(_, sig, _)) => sig as i32,
-                Ok(_) => 0,
-                Err(e) => {
-                    if e == Errno::ECHILD {
-                        log::info!("no child process");
-                        0
-                    } else {
-                        panic!("waitpid failed: {}", e);
-                    }
-                }
-            } as u32;
-            let mut ec = lock.lock().unwrap();
-            *ec = Some((status, Utc::now()));
-            drop(ec);
-            cvar.notify_all();
+    fn get_id(&self) -> String {
+        self.id.clone()
+    }
+
+    fn get_root_dir(&self) -> std::result::Result<PathBuf, Error> {
+        Ok(self.rootdir.clone())
+    }
+
+    fn build_container(&self) -> std::result::Result<Container, Error> {
+        let syscall = create_syscall();
+        let stdin = maybe_open_stdio(&self.stdin).context("could not open stdin")?.map(|f| f.into_raw_fd());
+        let stdout = maybe_open_stdio(&self.stdout).context("could not open stdout")?.map(|f| f.into_raw_fd());
+        let stderr = maybe_open_stdio(&self.stderr).context("could not open stderr")?.map(|f| f.into_raw_fd());
+        let err_others = |err| Error::Others(format!("failed to create container: {}", err));
+        let spin_executor = Box::new(SpinExecutor {
+            stdin,
+            stdout,
+            stderr,
         });
+        let default_executor = Box::<LinuxContainerExecutor>::default();
 
-        Ok(pid.as_raw() as u32)
+        let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
+            .with_executor(vec![default_executor, spin_executor])
+            .map_err(err_others)?
+            .with_root_path(self.rootdir.clone())
+            .map_err(err_others)?
+            .as_init(&self.bundle)
+            .with_systemd(false)
+            .with_detach(true)
+            .build()
+            .map_err(err_others)?;
+        Ok(container)
     }
 
-    fn kill(&self, signal: u32) -> Result<(), Error> {
-        log::info!("killing instance: {}", self.id);
-        if signal as i32 != SIGKILL && signal as i32 != SIGINT {
-            return Err(Error::InvalidArgument(
-                "only SIGKILL and SIGINT are supported".to_string(),
-            ));
-        }
-        let container_root = get_instance_root(&self.rootdir, self.id.as_str())?;
-        let mut container = Container::load(container_root).with_context(|| {
-            format!(
-                "could not load state for container {id}",
-                id = self.id.as_str()
-            )
-        })?;
-        let signal = Signal::try_from(signal as i32)
-            .map_err(|err| Error::InvalidArgument(format!("invalid signal number: {}", err)))?;
-        match container.kill(signal, true) {
-            Ok(_) => Ok(()),
-            Err(e) => {
-                if container.status() == ContainerStatus::Stopped {
-                    return Err(Error::Others("container not running".into()));
-                }
-                Err(Error::Others(e.to_string()))
-            }
-        }
-    }
-
-    fn delete(&self) -> Result<(), Error> {
-        log::info!("deleting instance: {}", self.id);
-        match instance_exists(&self.rootdir, self.id.as_str()) {
-            Ok(exists) => {
-                if !exists {
-                    return Ok(());
-                }
-            }
-            Err(err) => {
-                error!("could not find the container, skipping cleanup: {}", err);
-                return Ok(());
-            }
-        }
-        let container_root = get_instance_root(&self.rootdir, self.id.as_str())?;
-        let container = Container::load(container_root).with_context(|| {
-            format!(
-                "could not load state for container {id}",
-                id = self.id.as_str()
-            )
-        });
-        match container {
-            Ok(mut container) => container.delete(true).map_err(|err| {
-                Error::Any(anyhow::anyhow!(
-                    "failed to delete container {}: {}",
-                    self.id,
-                    err
-                ))
-            })?,
-            Err(err) => {
-                error!("could not find the container, skipping cleanup: {}", err);
-                return Ok(());
-            }
-        }
-
-        Ok(())
-    }
-
-    fn wait(&self, waiter: &Wait) -> Result<(), Error> {
-        log::info!("waiting for instance: {}", self.id);
-        let code = self.exit_code.clone();
-        waiter.set_up_exit_code_wait(code)
-    }
-}
-
-impl EngineGetter for Wasi {
-    type E = ();
-
-    fn new_engine() -> std::result::Result<Self::E, Error> {
-        Ok(())
-    }
 }
 
 fn parse_addr(addr: &str) -> Result<SocketAddr> {
@@ -249,7 +138,7 @@ fn parse_addr(addr: &str) -> Result<SocketAddr> {
 }
 
 fn main() {
-    shim::run::<ShimCli<Wasi, ()>>("io.containerd.spin.v1", None);
+    shim::run::<ShimCli<Wasi>>("io.containerd.spin.v1", None);
 }
 
 #[cfg(test)]
