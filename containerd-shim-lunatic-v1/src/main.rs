@@ -1,8 +1,6 @@
 use std::{
-    fs::File,
-    io::{ErrorKind, Read},
     os::fd::IntoRawFd,
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::{Arc, Condvar, Mutex},
 };
 
@@ -10,14 +8,15 @@ use containerd_shim::run;
 use containerd_shim_wasm::{
     libcontainer_instance::LibcontainerInstance,
     sandbox::{
-        instance::ExitCode, instance_utils::maybe_open_stdio, Error, InstanceConfig, ShimCli,
+        instance::ExitCode,
+        instance_utils::{determine_rootdir, maybe_open_stdio},
+        Error, InstanceConfig, ShimCli,
     },
 };
 use libcontainer::{
     container::{builder::ContainerBuilder, Container},
     syscall::syscall::create_syscall,
 };
-use serde::{Deserialize, Serialize};
 
 use anyhow::{Context, Result};
 
@@ -38,30 +37,6 @@ pub struct Wasi {
     stderr: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Options {
-    root: Option<PathBuf>,
-}
-
-fn determine_rootdir<P: AsRef<Path>>(bundle: P, namespace: String) -> Result<PathBuf, Error> {
-    let mut file = match File::open(bundle.as_ref().join("options.json")) {
-        Ok(f) => f,
-        Err(err) => match err.kind() {
-            ErrorKind::NotFound => {
-                return Ok(<&str as Into<PathBuf>>::into(DEFAULT_CONTAINER_ROOT_DIR).join(namespace))
-            }
-            _ => return Err(err.into()),
-        },
-    };
-    let mut data = String::new();
-    file.read_to_string(&mut data)?;
-    let options: Options = serde_json::from_str(&data)?;
-    Ok(options
-        .root
-        .unwrap_or(PathBuf::from(DEFAULT_CONTAINER_ROOT_DIR))
-        .join(namespace))
-}
-
 impl LibcontainerInstance for Wasi {
     type Engine = ();
 
@@ -72,7 +47,12 @@ impl LibcontainerInstance for Wasi {
         Wasi {
             id,
             exit_code: Arc::new((Mutex::new(None), Condvar::new())),
-            rootdir: determine_rootdir(bundle.as_str(), cfg.get_namespace()).unwrap(),
+            rootdir: determine_rootdir(
+                bundle.as_str(),
+                cfg.get_namespace().as_str(),
+                DEFAULT_CONTAINER_ROOT_DIR,
+            )
+            .unwrap(),
             bundle,
             stdin: cfg.get_stdin().unwrap_or_default(),
             stdout: cfg.get_stdout().unwrap_or_default(),
