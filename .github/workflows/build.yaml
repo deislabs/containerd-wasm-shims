@@ -17,7 +17,7 @@ jobs:
               os: "ubuntu-latest",
               arch: "aarch64"
             }
-        shims: [slight, spin, wws]
+        shims: [slight, spin, wws, lunatic]
     env:
       ARCH: ${{ matrix.config.arch }}
     steps:

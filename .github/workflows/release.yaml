@@ -62,7 +62,10 @@ jobs:
             {"imageName": "examples/slight-rust-hello", "context": "images/slight"},
             {"imageName": "examples/wws-js-hello", "context": "images/wws"},
             {"imageName": "examples/spin-inbound-redis", "context": "images/spin-inbound-redis"},
-            {"imageName": "examples/spin-outbound-redis", "context": "images/spin-outbound-redis"}]
+            {"imageName": "examples/spin-outbound-redis", "context": "images/spin-outbound-redis"}],
+            {"imageName": "examples/lunatic-rust-hello", "context": "images/lunatic"}],
+            {"imageName": "examples/lunatic-spawn-process", "context": "images/lunatic-spawn-process"}],
+            {"imageName": "examples/lunatic-submillisecond", "context": "images/lunatic-submillisecond"}]
           platforms: wasi/wasm
       - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
         run: |

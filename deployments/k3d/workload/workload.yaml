@@ -17,7 +17,6 @@ spec:
         - name: slight-hello
           imagePullPolicy: Never
           image: wasmtest_slight:latest
-          command: ["/"]
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
               cpu: 100m
@@ -102,6 +101,38 @@ spec:
   selector:
     app: wasm-wws
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wasm-lunatic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wasm-lunatic
+  template:
+    metadata:
+      labels:
+        app: wasm-lunatic
+    spec:
+      runtimeClassName: wasmtime-lunatic
+      containers:
+        - name: lunatic-hello
+          imagePullPolicy: Never
+          image: wasmtest_lunatic:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wasm-lunatic
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  selector:
+    app: wasm-lunatic
+---
 # Middleware
 # Strip prefix /spin
 apiVersion: traefik.containo.us/v1alpha1
@@ -115,6 +146,7 @@ spec:
       - /spin
       - /slight
       - /wws
+      - /lunatic
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -147,5 +179,12 @@ spec:
             backend:
               service:
                 name: wasm-wws
+                port:
+                  number: 80
+          - path: /lunatic
+            pathType: Prefix
+            backend:
+              service:
+                name: wasm-lunatic
                 port:
                   number: 80
