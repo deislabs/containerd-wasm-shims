@@ -132,7 +132,7 @@ spec:
       runtimeClassName: wasmtime-lunatic
       containers:
         - name: testwasm
-          image: docker.io/library/lunatic-hello-world:latest
+          image: docker.io/library/lunatic-submillisecond-hello-world:latest
           imagePullPolicy: Never # prevent k8s from pulling the image from a registry
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
