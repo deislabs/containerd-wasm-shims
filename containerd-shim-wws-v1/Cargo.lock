@@ -691,7 +691,7 @@ dependencies = [
 [[package]]
 name = "containerd-shim-wasm"
 version = "0.2.1"
-source = "git+https://github.com/containerd/runwasi?rev=6287dff637b0ac96a43a6bbe2c7919f8b2f2cf27#6287dff637b0ac96a43a6bbe2c7919f8b2f2cf27"
+source = "git+https://github.com/containerd/runwasi?rev=7850da82a86286f6fcf21e1c93390572ed73592d#7850da82a86286f6fcf21e1c93390572ed73592d"
 dependencies = [
  "anyhow",
  "caps",
@@ -705,7 +705,6 @@ dependencies = [
  "log",
  "nix 0.26.2",
  "oci-spec",
- "proc-mounts",
  "protobuf 3.2.0",
  "serde",
  "serde_json",
@@ -2305,15 +2304,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "partition-identity"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9fa925f9becb532d758b0014b472c576869910929cf4c3f8054b386f19ab9e21"
-dependencies = [
- "thiserror",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2409,15 +2399,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78803b62cbf1f46fde80d7c0e803111524b9877184cfe7c3033659490ac7a7da"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "proc-mounts"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d652f8435d0ab70bf4f3590a6a851d59604831a458086541b95238cc51ffcf2"
-dependencies = [
- "partition-identity",
 ]
 
 [[package]]

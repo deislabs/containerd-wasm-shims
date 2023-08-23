@@ -1,22 +1,16 @@
-use anyhow::{Context, Result};
+use anyhow::Context;
 use containerd_shim as shim;
 use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
 use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
 use containerd_shim_wasm::sandbox::instance::ExitCode;
-use containerd_shim_wasm::sandbox::instance_utils::maybe_open_stdio;
+use containerd_shim_wasm::sandbox::instance_utils::{determine_rootdir, maybe_open_stdio};
 use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
 use executor::WwsExecutor;
 use libcontainer::container::builder::ContainerBuilder;
 use libcontainer::container::Container;
 use libcontainer::syscall::syscall::create_syscall;
-use serde::Deserialize;
-use serde::Serialize;
-use std::fs::File;
-use std::io::ErrorKind;
-use std::io::Read;
 use std::option::Option;
 use std::os::fd::IntoRawFd;
-use std::path::Path;
 use std::path::PathBuf;
 
 mod executor;
@@ -35,35 +29,6 @@ pub struct Workers {
     bundle: String,
     rootdir: PathBuf,
 }
-#[derive(Serialize, Deserialize)]
-struct Options {
-    root: Option<PathBuf>,
-}
-
-fn determine_rootdir<P: AsRef<Path>>(bundle: P, namespace: String) -> Result<PathBuf, Error> {
-    log::info!(
-        "determining rootdir for bundle: {}",
-        bundle.as_ref().display()
-    );
-    let mut file = match File::open(bundle.as_ref().join("options.json")) {
-        Ok(f) => f,
-        Err(err) => match err.kind() {
-            ErrorKind::NotFound => {
-                return Ok(<&str as Into<PathBuf>>::into(DEFAULT_CONTAINER_ROOT_DIR).join(namespace))
-            }
-            _ => return Err(err.into()),
-        },
-    };
-    let mut data = String::new();
-    file.read_to_string(&mut data)?;
-    let options: Options = serde_json::from_str(&data)?;
-    let path = options
-        .root
-        .unwrap_or(PathBuf::from(DEFAULT_CONTAINER_ROOT_DIR))
-        .join(namespace);
-    log::info!("youki root path is: {}", path.display());
-    Ok(path)
-}
 
 /// Implement the "default" interface from runwasi
 impl LibcontainerInstance for Workers {
@@ -72,7 +37,12 @@ impl LibcontainerInstance for Workers {
         log::info!("[wws] new instance");
         let cfg = cfg.unwrap();
         let bundle = cfg.get_bundle().unwrap_or_default();
-        let rootdir = determine_rootdir(bundle.as_str(), cfg.get_namespace()).unwrap();
+        let rootdir = determine_rootdir(
+            bundle.as_str(),
+            cfg.get_namespace().as_str(),
+            DEFAULT_CONTAINER_ROOT_DIR,
+        )
+        .unwrap();
         Workers {
             exit_code: Default::default(),
             id,

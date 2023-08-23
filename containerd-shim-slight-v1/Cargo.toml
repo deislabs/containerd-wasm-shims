@@ -14,7 +14,7 @@ Containerd shim for running Slight workloads.
 chrono = "0.4"
 clap = { version = "4.1", features = ["derive", "env"] }
 containerd-shim = "0.4.0"
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "6287dff637b0ac96a43a6bbe2c7919f8b2f2cf27", features = ["cgroupsv2"]}
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "7850da82a86286f6fcf21e1c93390572ed73592d", features = ["cgroupsv2"]}
 log = "0.4"
 tokio = { version = "1", features = [ "full" ] }
 tokio-util = { version = "0.7", features = [ "codec" ]}
