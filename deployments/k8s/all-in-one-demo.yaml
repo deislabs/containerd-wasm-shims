@@ -43,7 +43,6 @@ spec:
       containers:
         - name: testwasm
           image: ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:latest
-          command: ["/"]
 ---
 apiVersion: v1
 kind: Service
@@ -76,7 +75,6 @@ spec:
       containers:
         - name: testwasm
           image: ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:latest
-          command: ["/"]
 ---
 apiVersion: v1
 kind: Service
@@ -109,7 +107,6 @@ spec:
       containers:
         - name: testwasm
           image: ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:latest
-          command: ["/"]
 ---
 apiVersion: v1
 kind: Service
