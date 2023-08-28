@@ -27,17 +27,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
 
 [[package]]
-name = "aes"
-version = "0.8.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac1f845298e95f983ff1944b728ae08b8cebab80d684f0a832ed0fc74dfa27e2"
-dependencies = [
- "cfg-if 1.0.0",
- "cipher",
- "cpufeatures",
-]
-
-[[package]]
 name = "ahash"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -245,7 +234,7 @@ dependencies = [
  "matchit",
  "memchr",
  "mime",
- "percent-encoding 2.3.0",
+ "percent-encoding",
  "pin-project-lite",
  "rustversion",
  "serde",
@@ -325,12 +314,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "base64ct"
-version = "1.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
-
-[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -377,27 +360,6 @@ name = "bytes"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89b2fd2a0dcf38d7971e2194b6b6eebab45ae01067456a7fd93d5547a61b70be"
-
-[[package]]
-name = "bzip2"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bdb116a6ef3f6c3698828873ad02c3014b3c85cadb88496095628e3ef1e347f8"
-dependencies = [
- "bzip2-sys",
- "libc",
-]
-
-[[package]]
-name = "bzip2-sys"
-version = "0.1.11+1.0.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "736a955f3fa7875102d57c82b8cac37ec45224a07fd32d58f9f7a186b6cd4cdc"
-dependencies = [
- "cc",
- "libc",
- "pkg-config",
-]
 
 [[package]]
 name = "cap-fs-ext"
@@ -536,16 +498,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cipher"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "773f3b9af64447d2ce9850330c473515014aa235e6a783b02db81ff39e4a3dad"
-dependencies = [
- "crypto-common",
- "inout",
-]
-
-[[package]]
 name = "clap"
 version = "4.3.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -614,16 +566,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "constant_time_eq"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
-
-[[package]]
 name = "containerd-shim"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34b838538bbc58599a085b1d9e525eb15eae53c48c756f3339dc61524f77891a"
+checksum = "46a08af6d8436b911bd47f34dd3478fe28cfbe40e8e3b2c1d61f3abb264e053d"
 dependencies = [
  "cgroups-rs 0.2.11",
  "command-fds",
@@ -674,9 +620,9 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-protos"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dbbd1b58f3aa972bb5218a0a79c9e96939113f5db5cacbd15be5022e02ba2d5"
+checksum = "105ad6d5b553163181f33abdb172e1b1f5f567570632258be016acb09ab9578c"
 dependencies = [
  "protobuf 3.2.0",
  "ttrpc",
@@ -686,7 +632,7 @@ dependencies = [
 [[package]]
 name = "containerd-shim-wasm"
 version = "0.2.1"
-source = "git+https://github.com/containerd/runwasi?rev=7850da82a86286f6fcf21e1c93390572ed73592d#7850da82a86286f6fcf21e1c93390572ed73592d"
+source = "git+https://github.com/containerd/runwasi?rev=c83ea9629bcc2377f54468700e6abbe4f5320b56#c83ea9629bcc2377f54468700e6abbe4f5320b56"
 dependencies = [
  "anyhow",
  "caps",
@@ -705,34 +651,6 @@ dependencies = [
  "serde_json",
  "thiserror",
  "ttrpc",
-]
-
-[[package]]
-name = "cookie"
-version = "0.16.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e859cd57d0710d9e06c381b550c06e76992472a8c6d527aecd2fc673dcc231fb"
-dependencies = [
- "percent-encoding 2.3.0",
- "time 0.3.25",
- "version_check",
-]
-
-[[package]]
-name = "cookie_store"
-version = "0.16.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d606d0fba62e13cf04db20536c05cb7f13673c161cb47a47a82b9b9e7d3f1daa"
-dependencies = [
- "cookie",
- "idna 0.2.3",
- "log",
- "publicsuffix",
- "serde",
- "serde_derive",
- "serde_json",
- "time 0.3.25",
- "url 2.4.0",
 ]
 
 [[package]]
@@ -1066,7 +984,6 @@ checksum = "9ed9a281f7bc9b7576e61468ba615a66a5c8cfdff42420a70aa82701a3b1e292"
 dependencies = [
  "block-buffer",
  "crypto-common",
- "subtle",
 ]
 
 [[package]]
@@ -1120,12 +1037,6 @@ dependencies = [
  "quote",
  "syn 2.0.29",
 ]
-
-[[package]]
-name = "dotenvy"
-version = "0.15.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1aaf95b3e5c8f23aa320147307562d361db0ae0d51242340f558153b4eb2439b"
 
 [[package]]
 name = "either"
@@ -1271,7 +1182,7 @@ version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a62bc1cf6f830c2ec14a513a9fb124d0a213a629668a4186f329db21fe045652"
 dependencies = [
- "percent-encoding 2.3.0",
+ "percent-encoding",
 ]
 
 [[package]]
@@ -1470,7 +1381,7 @@ dependencies = [
 [[package]]
 name = "hash-map-id"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 
 [[package]]
 name = "hashbrown"
@@ -1528,15 +1439,6 @@ name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
-
-[[package]]
-name = "hmac"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c49c37c09c17a53d937dfbb742eb3a961d65a994e6bcdcf37e7399d0cc8ab5e"
-dependencies = [
- "digest",
-]
 
 [[package]]
 name = "http"
@@ -1658,38 +1560,6 @@ checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38f09e0f0b1fb55fdee1f17470ad800da77af5186a1a76c026b679358b7e844e"
-dependencies = [
- "matches",
- "unicode-bidi",
- "unicode-normalization",
-]
-
-[[package]]
-name = "idna"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "418a0a6fab821475f634efe3ccc45c013f742efe03d853e8d3355d5cb850ecf8"
-dependencies = [
- "matches",
- "unicode-bidi",
- "unicode-normalization",
-]
-
-[[package]]
-name = "idna"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e14ddfc70884202db2244c223200c204c2bda1bc6e0998d11b5e024d657209e6"
-dependencies = [
- "unicode-bidi",
- "unicode-normalization",
-]
-
-[[package]]
-name = "idna"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7d20d6b07bfbc108882d88ed8e37d39636dcc260e15e30c45e6ba089610b917c"
@@ -1707,15 +1577,6 @@ dependencies = [
  "autocfg",
  "hashbrown 0.12.3",
  "serde",
-]
-
-[[package]]
-name = "inout"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0c10553d664a4d0bcff9f4215d0aac67a639cc68ef660840afe309b807bc9f5"
-dependencies = [
- "generic-array",
 ]
 
 [[package]]
@@ -1913,7 +1774,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 [[package]]
 name = "lunatic-common-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "wasmtime",
@@ -1922,7 +1783,7 @@ dependencies = [
 [[package]]
 name = "lunatic-control"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "serde",
  "uuid",
@@ -1931,7 +1792,7 @@ dependencies = [
 [[package]]
 name = "lunatic-control-axum"
 version = "0.13.3"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "axum",
@@ -1954,7 +1815,7 @@ dependencies = [
 [[package]]
 name = "lunatic-distributed"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "async_cell",
@@ -1978,7 +1839,7 @@ dependencies = [
 [[package]]
 name = "lunatic-distributed-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "bincode",
@@ -1997,7 +1858,7 @@ dependencies = [
 [[package]]
 name = "lunatic-error-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "hash-map-id",
@@ -2008,7 +1869,7 @@ dependencies = [
 [[package]]
 name = "lunatic-messaging-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "lunatic-common-api",
@@ -2022,7 +1883,7 @@ dependencies = [
 [[package]]
 name = "lunatic-metrics-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "log",
@@ -2034,7 +1895,7 @@ dependencies = [
 [[package]]
 name = "lunatic-networking-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "hash-map-id",
@@ -2050,7 +1911,7 @@ dependencies = [
 [[package]]
 name = "lunatic-process"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2069,7 +1930,7 @@ dependencies = [
 [[package]]
 name = "lunatic-process-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "hash-map-id",
@@ -2086,7 +1947,7 @@ dependencies = [
 [[package]]
 name = "lunatic-registry-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "lunatic-common-api",
@@ -2100,14 +1961,12 @@ dependencies = [
 [[package]]
 name = "lunatic-runtime"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "async-ctrlc",
  "clap",
  "dashmap",
- "dirs",
- "dotenvy",
  "env_logger 0.9.3",
  "hash-map-id",
  "log",
@@ -2131,22 +1990,17 @@ dependencies = [
  "regex",
  "reqwest",
  "serde",
- "serde_json",
  "tokio",
  "toml",
- "url 2.4.0",
- "url_serde",
  "uuid",
- "walkdir",
  "wasmtime",
  "wasmtime-wasi",
- "zip",
 ]
 
 [[package]]
 name = "lunatic-sqlite-api"
 version = "0.13.3"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2163,7 +2017,7 @@ dependencies = [
 [[package]]
 name = "lunatic-stdout-capture"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "wasi-common",
  "wiggle",
@@ -2172,7 +2026,7 @@ dependencies = [
 [[package]]
 name = "lunatic-timer-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "hash-map-id",
@@ -2187,7 +2041,7 @@ dependencies = [
 [[package]]
 name = "lunatic-trap-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "lunatic-common-api",
@@ -2197,7 +2051,7 @@ dependencies = [
 [[package]]
 name = "lunatic-version-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "wasmtime",
@@ -2206,7 +2060,7 @@ dependencies = [
 [[package]]
 name = "lunatic-wasi-api"
 version = "0.13.2"
-source = "git+https://github.com/lunatic-solutions/lunatic#e9bb3081387b916312a0df611d615e06e3fded99"
+source = "git+https://github.com/lunatic-solutions/lunatic?tag=v0.13.2#0b325fb264f005b0a35648e142637e4fb14ad387"
 dependencies = [
  "anyhow",
  "lunatic-common-api",
@@ -2224,12 +2078,6 @@ checksum = "b823e83b2affd8f40a9ee8c29dbc56404c1e34cd2710921f2801e2cf29527afa"
 dependencies = [
  "libc",
 ]
-
-[[package]]
-name = "matches"
-version = "0.1.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
 name = "matchit"
@@ -2321,16 +2169,6 @@ name = "mime"
 version = "0.3.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
-
-[[package]]
-name = "mime_guess"
-version = "2.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4192263c238a5f0d0c6bfd21f336a313a4ce1c450542449ca191bb657b4642ef"
-dependencies = [
- "mime",
- "unicase",
-]
 
 [[package]]
 name = "minimal-lexical"
@@ -2598,9 +2436,9 @@ dependencies = [
 
 [[package]]
 name = "page_size"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b7663cbd190cfd818d08efa8497f6cd383076688c49a391ef7c0d03cd12b561"
+checksum = "30d5b2194ed13191c1999ae0704b7839fb18384fa22e49b57eeaa97d79ce40da"
 dependencies = [
  "libc",
  "winapi",
@@ -2620,33 +2458,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "password-hash"
-version = "0.4.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7676374caaee8a325c9e7a2ae557f216c5563a171d6997b0ef8a65af35147700"
-dependencies = [
- "base64ct",
- "rand_core",
- "subtle",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
-
-[[package]]
-name = "pbkdf2"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83a0692ec44e4cf1ef28ca317f14f8f07da2d95ec3fa01f86e4467b725e60917"
-dependencies = [
- "digest",
- "hmac",
- "password-hash",
- "sha2",
-]
 
 [[package]]
 name = "pem"
@@ -2656,12 +2471,6 @@ checksum = "a8835c273a76a90455d7344889b0964598e3316e2a79ede8e36f16bdcf2228b8"
 dependencies = [
  "base64 0.13.1",
 ]
-
-[[package]]
-name = "percent-encoding"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31010dd2e1ac33d5b46a5b413495239882813e0369f8ed8a5e266f173602f831"
 
 [[package]]
 name = "percent-encoding"
@@ -2914,28 +2723,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "psl-types"
-version = "2.0.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33cb294fe86a74cbcf50d4445b37da762029549ebeea341421c7c70370f86cac"
-
-[[package]]
 name = "psm"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5787f7cda34e3033a72192c018bc5883100330f362ef279a8cbccfce8bb4e874"
 dependencies = [
  "cc",
-]
-
-[[package]]
-name = "publicsuffix"
-version = "2.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "96a8c1bda5ae1af7f99a2962e49df150414a43d62404644d98dd5c3a93d07457"
-dependencies = [
- "idna 0.3.0",
- "psl-types",
 ]
 
 [[package]]
@@ -3151,8 +2944,6 @@ checksum = "cde824a14b7c14f85caff81225f411faacc04a2013f41670f41443742b1c1c55"
 dependencies = [
  "base64 0.21.2",
  "bytes",
- "cookie",
- "cookie_store",
  "encoding_rs",
  "futures-core",
  "futures-util",
@@ -3165,10 +2956,9 @@ dependencies = [
  "js-sys",
  "log",
  "mime",
- "mime_guess",
  "native-tls",
  "once_cell",
- "percent-encoding 2.3.0",
+ "percent-encoding",
  "pin-project-lite",
  "serde",
  "serde_json",
@@ -3176,7 +2966,7 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
  "tower-service",
- "url 2.4.0",
+ "url",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
@@ -3351,15 +3141,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "same-file"
-version = "1.0.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
-dependencies = [
- "winapi-util",
-]
-
-[[package]]
 name = "schannel"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3458,17 +3239,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "sha1"
-version = "0.10.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f04293dc80c3993519f2d7f6f511707ee7094fe0c6d3406feb330cdb3540eba3"
-dependencies = [
- "cfg-if 1.0.0",
- "cpufeatures",
- "digest",
 ]
 
 [[package]]
@@ -3604,12 +3374,6 @@ name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
-
-[[package]]
-name = "subtle"
-version = "2.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81cdd64d312baedb58e21336b31bc043b77e01cc99033ce76ef539f78e965ebc"
 
 [[package]]
 name = "syn"
@@ -4057,34 +3821,13 @@ checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 
 [[package]]
 name = "url"
-version = "1.7.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd4e7c0d531266369519a4aa4f399d748bd37043b00bde1e4ff1f60a120b355a"
-dependencies = [
- "idna 0.1.5",
- "matches",
- "percent-encoding 1.0.1",
-]
-
-[[package]]
-name = "url"
 version = "2.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "50bff7831e19200a85b17131d085c25d7811bc4e186efdaf54bbd132994a88cb"
 dependencies = [
  "form_urlencoded",
- "idna 0.4.0",
- "percent-encoding 2.3.0",
-]
-
-[[package]]
-name = "url_serde"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74e7d099f1ee52f823d4bdd60c93c3602043c728f5db3b97bdb548467f7bddea"
-dependencies = [
- "serde",
- "url 1.7.2",
+ "idna",
+ "percent-encoding",
 ]
 
 [[package]]
@@ -4114,16 +3857,6 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
-
-[[package]]
-name = "walkdir"
-version = "2.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36df944cda56c7d8d8b7496af378e6b16de9284591917d307c9b4d313c44e698"
-dependencies = [
- "same-file",
- "winapi-util",
-]
 
 [[package]]
 name = "want"
@@ -4272,7 +4005,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48134de3d7598219ab9eaf6b91b15d8e50d31da76b8519fe4ecfcec2cf35104b"
 dependencies = [
  "indexmap",
- "url 2.4.0",
+ "url",
 ]
 
 [[package]]
@@ -4877,7 +4610,7 @@ dependencies = [
  "log",
  "pulldown-cmark",
  "unicode-xid",
- "url 2.4.0",
+ "url",
 ]
 
 [[package]]
@@ -4918,26 +4651,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e17bb3549cc1321ae1296b9cdc2698e2b6cb1992adfa19a8c72e5b7a738f44cd"
 dependencies = [
  "time 0.3.25",
-]
-
-[[package]]
-name = "zip"
-version = "0.6.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "760394e246e4c28189f19d488c058bf16f564016aefac5d32bb1f3b51d5e9261"
-dependencies = [
- "aes",
- "byteorder",
- "bzip2",
- "constant_time_eq",
- "crc32fast",
- "crossbeam-utils",
- "flate2",
- "hmac",
- "pbkdf2",
- "sha1",
- "time 0.3.25",
- "zstd",
 ]
 
 [[package]]

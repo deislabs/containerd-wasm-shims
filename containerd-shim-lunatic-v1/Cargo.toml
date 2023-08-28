@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-containerd-shim = "0.4.0"
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "7850da82a86286f6fcf21e1c93390572ed73592d", features = ["cgroupsv2"] }
+containerd-shim = "0.5.0"
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "c83ea9629bcc2377f54468700e6abbe4f5320b56", features = ["cgroupsv2"] }
 libcontainer = { version = "0.1", features = ["v2"], default-features = false }
 nix = "0.26.2"
 serde = "1.0.183"
@@ -17,10 +17,10 @@ log = "~0.4"
 libc = "0.2.147"
 anyhow = "1.0.72"
 chrono = { version = "0.4.26", features = ["std"] }
-lunatic-process = { git = "https://github.com/lunatic-solutions/lunatic"}
-lunatic-process-api = { git = "https://github.com/lunatic-solutions/lunatic"}
-lunatic-distributed = { git = "https://github.com/lunatic-solutions/lunatic"}
-lunatic-runtime = { git = "https://github.com/lunatic-solutions/lunatic"}
+lunatic-process = { git = "https://github.com/lunatic-solutions/lunatic", tag = "v0.13.2"}
+lunatic-process-api = { git = "https://github.com/lunatic-solutions/lunatic", tag = "v0.13.2"}
+lunatic-distributed = { git = "https://github.com/lunatic-solutions/lunatic", tag = "v0.13.2"}
+lunatic-runtime = { git = "https://github.com/lunatic-solutions/lunatic", tag = "v0.13.2"}
 clap = { version = "4.0", features = ["cargo", "derive"] }
 tokio = "1.30.0"
 # https://github.com/sfackler/rust-openssl/issues/603#issuecomment-822619837

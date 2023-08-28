@@ -752,9 +752,9 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34b838538bbc58599a085b1d9e525eb15eae53c48c756f3339dc61524f77891a"
+checksum = "46a08af6d8436b911bd47f34dd3478fe28cfbe40e8e3b2c1d61f3abb264e053d"
 dependencies = [
  "cgroups-rs 0.2.11",
  "command-fds",
@@ -781,9 +781,9 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-protos"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dbbd1b58f3aa972bb5218a0a79c9e96939113f5db5cacbd15be5022e02ba2d5"
+checksum = "105ad6d5b553163181f33abdb172e1b1f5f567570632258be016acb09ab9578c"
 dependencies = [
  "protobuf 3.2.0",
  "ttrpc",
@@ -825,7 +825,7 @@ dependencies = [
 [[package]]
 name = "containerd-shim-wasm"
 version = "0.2.1"
-source = "git+https://github.com/containerd/runwasi?rev=7850da82a86286f6fcf21e1c93390572ed73592d#7850da82a86286f6fcf21e1c93390572ed73592d"
+source = "git+https://github.com/containerd/runwasi?rev=c83ea9629bcc2377f54468700e6abbe4f5320b56#c83ea9629bcc2377f54468700e6abbe4f5320b56"
 dependencies = [
  "anyhow",
  "caps",
@@ -2884,8 +2884,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-http"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "http",
@@ -2899,8 +2899,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-mysql"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "flate2",
@@ -2915,8 +2915,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-pg"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "native-tls",
@@ -2930,8 +2930,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-redis"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "redis",
@@ -2943,9 +2943,9 @@ dependencies = [
 
 [[package]]
 name = "page_size"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b7663cbd190cfd818d08efa8497f6cd383076688c49a391ef7c0d03cd12b561"
+checksum = "30d5b2194ed13191c1999ae0704b7839fb18384fa22e49b57eeaa97d79ce40da"
 dependencies = [
  "libc",
  "winapi",
@@ -4170,8 +4170,8 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "spin-app"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4184,8 +4184,8 @@ dependencies = [
 
 [[package]]
 name = "spin-common"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "dirs 4.0.0",
@@ -4207,8 +4207,8 @@ dependencies = [
 
 [[package]]
 name = "spin-config"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4225,8 +4225,8 @@ dependencies = [
 
 [[package]]
 name = "spin-core"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4243,8 +4243,8 @@ dependencies = [
 
 [[package]]
 name = "spin-http"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "http",
@@ -4258,8 +4258,8 @@ dependencies = [
 
 [[package]]
 name = "spin-key-value"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "lru 0.9.0",
@@ -4273,7 +4273,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-azure"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "azure_data_cosmos",
@@ -4288,7 +4288,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-redis"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "redis",
@@ -4302,7 +4302,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-sqlite"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "once_cell",
@@ -4315,8 +4315,8 @@ dependencies = [
 
 [[package]]
 name = "spin-loader"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4351,8 +4351,8 @@ dependencies = [
 
 [[package]]
 name = "spin-manifest"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "indexmap 1.9.3",
  "serde",
@@ -4362,8 +4362,8 @@ dependencies = [
 
 [[package]]
 name = "spin-redis-engine"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4379,8 +4379,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sqlite"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4393,8 +4393,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sqlite-inproc"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4408,8 +4408,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sqlite-libsql"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4422,8 +4422,8 @@ dependencies = [
 
 [[package]]
 name = "spin-trigger"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4464,8 +4464,8 @@ dependencies = [
 
 [[package]]
 name = "spin-trigger-http"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4496,8 +4496,8 @@ dependencies = [
 
 [[package]]
 name = "spin-world"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "wasmtime",
 ]
@@ -4667,7 +4667,7 @@ dependencies = [
 [[package]]
 name = "terminal"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "atty",
  "once_cell",
