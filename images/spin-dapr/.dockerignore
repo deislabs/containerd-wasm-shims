@@ -1,0 +1,5 @@
+target/debug
+target/release
+target/wasm32-wasi/build
+target/wasm32-wasi/deps
+.spin/
