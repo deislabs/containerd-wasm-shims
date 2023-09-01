@@ -706,6 +706,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tokio-util",
+ "utils",
  "wws-config",
  "wws-router",
  "wws-server",
@@ -3487,6 +3488,14 @@ dependencies = [
  "form_urlencoded",
  "idna",
  "percent-encoding",
+]
+
+[[package]]
+name = "utils"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "oci-spec",
 ]
 
 [[package]]

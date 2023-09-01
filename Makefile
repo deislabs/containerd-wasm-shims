@@ -56,8 +56,10 @@ test/clean:
 
 .PHONY: fmt
 fmt:
-	$(foreach shim,$(SHIMS),cargo fmt --all --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml -- --check;)
-	$(foreach shim,$(SHIMS),cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml -- -D warnings;)
+	$(foreach shim,$(SHIMS),cargo fmt --all --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml;)
+	$(foreach shim,$(SHIMS),cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml -- -D warnings;)	
+	cargo fmt --all -- --check
+	cargo clippy --all-targets --all-features --workspace -- --deny=warnings
 
 .PHONY: build
 build: $(foreach shim,$(SHIMS),build-$(shim)-cross-$(TARGET))

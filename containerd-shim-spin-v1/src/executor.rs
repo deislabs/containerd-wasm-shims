@@ -1,12 +1,9 @@
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{anyhow, Context, Result};
 use log::info;
 use spin_manifest::Application;
 use spin_redis_engine::RedisTrigger;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
-use std::fs::File;
-use std::io::Read;
-use std::os::unix::prelude::PermissionsExt;
 use std::{future::Future, path::PathBuf, pin::Pin};
 
 use tokio::runtime::Runtime;
@@ -14,14 +11,12 @@ use url::Url;
 use wasmtime::OptLevel;
 
 use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
-use containerd_shim_wasm::sandbox::{oci, Stdio};
+use containerd_shim_wasm::sandbox::Stdio;
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
+use utils::is_linux_executable;
 
 use crate::{parse_addr, SPIN_ADDR};
-
-// const EXECUTOR_NAME: &str = "spin";
-// const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
 
 #[derive(Clone)]
 pub struct SpinExecutor {
@@ -69,136 +64,71 @@ impl SpinExecutor {
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
     }
+
+    fn wasm_exec(&self, _spec: &Spec) -> Result<()> {
+        log::info!("executing spin container");
+        let rt = Runtime::new().context("failed to create runtime")?;
+        rt.block_on(self.wasm_exec_async())
+    }
+
+    async fn wasm_exec_async(&self) -> Result<()> {
+        info!(" >>> building spin application");
+        let app =
+            SpinExecutor::build_spin_application(PathBuf::from("/spin.toml"), PathBuf::from("/"))
+                .await
+                .context("failed to build spin application")?;
+
+        let trigger = app.info.trigger.clone();
+        info!(" >>> building spin trigger {:?}", trigger);
+
+        let f: Pin<Box<dyn Future<Output = Result<(), anyhow::Error>> + Send>>;
+
+        match trigger {
+            spin_manifest::ApplicationTrigger::Http(_config) => {
+                let http_trigger: HttpTrigger =
+                    SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
+                        .await
+                        .context("failed to build spin trigger")?;
+                info!(" >>> running spin trigger");
+                f = http_trigger.run(spin_trigger_http::CliArgs {
+                    address: parse_addr(SPIN_ADDR).unwrap(),
+                    tls_cert: None,
+                    tls_key: None,
+                });
+            }
+            spin_manifest::ApplicationTrigger::Redis(_config) => {
+                let redis_trigger: RedisTrigger =
+                    SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
+                        .await
+                        .context("failed to build spin trigger")?;
+
+                info!(" >>> running spin trigger");
+                f = redis_trigger.run(spin_trigger::cli::NoArgs);
+            }
+            _ => todo!("Only Http and Redis triggers are currently supported."),
+        }
+
+        info!(" >>> notifying main thread we are about to start");
+        f.await
+    }
 }
 
 impl Executor for SpinExecutor {
     fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
         if is_linux_executable(spec).is_ok() {
             log::info!("executing linux container");
-            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)?;
-            Ok(())
+            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
         } else {
-            log::info!("executing spin container");
-            let args = oci::get_args(spec);
-            if args.is_empty() {
-                return Err(ExecutorError::InvalidArg);
+            if let Err(err) = self.wasm_exec(spec) {
+                log::info!(" >>> server shut down due to error: {err}");
+                std::process::exit(137);
             }
-            let rt = Runtime::new().unwrap();
-            let res = rt.block_on(async {
-                info!(" >>> building spin application");
-                let app = match SpinExecutor::build_spin_application(
-                    PathBuf::from("/spin.toml"),
-                    PathBuf::from("/"),
-                )
-                .await
-                {
-                    Ok(app) => app,
-                    Err(err) => {
-                        return err;
-                    }
-                };
-
-                let trigger = app.info.trigger.clone();
-                info!(" >>> building spin trigger {:?}", trigger);
-
-                let f: Pin<Box<dyn Future<Output = Result<(), anyhow::Error>> + Send>>;
-
-                match trigger {
-                    spin_manifest::ApplicationTrigger::Http(_config) => {
-                        let http_trigger: HttpTrigger =
-                            match SpinExecutor::build_spin_trigger(PathBuf::from("/"), app).await {
-                                Ok(http_trigger) => http_trigger,
-                                Err(err) => {
-                                    log::error!(" >>> failed to build spin trigger: {:?}", err);
-                                    return err;
-                                }
-                            };
-
-                        info!(" >>> running spin trigger");
-                        f = http_trigger.run(spin_trigger_http::CliArgs {
-                            address: parse_addr(SPIN_ADDR).unwrap(),
-                            tls_cert: None,
-                            tls_key: None,
-                        });
-                    }
-                    spin_manifest::ApplicationTrigger::Redis(_config) => {
-                        let redis_trigger: RedisTrigger =
-                            match SpinExecutor::build_spin_trigger(PathBuf::from("/"), app).await {
-                                Ok(redis_trigger) => redis_trigger,
-                                Err(err) => {
-                                    return err;
-                                }
-                            };
-
-                        info!(" >>> running spin trigger");
-                        f = redis_trigger.run(spin_trigger::cli::NoArgs);
-                    }
-                    _ => todo!("Only Http and Redis triggers are currently supported."),
-                }
-
-                info!(" >>> notifying main thread we are about to start");
-                tokio::select! {
-                    _ = f => {
-                        log::info!(" >>> server shut down: exiting");
-                        std::process::exit(0);
-                    },
-                }
-            });
-            log::error!(" >>> error: {:?}", res);
-            std::process::exit(137);
+            log::info!(" >>> server shut down: exiting");
+            std::process::exit(0);
         }
     }
 
     fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
         Ok(())
-    }
-}
-
-fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
-    let args = oci::get_args(spec).to_vec();
-
-    if args.is_empty() {
-        bail!("no args provided");
-    }
-
-    let executable = args.first().context("no executable provided")?;
-    ensure!(!executable.is_empty(), "executable is empty");
-    let cwd = std::env::current_dir()?;
-
-    let executable = if executable.contains('/') {
-        let path = cwd.join(executable);
-        ensure!(path.is_file(), "file not found");
-        path
-    } else {
-        spec.process()
-            .as_ref()
-            .and_then(|p| p.env().clone())
-            .unwrap_or_default()
-            .into_iter()
-            .map(|v| match v.split_once('=') {
-                None => (v, "".to_string()),
-                Some((k, v)) => (k.to_string(), v.to_string()),
-            })
-            .find(|(key, _)| key == "PATH")
-            .context("PATH not defined")?
-            .1
-            .split(':')
-            .map(|p| cwd.join(p).join(executable))
-            .find(|p| p.is_file())
-            .context("file not found")?
-    };
-
-    let mode = executable.metadata()?.permissions().mode();
-    ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
-
-    // check the shebang and ELF magic number
-    // https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
-    let mut buffer = [0; 4];
-    File::open(&executable)?.read_exact(&mut buffer)?;
-
-    match buffer {
-        [0x7f, 0x45, 0x4c, 0x46] => Ok(()), // ELF magic number
-        [0x23, 0x21, ..] => Ok(()),         // shebang
-        _ => bail!("{executable:?} is not a valid script or elf file"),
     }
 }

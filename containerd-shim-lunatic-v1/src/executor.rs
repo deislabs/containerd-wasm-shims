@@ -1,7 +1,4 @@
 use anyhow::{bail, ensure, Context, Result};
-use std::fs::File;
-use std::io::Read;
-use std::os::unix::prelude::PermissionsExt;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
@@ -14,6 +11,7 @@ use lunatic_process::{
     runtimes,
 };
 use oci_spec::runtime::Spec;
+use utils::{get_args, is_linux_executable};
 
 use crate::common::{run_wasm, RunWasm};
 
@@ -26,17 +24,18 @@ impl LunaticExecutor {
     pub fn new(stdio: Stdio) -> Self {
         Self { stdio }
     }
-}
 
-fn get_args(spec: &Spec) -> &[String] {
-    let p = match spec.process() {
-        None => return &[],
-        Some(p) => p,
-    };
-
-    match p.args() {
-        None => &[],
-        Some(args) => args.as_slice(),
+    fn wasm_exec(&self, spec: &Spec) -> anyhow::Result<()> {
+        self.stdio
+            .take()
+            .redirect()
+            .context("failed to redirect stdio")?;
+        let cmd = get_args(spec).first().context("no cmd provided")?.clone();
+        let rt = Runtime::new().context("failed to create runtime")?;
+        rt.block_on(async {
+            log::info!(" >>> building lunatic application");
+            crate::executor::exec(cmd).await
+        })
     }
 }
 
@@ -44,23 +43,13 @@ impl Executor for LunaticExecutor {
     fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
         if is_linux_executable(spec).is_ok() {
             log::info!("executing linux container");
-            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)?;
-            Ok(())
+            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
         } else {
-            self.stdio.take().redirect().unwrap();
-            let args = get_args(spec);
-            let cmd = args[0].clone();
-
-            let rt = Runtime::new().unwrap();
-            rt.block_on(async {
-                log::info!(" >>> building lunatic application");
-
-                match crate::executor::exec(cmd).await {
-                    Err(error) => log::error!(" >>> error: {:?}", error),
-                    Ok(_) => std::process::exit(0),
-                }
-            });
-            std::process::exit(137);
+            if let Err(e) = self.wasm_exec(spec) {
+                log::error!(" >>> error: {:?}", e);
+                std::process::exit(137);
+            }
+            std::process::exit(0);
         }
     }
 
@@ -86,55 +75,6 @@ pub async fn exec(cmd: String) -> Result<()> {
         distributed: None,
     })
     .await
-}
-
-fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
-    let args = oci::get_args(spec).to_vec();
-
-    if args.is_empty() {
-        bail!("no args provided");
-    }
-
-    let executable = args.first().context("no executable provided")?;
-    ensure!(!executable.is_empty(), "executable is empty");
-    let cwd = std::env::current_dir()?;
-
-    let executable = if executable.contains('/') {
-        let path = cwd.join(executable);
-        ensure!(path.is_file(), "file not found");
-        path
-    } else {
-        spec.process()
-            .as_ref()
-            .and_then(|p| p.env().clone())
-            .unwrap_or_default()
-            .into_iter()
-            .map(|v| match v.split_once('=') {
-                None => (v, "".to_string()),
-                Some((k, v)) => (k.to_string(), v.to_string()),
-            })
-            .find(|(key, _)| key == "PATH")
-            .context("PATH not defined")?
-            .1
-            .split(':')
-            .map(|p| cwd.join(p).join(executable))
-            .find(|p| p.is_file())
-            .context("file not found")?
-    };
-
-    let mode = executable.metadata()?.permissions().mode();
-    ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
-
-    // check the shebang and ELF magic number
-    // https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
-    let mut buffer = [0; 4];
-    File::open(&executable)?.read_exact(&mut buffer)?;
-
-    match buffer {
-        [0x7f, 0x45, 0x4c, 0x46] => Ok(()), // ELF magic number
-        [0x23, 0x21, ..] => Ok(()),         // shebang
-        _ => bail!("{executable:?} is not a valid script or elf file"),
-    }
 }
 
 #[cfg(test)]

@@ -6,6 +6,8 @@ use k8s_openapi::api::core::v1::Pod;
 use kube::{api::ListParams, config::KubeConfigOptions, Api, Client, Config, ResourceExt};
 use rand::{distributions::Alphanumeric, Rng};
 
+mod integration_test;
+
 pub async fn retry_get(
     url: &str,
     buf: &mut Vec<u8>,

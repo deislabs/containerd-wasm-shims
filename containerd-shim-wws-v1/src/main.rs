@@ -1,8 +1,7 @@
-use anyhow::Context;
 use containerd_shim as shim;
 use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
 use containerd_shim_wasm::sandbox::instance::ExitCode;
-use containerd_shim_wasm::sandbox::instance_utils::{determine_rootdir, maybe_open_stdio};
+use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
 use containerd_shim_wasm::sandbox::Stdio;
 use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
 use executor::WwsExecutor;
@@ -10,7 +9,6 @@ use libcontainer::container::builder::ContainerBuilder;
 use libcontainer::container::Container;
 use libcontainer::syscall::syscall::SyscallType;
 use std::option::Option;
-use std::os::fd::IntoRawFd;
 use std::path::PathBuf;
 
 mod executor;
@@ -25,7 +23,6 @@ pub struct Workers {
     // will change in the future.
     // stdin: String,
     // stdout: String,
-    stderr: String,
     stdio: Stdio,
     bundle: String,
     rootdir: PathBuf,
@@ -52,7 +49,6 @@ impl LibcontainerInstance for Workers {
             // will change in the future.
             // stdin: cfg.get_stdin().unwrap_or_default(),
             // stdout: cfg.get_stdout().unwrap_or_default(),
-            stderr: cfg.get_stderr().unwrap_or_default(),
             stdio: Stdio::init_from_cfg(cfg).expect("failed to open stdio"),
             bundle,
             rootdir,
@@ -72,11 +68,8 @@ impl LibcontainerInstance for Workers {
     }
 
     fn build_container(&self) -> std::result::Result<Container, Error> {
-        let stderr = maybe_open_stdio(&self.stderr)
-            .context("could not open stderr")?
-            .map(|f| f.into_raw_fd());
         let err_others = |err| Error::Others(format!("failed to create container: {}", err));
-        let wws_executor = WwsExecutor::new(self.stdio.take(), stderr);
+        let wws_executor = WwsExecutor::new(self.stdio.take());
 
         let container = ContainerBuilder::new(self.id.clone(), SyscallType::Linux)
             .with_executor(wws_executor)
