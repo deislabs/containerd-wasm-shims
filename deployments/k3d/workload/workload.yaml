@@ -17,6 +17,7 @@ spec:
         - name: slight-hello
           imagePullPolicy: Never
           image: wasmtest_slight:latest
+          command: ["/"]
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
               cpu: 100m
@@ -54,6 +55,7 @@ spec:
       runtimeClassName: wasmtime-spin
       containers:
         - name: spin-hello
+          command: ["/"]
           imagePullPolicy: Never
           image: wasmtest_spin:latest
 ---

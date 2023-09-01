@@ -6,3 +6,4 @@ RUN cargo build --release --target wasm32-wasi
 
 FROM scratch
 COPY --link --from=build /build/target/wasm32-wasi/release/lunatic-submillisecond.wasm  /
+ENTRYPOINT [ "./lunatic-submillisecond.wasm" ]

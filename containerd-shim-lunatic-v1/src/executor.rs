@@ -59,6 +59,7 @@ impl Executor for LunaticExecutor {
 }
 
 pub async fn exec(cmd: String) -> Result<()> {
+    log::info!(" >>> lunatic wasm binary: {:?}", cmd);
     // Create wasmtime runtime
     let wasmtime_config = runtimes::wasmtime::default_config();
     let runtime = runtimes::wasmtime::WasmtimeRuntime::new(&wasmtime_config)?;

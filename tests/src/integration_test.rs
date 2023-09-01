@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod integration_test {
+mod test {
 
     use crate::{list_pods, random_payload, retry_get, retry_put};
     use anyhow::Result;
