@@ -1,10 +1,18 @@
-use anyhow::{Result, Context, ensure, bail};
+use anyhow::{bail, ensure, Context, Result};
 use log::{error, info};
 use nix::unistd::{dup, dup2};
-use std::{os::{fd::RawFd, unix::prelude::PermissionsExt}, path::PathBuf, fs::File, io::Read};
+use std::{
+    fs::File,
+    io::Read,
+    os::{fd::RawFd, unix::prelude::PermissionsExt},
+    path::PathBuf,
+};
 use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::{sandbox::{oci, Stdio}, libcontainer_instance::LinuxContainerExecutor};
+use containerd_shim_wasm::{
+    libcontainer_instance::LinuxContainerExecutor,
+    sandbox::{oci, Stdio},
+};
 use libc::STDERR_FILENO;
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
@@ -50,7 +58,9 @@ impl Executor for WwsExecutor {
             let config = match Config::load(&path) {
                 Ok(c) => c,
                 Err(err) => {
-                    error!("[wws] There was an error reading the .wws.toml file. It will be ignored");
+                    error!(
+                        "[wws] There was an error reading the .wws.toml file. It will be ignored"
+                    );
                     error!("[wws] Error: {err}");
 
                     Config::default()
@@ -82,7 +92,7 @@ impl Executor for WwsExecutor {
         }
     }
 
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> { 
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
         Ok(())
     }
 }
@@ -128,7 +138,7 @@ fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
             .find(|p| p.is_file())
             .context("file not found")?
     };
-    
+
     let mode = executable.metadata()?.permissions().mode();
     ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
 

@@ -6,10 +6,10 @@ use std::sync::{Arc, Condvar, Mutex};
 
 use anyhow::{anyhow, Result};
 use containerd_shim as shim;
-use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
-use containerd_shim_wasm::sandbox::stdio::Stdio;
 use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
 use containerd_shim_wasm::sandbox::instance::ExitCode;
+use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
+use containerd_shim_wasm::sandbox::stdio::Stdio;
 use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
 use executor::SpinExecutor;
 use libcontainer::container::builder::ContainerBuilder;

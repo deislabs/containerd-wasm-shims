@@ -4,18 +4,13 @@ use std::{
 };
 
 use containerd_shim::run;
-use containerd_shim_wasm::{
-    libcontainer_instance::LibcontainerInstance,
-    sandbox::{
-        instance::ExitCode,
-        Error, InstanceConfig, ShimCli,
-    },
-};
 use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
 use containerd_shim_wasm::sandbox::stdio::Stdio;
-use libcontainer::{
-    container::{builder::ContainerBuilder, Container},
+use containerd_shim_wasm::{
+    libcontainer_instance::LibcontainerInstance,
+    sandbox::{instance::ExitCode, Error, InstanceConfig, ShimCli},
 };
+use libcontainer::container::{builder::ContainerBuilder, Container};
 use libcontainer::syscall::syscall::SyscallType;
 
 use anyhow::Result;

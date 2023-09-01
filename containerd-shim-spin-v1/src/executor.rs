@@ -1,20 +1,20 @@
-use anyhow::{Result, Context, ensure, bail, anyhow};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use log::info;
 use spin_manifest::Application;
 use spin_redis_engine::RedisTrigger;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
-use std::{future::Future, path::PathBuf, pin::Pin};
 use std::fs::File;
 use std::io::Read;
 use std::os::unix::prelude::PermissionsExt;
+use std::{future::Future, path::PathBuf, pin::Pin};
 
 use tokio::runtime::Runtime;
 use url::Url;
 use wasmtime::OptLevel;
 
-use containerd_shim_wasm::sandbox::{oci, Stdio};
 use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::{oci, Stdio};
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
 
@@ -25,7 +25,7 @@ use crate::{parse_addr, SPIN_ADDR};
 
 #[derive(Clone)]
 pub struct SpinExecutor {
-    stdio: Stdio
+    stdio: Stdio,
 }
 
 impl SpinExecutor {
@@ -149,11 +149,10 @@ impl Executor for SpinExecutor {
         }
     }
 
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> { 
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
         Ok(())
     }
 }
-
 
 fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
     let args = oci::get_args(spec).to_vec();
@@ -188,7 +187,7 @@ fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
             .find(|p| p.is_file())
             .context("file not found")?
     };
-    
+
     let mode = executable.metadata()?.permissions().mode();
     ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
 

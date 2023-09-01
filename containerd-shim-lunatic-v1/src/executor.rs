@@ -1,25 +1,25 @@
-use anyhow::{Result, Context, ensure, bail};
-use std::path::PathBuf;
+use anyhow::{bail, ensure, Context, Result};
 use std::fs::File;
 use std::io::Read;
+use std::os::unix::prelude::PermissionsExt;
+use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
-use std::os::unix::prelude::PermissionsExt;
 
-use containerd_shim_wasm::sandbox::{oci, Stdio};
 use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::{oci, Stdio};
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
-use oci_spec::runtime::Spec;
 use lunatic_process::{
     env::{Environments, LunaticEnvironments},
     runtimes,
 };
+use oci_spec::runtime::Spec;
 
 use crate::common::{run_wasm, RunWasm};
 
 #[derive(Clone)]
 pub struct LunaticExecutor {
-    stdio: Stdio
+    stdio: Stdio,
 }
 
 impl LunaticExecutor {
@@ -64,7 +64,7 @@ impl Executor for LunaticExecutor {
         }
     }
 
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> { 
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
         Ok(())
     }
 }
@@ -121,7 +121,7 @@ fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
             .find(|p| p.is_file())
             .context("file not found")?
     };
-    
+
     let mode = executable.metadata()?.permissions().mode();
     ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
 

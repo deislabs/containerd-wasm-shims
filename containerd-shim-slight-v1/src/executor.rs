@@ -1,13 +1,13 @@
-use anyhow::{Result, Context, ensure, bail};
+use anyhow::{bail, ensure, Context, Result};
 use log::info;
-use std::path::PathBuf;
 use std::fs::File;
 use std::io::Read;
-use tokio::runtime::Runtime;
 use std::os::unix::prelude::PermissionsExt;
+use std::path::PathBuf;
+use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::sandbox::{oci, Stdio};
 use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::{oci, Stdio};
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
 use slight_lib::commands::run::{handle_run, RunArgs};
@@ -16,7 +16,7 @@ use slight_lib::commands::run::{handle_run, RunArgs};
 
 #[derive(Clone)]
 pub struct SlightExecutor {
-    stdio: Stdio
+    stdio: Stdio,
 }
 
 impl SlightExecutor {
@@ -37,12 +37,12 @@ impl Executor for SlightExecutor {
             if args.is_empty() {
                 return Err(ExecutorError::InvalidArg);
             }
-    
+
             let mod_path = PathBuf::from("/slightfile.toml");
             let wasm_path = PathBuf::from("/app.wasm");
-    
+
             self.stdio.take().redirect().unwrap();
-    
+
             let rt = Runtime::new().unwrap();
             let args = RunArgs {
                 module: wasm_path,
@@ -61,10 +61,10 @@ impl Executor for SlightExecutor {
                 };
             });
             std::process::exit(137);
-        }   
+        }
     }
 
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> { 
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
         Ok(())
     }
 }
@@ -102,7 +102,7 @@ fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
             .find(|p| p.is_file())
             .context("file not found")?
     };
-    
+
     let mode = executable.metadata()?.permissions().mode();
     ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
 

@@ -1,9 +1,9 @@
 use anyhow::Context;
 use containerd_shim as shim;
 use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
-use containerd_shim_wasm::sandbox::Stdio;
 use containerd_shim_wasm::sandbox::instance::ExitCode;
 use containerd_shim_wasm::sandbox::instance_utils::{determine_rootdir, maybe_open_stdio};
+use containerd_shim_wasm::sandbox::Stdio;
 use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
 use executor::WwsExecutor;
 use libcontainer::container::builder::ContainerBuilder;
@@ -77,7 +77,7 @@ impl LibcontainerInstance for Workers {
             .map(|f| f.into_raw_fd());
         let err_others = |err| Error::Others(format!("failed to create container: {}", err));
         let wws_executor = WwsExecutor::new(self.stdio.take(), stderr);
-        
+
         let container = ContainerBuilder::new(self.id.clone(), SyscallType::Linux)
             .with_executor(wws_executor)
             .with_root_path(self.rootdir.clone())
