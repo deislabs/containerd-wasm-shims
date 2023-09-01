@@ -1,7 +1,8 @@
 [package]
 name = "containerd-wasm-shims-tests"
-version = "0.7.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,7 +12,7 @@ kube = { version = "0.85", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0.19", features = ["v1_25"] }
 curl = { version = "0.4" }
 rand = "0.8"
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt", "macros"] }
 
 [dev-dependencies]
 http = "0.2"
