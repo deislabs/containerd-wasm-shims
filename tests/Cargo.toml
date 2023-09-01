@@ -9,7 +9,7 @@ edition = "2021"
 anyhow = "1"
 kube = { version = "0.85", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0.19", features = ["v1_25"] }
-curl = { version = "0.4", features = ["static-curl"] }
+curl = { version = "0.4" }
 rand = "0.8"
 tokio = { version = "1", features = ["full"] }
 
