@@ -1,10 +1,10 @@
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 
 use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
-use containerd_shim_wasm::sandbox::{oci, Stdio};
+use containerd_shim_wasm::sandbox::Stdio;
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use lunatic_process::{
     env::{Environments, LunaticEnvironments},

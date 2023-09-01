@@ -1,11 +1,11 @@
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::Result;
 use log::{error, info};
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
 
 use containerd_shim_wasm::{
     libcontainer_instance::LinuxContainerExecutor,
-    sandbox::{oci, Stdio},
+    sandbox::Stdio,
 };
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
@@ -35,11 +35,6 @@ impl Executor for WwsExecutor {
             log::info!("executing linux container");
             LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
         } else {
-            let args = oci::get_args(spec);
-            if args.is_empty() {
-                return Err(ExecutorError::InvalidArg);
-            }
-
             self.stdio.take().stderr.redirect().map_err(|err| {
                 error!(" >>> error: {:?}", err);
                 ExecutorError::Other(format!("failed to redirect stderr: {:?}", err))
