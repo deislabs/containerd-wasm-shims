@@ -19,7 +19,7 @@ impl SlightExecutor {
         Self { stdio }
     }
 
-    fn slight_run(&self) -> anyhow::Result<()> {
+    fn wasm_exec(&self) -> anyhow::Result<()> {
         self.stdio
             .take()
             .redirect()
@@ -29,11 +29,11 @@ impl SlightExecutor {
         let rt = Runtime::new().context("failed to create runtime")?;
         let args = RunArgs {
             module: wasm_path,
-            slightfile: PathBuf::from(&mod_path),
+            slightfile: mod_path,
             io_redirects: None,
             link_all_capabilities: true,
         };
-        rt.block_on(async { handle_run(args).await })
+        rt.block_on(handle_run(args))
     }
 }
 
@@ -43,7 +43,7 @@ impl Executor for SlightExecutor {
             log::info!("executing linux container");
             LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
         } else {
-            if let Err(err) = self.slight_run() {
+            if let Err(err) = self.wasm_exec() {
                 log::error!(" >>> error: {:?}", err);
                 std::process::exit(137);
             }

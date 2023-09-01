@@ -4,7 +4,7 @@ use spin_manifest::Application;
 use spin_redis_engine::RedisTrigger;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
-use std::{future::Future, path::PathBuf, pin::Pin};
+use std::path::PathBuf;
 
 use tokio::runtime::Runtime;
 use url::Url;
@@ -81,20 +81,18 @@ impl SpinExecutor {
         let trigger = app.info.trigger.clone();
         info!(" >>> building spin trigger {:?}", trigger);
 
-        let f: Pin<Box<dyn Future<Output = Result<(), anyhow::Error>> + Send>>;
-
-        match trigger {
+        let f = match trigger {
             spin_manifest::ApplicationTrigger::Http(_config) => {
                 let http_trigger: HttpTrigger =
                     SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
                         .await
                         .context("failed to build spin trigger")?;
                 info!(" >>> running spin trigger");
-                f = http_trigger.run(spin_trigger_http::CliArgs {
+                http_trigger.run(spin_trigger_http::CliArgs {
                     address: parse_addr(SPIN_ADDR).unwrap(),
                     tls_cert: None,
                     tls_key: None,
-                });
+                })
             }
             spin_manifest::ApplicationTrigger::Redis(_config) => {
                 let redis_trigger: RedisTrigger =
@@ -103,10 +101,10 @@ impl SpinExecutor {
                         .context("failed to build spin trigger")?;
 
                 info!(" >>> running spin trigger");
-                f = redis_trigger.run(spin_trigger::cli::NoArgs);
+                redis_trigger.run(spin_trigger::cli::NoArgs)
             }
             _ => todo!("Only Http and Redis triggers are currently supported."),
-        }
+        };
 
         info!(" >>> notifying main thread we are about to start");
         f.await
