@@ -7,9 +7,11 @@ use containerd_shim_wasm::{libcontainer_instance::LinuxContainerExecutor, sandbo
 use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
 use utils::is_linux_executable;
-use wws_config::Config;
-use wws_router::Routes;
-use wws_server::serve;
+use wasm_workers_server::{
+    wws_config::Config,
+    wws_router::Routes,
+    wws_server::{serve, Panel, ServeOptions},
+};
 
 /// URL to listen to in wws
 const WWS_ADDR: &str = "0.0.0.0";
@@ -50,7 +52,14 @@ impl WwsExecutor {
     }
 
     async fn wasm_exec_async(&self, root: &Path, routes: Routes) -> Result<()> {
-        let server = serve(root, routes, WWS_ADDR, WWS_PORT, false, None).await?;
+        let server = serve(ServeOptions {
+            root_path: root.to_path_buf(),
+            base_routes: routes,
+            hostname: WWS_ADDR.to_string(),
+            port: WWS_PORT,
+            panel: Panel::Disabled,
+            cors_origins: None,
+        }).await?;
         info!(" >>> notifying main thread we are about to start");
         Ok(server.await?)
     }
