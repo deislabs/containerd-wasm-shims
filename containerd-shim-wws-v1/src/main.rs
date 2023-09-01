@@ -1,14 +1,14 @@
 use anyhow::Context;
 use containerd_shim as shim;
 use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
-use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::Stdio;
 use containerd_shim_wasm::sandbox::instance::ExitCode;
 use containerd_shim_wasm::sandbox::instance_utils::{determine_rootdir, maybe_open_stdio};
 use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
 use executor::WwsExecutor;
 use libcontainer::container::builder::ContainerBuilder;
 use libcontainer::container::Container;
-use libcontainer::syscall::syscall::create_syscall;
+use libcontainer::syscall::syscall::SyscallType;
 use std::option::Option;
 use std::os::fd::IntoRawFd;
 use std::path::PathBuf;
@@ -26,6 +26,7 @@ pub struct Workers {
     // stdin: String,
     // stdout: String,
     stderr: String,
+    stdio: Stdio,
     bundle: String,
     rootdir: PathBuf,
 }
@@ -52,6 +53,7 @@ impl LibcontainerInstance for Workers {
             // stdin: cfg.get_stdin().unwrap_or_default(),
             // stdout: cfg.get_stdout().unwrap_or_default(),
             stderr: cfg.get_stderr().unwrap_or_default(),
+            stdio: Stdio::init_from_cfg(cfg).expect("failed to open stdio"),
             bundle,
             rootdir,
         }
@@ -70,17 +72,14 @@ impl LibcontainerInstance for Workers {
     }
 
     fn build_container(&self) -> std::result::Result<Container, Error> {
-        let syscall = create_syscall();
         let stderr = maybe_open_stdio(&self.stderr)
             .context("could not open stderr")?
             .map(|f| f.into_raw_fd());
         let err_others = |err| Error::Others(format!("failed to create container: {}", err));
-        let spin_executor = Box::new(WwsExecutor { stderr });
-        let default_executor = Box::<LinuxContainerExecutor>::default();
-
-        let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
-            .with_executor(vec![default_executor, spin_executor])
-            .map_err(err_others)?
+        let wws_executor = WwsExecutor::new(self.stdio.take(), stderr);
+        
+        let container = ContainerBuilder::new(self.id.clone(), SyscallType::Linux)
+            .with_executor(wws_executor)
             .with_root_path(self.rootdir.clone())
             .map_err(err_others)?
             .as_init(&self.bundle)

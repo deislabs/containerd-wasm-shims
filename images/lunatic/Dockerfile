@@ -5,5 +5,4 @@ RUN rustup target add wasm32-wasi
 RUN cargo build --release --target wasm32-wasi
 
 FROM scratch
-COPY --link --chmod=0755 --from=build /build/target/wasm32-wasi/release/wasi-hello-world.wasm /
-ENTRYPOINT [ "./wasi-hello-world.wasm" ]
+COPY --link --from=build /build/target/wasm32-wasi/release/wasi-hello-world.wasm /

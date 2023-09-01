@@ -1,40 +1,31 @@
-use std::{os::fd::RawFd, path::PathBuf, sync::Arc};
+use anyhow::{Result, Context, ensure, bail};
+use std::path::PathBuf;
+use std::fs::File;
+use std::io::Read;
+use std::sync::Arc;
+use tokio::runtime::Runtime;
+use std::os::unix::prelude::PermissionsExt;
 
-use containerd_shim_wasm::sandbox::oci::Spec;
-use libc::{STDERR_FILENO, STDIN_FILENO, STDOUT_FILENO};
-use libcontainer::workload::{Executor, ExecutorError};
+use containerd_shim_wasm::sandbox::{oci, Stdio};
+use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
+use oci_spec::runtime::Spec;
 use lunatic_process::{
     env::{Environments, LunaticEnvironments},
     runtimes,
 };
-use nix::unistd::{dup, dup2};
-
-use anyhow::Result;
-use tokio::runtime::Runtime;
 
 use crate::common::{run_wasm, RunWasm};
 
 #[derive(Clone)]
 pub struct LunaticExecutor {
-    pub stdin: Option<RawFd>,
-    pub stdout: Option<RawFd>,
-    pub stderr: Option<RawFd>,
+    stdio: Stdio
 }
 
-fn prepare_stdio(stdin: Option<RawFd>, stdout: Option<RawFd>, stderr: Option<RawFd>) -> Result<()> {
-    if let Some(stdin) = stdin {
-        dup(STDIN_FILENO)?;
-        dup2(stdin, STDIN_FILENO)?;
+impl LunaticExecutor {
+    pub fn new(stdio: Stdio) -> Self {
+        Self { stdio }
     }
-    if let Some(stdout) = stdout {
-        dup(STDOUT_FILENO)?;
-        dup2(stdout, STDOUT_FILENO)?;
-    }
-    if let Some(stderr) = stderr {
-        dup(STDERR_FILENO)?;
-        dup2(stderr, STDERR_FILENO)?;
-    }
-    Ok(())
 }
 
 fn get_args(spec: &Spec) -> &[String] {
@@ -51,31 +42,30 @@ fn get_args(spec: &Spec) -> &[String] {
 
 impl Executor for LunaticExecutor {
     fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
-        prepare_stdio(self.stdin, self.stdout, self.stderr).map_err(|err| {
-            ExecutorError::Other(format!("failed to prepare stdio for container: {}", err))
-        })?;
+        if is_linux_executable(spec).is_ok() {
+            log::info!("executing linux container");
+            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)?;
+            Ok(())
+        } else {
+            self.stdio.take().redirect().unwrap();
+            let args = get_args(spec);
+            let cmd = args[0].clone();
 
-        let args = get_args(spec);
-        let cmd = args[0].clone();
+            let rt = Runtime::new().unwrap();
+            rt.block_on(async {
+                log::info!(" >>> building lunatic application");
 
-        let rt = Runtime::new().unwrap();
-        rt.block_on(async {
-            log::info!(" >>> building lunatic application");
-
-            match crate::executor::exec(cmd).await {
-                Err(error) => log::error!(" >>> error: {:?}", error),
-                Ok(_) => std::process::exit(0),
-            }
-        });
-        std::process::exit(137);
+                match crate::executor::exec(cmd).await {
+                    Err(error) => log::error!(" >>> error: {:?}", error),
+                    Ok(_) => std::process::exit(0),
+                }
+            });
+            std::process::exit(137);
+        }
     }
 
-    fn can_handle(&self, _spec: &Spec) -> bool {
-        true
-    }
-
-    fn name(&self) -> &'static str {
-        "lunatic"
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> { 
+        Ok(())
     }
 }
 
@@ -96,6 +86,55 @@ pub async fn exec(cmd: String) -> Result<()> {
         distributed: None,
     })
     .await
+}
+
+fn is_linux_executable(spec: &Spec) -> anyhow::Result<()> {
+    let args = oci::get_args(spec).to_vec();
+
+    if args.is_empty() {
+        bail!("no args provided");
+    }
+
+    let executable = args.first().context("no executable provided")?;
+    ensure!(!executable.is_empty(), "executable is empty");
+    let cwd = std::env::current_dir()?;
+
+    let executable = if executable.contains('/') {
+        let path = cwd.join(executable);
+        ensure!(path.is_file(), "file not found");
+        path
+    } else {
+        spec.process()
+            .as_ref()
+            .and_then(|p| p.env().clone())
+            .unwrap_or_default()
+            .into_iter()
+            .map(|v| match v.split_once('=') {
+                None => (v, "".to_string()),
+                Some((k, v)) => (k.to_string(), v.to_string()),
+            })
+            .find(|(key, _)| key == "PATH")
+            .context("PATH not defined")?
+            .1
+            .split(':')
+            .map(|p| cwd.join(p).join(executable))
+            .find(|p| p.is_file())
+            .context("file not found")?
+    };
+    
+    let mode = executable.metadata()?.permissions().mode();
+    ensure!(mode & 0o001 != 0, "entrypoint is not a executable");
+
+    // check the shebang and ELF magic number
+    // https://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
+    let mut buffer = [0; 4];
+    File::open(&executable)?.read_exact(&mut buffer)?;
+
+    match buffer {
+        [0x7f, 0x45, 0x4c, 0x46] => Ok(()), // ELF magic number
+        [0x23, 0x21, ..] => Ok(()),         // shebang
+        _ => bail!("{executable:?} is not a valid script or elf file"),
+    }
 }
 
 #[cfg(test)]
