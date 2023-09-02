@@ -1,29 +1,60 @@
 name: 'Build and push Docker images'
 on:
   workflow_call:
-    inputs:
-      images:
-        required: true
-        type: string
-      platforms:
-        required: true
-        type: string
-    secrets:
-      envPAT:
-        required: true
+
 jobs:
   build_and_push:
+    permissions:
+      contents: write
+      packages: write
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ${{fromJson(github.event.inputs.images)}}
+        image:
+          - imageName: examples/spin-rust-hello
+            context: images/spin
+          - imageName: examples/spin-dotnet-hello
+            context: images/spin_dotnet
+          - imageName: examples/slight-rust-hello
+            context: images/slight
+          - imageName: examples/wws-js-hello
+            context: images/wws
+          - imageName: examples/spin-inbound-redis
+            context: images/spin-inbound-redis
+          - imageName: examples/spin-outbound-redis
+            context: images/spin-outbound-redis
+          - imageName: examples/lunatic-rust-hello
+            context: images/lunatic
+          - imageName: examples/lunatic-spawn
+            context: images/lunatic-spawn
+          - imageName: examples/lunatic-submillisecond
+            context: images/lunatic-submillisecond
     steps:
-    - name: build and push
-      uses: docker/build-push-action@v3
-      with:
-        push: true
-        tags: |
-          ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:${{ env.RELEASE_VERSION }}
-          ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:latest
-        context: ${{ matrix.image.context }}
-        platforms: ${{ github.event.inputs.platforms }}
+      - uses: actions/checkout@v3
+      - name: Set RELEASE_VERSION ENV var
+        run: echo "RELEASE_VERSION=${GITHUB_REF:10}" >> $GITHUB_ENV
+      - name: lowercase the runner OS name
+        shell: bash
+        run: |
+          OS=$(echo "${{ runner.os }}" | tr '[:upper:]' '[:lower:]')
+          echo "RUNNER_OS=$OS" >> $GITHUB_ENV
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: setup buildx
+        uses: docker/setup-buildx-action@v2
+      - name: login to GitHub container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: |
+            ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:${{ env.RELEASE_VERSION }}
+            ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:latest
+          context: ${{ matrix.image.context }}
+          platforms: wasi/wasm
+      
