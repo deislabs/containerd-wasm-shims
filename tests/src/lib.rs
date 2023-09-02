@@ -1,7 +1,7 @@
-use std::{io::Read, time::Duration};
+use std::time::Duration;
 
 use anyhow::Result;
-use curl::easy::Easy;
+use http::StatusCode;
 use k8s_openapi::api::core::v1::Pod;
 use kube::{api::ListParams, config::KubeConfigOptions, Api, Client, Config, ResourceExt};
 use rand::{distributions::Alphanumeric, Rng};
@@ -14,37 +14,28 @@ pub async fn retry_get(
     retry_times: u32,
     interval_in_secs: u64,
 ) -> Result<()> {
-    let mut i = 0;
-    let mut handle = Easy::new();
-    handle.url(url)?;
-    loop {
-        let res = {
-            let mut transfer = handle.transfer();
-            transfer.write_function(|data| {
-                buf.extend_from_slice(data);
-                Ok(data.len())
-            })?;
-            transfer.perform()
-        };
-        let response_code = handle.response_code()?;
-        // verify res is ok and not 404
-        match res {
-            Ok(_) => {
-                if response_code != 404 {
-                    break;
+    for i in 1..=retry_times {
+        println!("GETting data from {url}");
+        let client = reqwest::Client::new();
+        match client.get(url).send().await {
+            Ok(response) => {
+                let status = response.status();
+                let text = response.text().await?;
+                println!("GETted data from {url}, response_code: {status}, text {text}");
+                if status != StatusCode::NOT_FOUND {
+                    *buf = text.as_bytes().to_vec();
+                    return Ok(())
                 }
             }
-            Err(e) => {
-                println!("res: {}, response_code: {}", e, response_code);
+            Err(err) => {
+                println!("error GETting data from {url}, response_code: {err}");
             }
         }
-        i += 1;
-        if i == retry_times {
-            anyhow::bail!("failed to curl for {}", url);
+        if i < retry_times {
+            tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
         }
-        tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
     }
-    Ok(())
+    anyhow::bail!("failed to curl for {}", url);
 }
 
 pub async fn retry_put(
@@ -53,40 +44,27 @@ pub async fn retry_put(
     retry_times: u32,
     interval_in_secs: u64,
 ) -> Result<()> {
-    let mut i = 0;
-    let mut handle = Easy::new();
-    handle.url(url)?;
-    handle.put(true)?;
-    handle.post_field_size(data.len() as u64)?;
-    loop {
-        let res = {
-            let mut transfer = handle.transfer();
-            transfer.read_function(|into| Ok(data.as_bytes().read(into).unwrap_or(0)))?;
-            transfer.write_function(|data| {
-                println!("{}", String::from_utf8_lossy(data));
-                Ok(data.len())
-            })?;
-            transfer.perform()
-        };
-
-        let response_code = handle.response_code()?;
-        match res {
-            Ok(_) => {
-                if response_code != 404 {
-                    break;
+    for i in 1..=retry_times {
+        println!("PUTting data to {url}: {data}");
+        let client = reqwest::Client::new();
+        match client.put(url).body(data.to_owned()).send().await {
+            Ok(response) => {
+                let status = response.status();
+                let text = response.text().await?;
+                println!("PUTted data to {url}, response_code: {status}, text {text}");
+                if status != StatusCode::NOT_FOUND {
+                    return Ok(());
                 }
             }
-            Err(e) => {
-                println!("res: {}, response_code: {}", e, response_code);
+            Err(err) => {
+                println!("error PUTting data to {url}, response_code: {err}");
             }
         }
-        i += 1;
-        if i == retry_times {
-            anyhow::bail!("failed to curl for {}", url);
+        if i < retry_times {
+            tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
         }
-        tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
     }
-    Ok(())
+    anyhow::bail!("failed to curl for {}", url);
 }
 
 pub async fn list_pods(cluster_name: &str) -> Result<()> {
