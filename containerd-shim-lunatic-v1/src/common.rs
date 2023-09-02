@@ -41,7 +41,11 @@ pub async fn run_wasm(args: RunWasm) -> Result<()> {
     let path = args.path;
 
     // Set correct command line arguments for the guest
-    let filename = path.file_name().unwrap().to_string_lossy().to_string();
+    let filename = path
+        .file_name()
+        .ok_or(anyhow!("Invalid path"))?
+        .to_string_lossy()
+        .to_string();
     let mut wasi_args = vec![filename];
     wasi_args.extend(args.wasm_args);
     config.set_command_line_arguments(wasi_args);

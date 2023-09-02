@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 containerd-shim = "0.5.0"
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "c83ea9629bcc2377f54468700e6abbe4f5320b56", features = ["cgroupsv2"] }
-libcontainer = { version = "0.1", features = ["v2"], default-features = false }
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "7e978edeaf34b54efb895738357c805cf888b76d", features = ["cgroupsv2"] }
+libcontainer = { git = "https://github.com/containers/youki", rev = "09e67372a892f22a89eeef62ff429c3cbcac6d41", features = ["v2"], default-features = false }
 nix = "0.26.2"
 serde = "1.0.183"
 serde_json = "1.0.104"
@@ -23,5 +23,10 @@ lunatic-distributed = { git = "https://github.com/lunatic-solutions/lunatic", ta
 lunatic-runtime = { git = "https://github.com/lunatic-solutions/lunatic", tag = "v0.13.2"}
 clap = { version = "4.0", features = ["cargo", "derive"] }
 tokio = "1.30.0"
+oci-spec = "0.6.2"
+utils = { path = "../utils" }
+
 # https://github.com/sfackler/rust-openssl/issues/603#issuecomment-822619837
 openssl = { version = "0.10", features = ["vendored"] }
+
+[workspace]

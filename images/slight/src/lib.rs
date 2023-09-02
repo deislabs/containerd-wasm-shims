@@ -37,6 +37,7 @@ fn handle_hello(req: Request) -> Result<Response, HttpError> {
 
 #[register_handler]
 fn handle_get(request: Request) -> Result<Response, HttpError> {
+    println!("I just got a request uri: {} method: {}", request.uri, request.method);
     let keyvalue =
         Keyvalue::open("my-container").map_err(|e| HttpError::UnexpectedError(e.to_string()))?;
 
@@ -57,6 +58,7 @@ fn handle_get(request: Request) -> Result<Response, HttpError> {
 
 #[register_handler]
 fn handle_set(request: Request) -> Result<Response, HttpError> {
+    println!("I just got a request uri: {} method: {}", request.uri, request.method);
     assert_eq!(request.method, Method::Put);
     if let Some(body) = request.body {
         let keyvalue = Keyvalue::open("my-container")

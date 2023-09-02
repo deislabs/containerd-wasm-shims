@@ -1,29 +1,32 @@
+use anyhow::{anyhow, Context, Result};
 use log::info;
-use nix::unistd::{dup, dup2};
 use spin_manifest::Application;
 use spin_redis_engine::RedisTrigger;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
-use std::{future::Future, os::fd::RawFd, path::PathBuf, pin::Pin};
+use std::path::PathBuf;
+
 use tokio::runtime::Runtime;
 use url::Url;
 use wasmtime::OptLevel;
 
-use anyhow::{anyhow, Result};
-use containerd_shim_wasm::sandbox::oci;
-use libc::{STDERR_FILENO, STDIN_FILENO, STDOUT_FILENO};
-use libcontainer::workload::{Executor, ExecutorError};
+use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::Stdio;
+use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use oci_spec::runtime::Spec;
+use utils::is_linux_executable;
 
 use crate::{parse_addr, SPIN_ADDR};
 
-const EXECUTOR_NAME: &str = "spin";
-// const RUNTIME_CONFIG_FILE_PATH: &str = "runtime_config.toml";
-
+#[derive(Clone)]
 pub struct SpinExecutor {
-    pub stdin: Option<RawFd>,
-    pub stdout: Option<RawFd>,
-    pub stderr: Option<RawFd>,
+    stdio: Stdio,
+}
+
+impl SpinExecutor {
+    pub fn new(stdio: Stdio) -> Self {
+        Self { stdio }
+    }
 }
 
 impl SpinExecutor {
@@ -61,105 +64,69 @@ impl SpinExecutor {
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
     }
+
+    fn wasm_exec(&self, _spec: &Spec) -> Result<()> {
+        log::info!("executing spin container");
+        let rt = Runtime::new().context("failed to create runtime")?;
+        rt.block_on(self.wasm_exec_async())
+    }
+
+    async fn wasm_exec_async(&self) -> Result<()> {
+        info!(" >>> building spin application");
+        let app =
+            SpinExecutor::build_spin_application(PathBuf::from("/spin.toml"), PathBuf::from("/"))
+                .await
+                .context("failed to build spin application")?;
+
+        let trigger = app.info.trigger.clone();
+        info!(" >>> building spin trigger {:?}", trigger);
+
+        let f = match trigger {
+            spin_manifest::ApplicationTrigger::Http(_config) => {
+                let http_trigger: HttpTrigger =
+                    SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
+                        .await
+                        .context("failed to build spin trigger")?;
+                info!(" >>> running spin trigger");
+                http_trigger.run(spin_trigger_http::CliArgs {
+                    address: parse_addr(SPIN_ADDR).unwrap(),
+                    tls_cert: None,
+                    tls_key: None,
+                })
+            }
+            spin_manifest::ApplicationTrigger::Redis(_config) => {
+                let redis_trigger: RedisTrigger =
+                    SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
+                        .await
+                        .context("failed to build spin trigger")?;
+
+                info!(" >>> running spin trigger");
+                redis_trigger.run(spin_trigger::cli::NoArgs)
+            }
+            _ => todo!("Only Http and Redis triggers are currently supported."),
+        };
+
+        info!(" >>> notifying main thread we are about to start");
+        f.await
+    }
 }
 
 impl Executor for SpinExecutor {
     fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
-        let args = oci::get_args(spec);
-        if args.is_empty() {
-            return Err(ExecutorError::InvalidArg);
+        if is_linux_executable(spec).is_ok() {
+            log::info!("executing linux container");
+            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
+        } else {
+            if let Err(err) = self.wasm_exec(spec) {
+                log::info!(" >>> server shut down due to error: {err}");
+                std::process::exit(137);
+            }
+            log::info!(" >>> server shut down: exiting");
+            std::process::exit(0);
         }
-
-        prepare_stdio(self.stdin, self.stdout, self.stderr).map_err(|err| {
-            ExecutorError::Other(format!("failed to prepare stdio for container: {}", err))
-        })?;
-
-        let rt = Runtime::new().unwrap();
-        let res = rt.block_on(async {
-            info!(" >>> building spin application");
-            let app = match SpinExecutor::build_spin_application(
-                PathBuf::from("/spin.toml"),
-                PathBuf::from("/"),
-            )
-            .await
-            {
-                Ok(app) => app,
-                Err(err) => {
-                    return err;
-                }
-            };
-
-            let trigger = app.info.trigger.clone();
-            info!(" >>> building spin trigger {:?}", trigger);
-
-            let f: Pin<Box<dyn Future<Output = Result<(), anyhow::Error>> + Send>>;
-
-            match trigger {
-                spin_manifest::ApplicationTrigger::Http(_config) => {
-                    let http_trigger: HttpTrigger =
-                        match SpinExecutor::build_spin_trigger(PathBuf::from("/"), app).await {
-                            Ok(http_trigger) => http_trigger,
-                            Err(err) => {
-                                log::error!(" >>> failed to build spin trigger: {:?}", err);
-                                return err;
-                            }
-                        };
-
-                    info!(" >>> running spin trigger");
-                    f = http_trigger.run(spin_trigger_http::CliArgs {
-                        address: parse_addr(SPIN_ADDR).unwrap(),
-                        tls_cert: None,
-                        tls_key: None,
-                    });
-                }
-                spin_manifest::ApplicationTrigger::Redis(_config) => {
-                    let redis_trigger: RedisTrigger =
-                        match SpinExecutor::build_spin_trigger(PathBuf::from("/"), app).await {
-                            Ok(redis_trigger) => redis_trigger,
-                            Err(err) => {
-                                return err;
-                            }
-                        };
-
-                    info!(" >>> running spin trigger");
-                    f = redis_trigger.run(spin_trigger::cli::NoArgs);
-                }
-                _ => todo!("Only Http and Redis triggers are currently supported."),
-            }
-
-            info!(" >>> notifying main thread we are about to start");
-            tokio::select! {
-                _ = f => {
-                    log::info!(" >>> server shut down: exiting");
-                    std::process::exit(0);
-                },
-            }
-        });
-        log::error!(" >>> error: {:?}", res);
-        std::process::exit(137);
     }
 
-    fn can_handle(&self, _spec: &Spec) -> bool {
-        true
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
+        Ok(())
     }
-
-    fn name(&self) -> &'static str {
-        EXECUTOR_NAME
-    }
-}
-
-fn prepare_stdio(stdin: Option<RawFd>, stdout: Option<RawFd>, stderr: Option<RawFd>) -> Result<()> {
-    if let Some(stdin) = stdin {
-        dup(STDIN_FILENO)?;
-        dup2(stdin, STDIN_FILENO)?;
-    }
-    if let Some(stdout) = stdout {
-        dup(STDOUT_FILENO)?;
-        dup2(stdout, STDOUT_FILENO)?;
-    }
-    if let Some(stderr) = stderr {
-        dup(STDERR_FILENO)?;
-        dup2(stderr, STDERR_FILENO)?;
-    }
-    Ok(())
 }

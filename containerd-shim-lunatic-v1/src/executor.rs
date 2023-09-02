@@ -1,85 +1,65 @@
-use std::{os::fd::RawFd, path::PathBuf, sync::Arc};
+use anyhow::{Context, Result};
+use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::sandbox::oci::Spec;
-use libc::{STDERR_FILENO, STDIN_FILENO, STDOUT_FILENO};
-use libcontainer::workload::{Executor, ExecutorError};
+use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::sandbox::Stdio;
+use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
 use lunatic_process::{
     env::{Environments, LunaticEnvironments},
     runtimes,
 };
-use nix::unistd::{dup, dup2};
-
-use anyhow::Result;
-use tokio::runtime::Runtime;
+use oci_spec::runtime::Spec;
+use utils::{get_args, is_linux_executable};
 
 use crate::common::{run_wasm, RunWasm};
 
 #[derive(Clone)]
 pub struct LunaticExecutor {
-    pub stdin: Option<RawFd>,
-    pub stdout: Option<RawFd>,
-    pub stderr: Option<RawFd>,
+    stdio: Stdio,
 }
 
-fn prepare_stdio(stdin: Option<RawFd>, stdout: Option<RawFd>, stderr: Option<RawFd>) -> Result<()> {
-    if let Some(stdin) = stdin {
-        dup(STDIN_FILENO)?;
-        dup2(stdin, STDIN_FILENO)?;
+impl LunaticExecutor {
+    pub fn new(stdio: Stdio) -> Self {
+        Self { stdio }
     }
-    if let Some(stdout) = stdout {
-        dup(STDOUT_FILENO)?;
-        dup2(stdout, STDOUT_FILENO)?;
-    }
-    if let Some(stderr) = stderr {
-        dup(STDERR_FILENO)?;
-        dup2(stderr, STDERR_FILENO)?;
-    }
-    Ok(())
-}
 
-fn get_args(spec: &Spec) -> &[String] {
-    let p = match spec.process() {
-        None => return &[],
-        Some(p) => p,
-    };
-
-    match p.args() {
-        None => &[],
-        Some(args) => args.as_slice(),
+    fn wasm_exec(&self, spec: &Spec) -> anyhow::Result<()> {
+        self.stdio
+            .take()
+            .redirect()
+            .context("failed to redirect stdio")?;
+        let cmd = get_args(spec).first().context("no cmd provided")?.clone();
+        let rt = Runtime::new().context("failed to create runtime")?;
+        rt.block_on(async {
+            log::info!(" >>> building lunatic application");
+            crate::executor::exec(cmd).await
+        })
     }
 }
 
 impl Executor for LunaticExecutor {
     fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
-        prepare_stdio(self.stdin, self.stdout, self.stderr).map_err(|err| {
-            ExecutorError::Other(format!("failed to prepare stdio for container: {}", err))
-        })?;
-
-        let args = get_args(spec);
-        let cmd = args[0].clone();
-
-        let rt = Runtime::new().unwrap();
-        rt.block_on(async {
-            log::info!(" >>> building lunatic application");
-
-            match crate::executor::exec(cmd).await {
-                Err(error) => log::error!(" >>> error: {:?}", error),
-                Ok(_) => std::process::exit(0),
+        if is_linux_executable(spec).is_ok() {
+            log::info!("executing linux container");
+            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
+        } else {
+            if let Err(e) = self.wasm_exec(spec) {
+                log::error!(" >>> error: {:?}", e);
+                std::process::exit(137);
             }
-        });
-        std::process::exit(137);
+            std::process::exit(0);
+        }
     }
 
-    fn can_handle(&self, _spec: &Spec) -> bool {
-        true
-    }
-
-    fn name(&self) -> &'static str {
-        "lunatic"
+    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
+        Ok(())
     }
 }
 
 pub async fn exec(cmd: String) -> Result<()> {
+    log::info!(" >>> lunatic wasm binary: {:?}", cmd);
     // Create wasmtime runtime
     let wasmtime_config = runtimes::wasmtime::default_config();
     let runtime = runtimes::wasmtime::WasmtimeRuntime::new(&wasmtime_config)?;

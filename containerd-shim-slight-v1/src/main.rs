@@ -1,18 +1,16 @@
 use std::option::Option;
 use std::path::PathBuf;
 
-use anyhow::Context;
 use containerd_shim as shim;
 use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
-use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
 use containerd_shim_wasm::sandbox::instance::ExitCode;
-use containerd_shim_wasm::sandbox::instance_utils::{determine_rootdir, maybe_open_stdio};
+use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
+use containerd_shim_wasm::sandbox::stdio::Stdio;
 use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
 use executor::SlightExecutor;
 use libcontainer::container::builder::ContainerBuilder;
 use libcontainer::container::Container;
-use libcontainer::syscall::syscall::create_syscall;
-use std::os::fd::IntoRawFd;
+use libcontainer::syscall::syscall::SyscallType;
 
 mod executor;
 
@@ -21,9 +19,7 @@ static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/slight";
 pub struct Wasi {
     exit_code: ExitCode,
     id: String,
-    stdin: String,
-    stdout: String,
-    stderr: String,
+    stdio: Stdio,
     bundle: String,
     rootdir: PathBuf,
 }
@@ -43,9 +39,7 @@ impl LibcontainerInstance for Wasi {
         Wasi {
             exit_code: Default::default(),
             id,
-            stdin: cfg.get_stdin().unwrap(),
-            stdout: cfg.get_stdout().unwrap(),
-            stderr: cfg.get_stderr().unwrap(),
+            stdio: Stdio::init_from_cfg(cfg).expect("failed to open stdio"),
             bundle,
             rootdir,
         }
@@ -64,27 +58,10 @@ impl LibcontainerInstance for Wasi {
     }
 
     fn build_container(&self) -> std::result::Result<Container, Error> {
-        let syscall = create_syscall();
-        let stdin = maybe_open_stdio(&self.stdin)
-            .context("could not open stdin")?
-            .map(|f| f.into_raw_fd());
-        let stdout = maybe_open_stdio(&self.stdout)
-            .context("could not open stdout")?
-            .map(|f| f.into_raw_fd());
-        let stderr = maybe_open_stdio(&self.stderr)
-            .context("could not open stderr")?
-            .map(|f| f.into_raw_fd());
         let err_others = |err| Error::Others(format!("failed to create container: {}", err));
-        let spin_executor = Box::new(SlightExecutor {
-            stdin,
-            stdout,
-            stderr,
-        });
-        let default_executor = Box::<LinuxContainerExecutor>::default();
-
-        let container = ContainerBuilder::new(self.id.clone(), syscall.as_ref())
-            .with_executor(vec![default_executor, spin_executor])
-            .map_err(err_others)?
+        let slight_executor = SlightExecutor::new(self.stdio.take());
+        let container = ContainerBuilder::new(self.id.clone(), SyscallType::Linux)
+            .with_executor(slight_executor)
             .with_root_path(self.rootdir.clone())
             .map_err(err_others)?
             .as_init(&self.bundle)
