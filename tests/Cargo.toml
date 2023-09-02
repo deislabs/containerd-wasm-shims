@@ -10,7 +10,7 @@ license.workspace = true
 anyhow = "1"
 kube = { version = "0.85", features = ["runtime", "derive"] }
 k8s-openapi = { version = "0.19", features = ["v1_25"] }
-curl = { version = "0.4" }
+curl = { version = "0.4", features = ["static-curl"]}
 rand = "0.8"
 tokio = { version = "1", features = ["rt", "macros"] }
 

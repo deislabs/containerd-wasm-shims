@@ -1,4 +1,4 @@
-use std::{io::Read, time::Duration};
+use std::{time::Duration, process::Command};
 
 use anyhow::Result;
 use curl::easy::Easy;
@@ -54,36 +54,31 @@ pub async fn retry_put(
     interval_in_secs: u64,
 ) -> Result<()> {
     let mut i = 0;
-    let mut handle = Easy::new();
-    handle.url(url)?;
-    handle.put(true)?;
-    handle.post_field_size(data.len() as u64)?;
     loop {
-        let res = {
-            let mut transfer = handle.transfer();
-            transfer.read_function(|into| Ok(data.as_bytes().read(into).unwrap_or(0)))?;
-            transfer.write_function(|data| {
-                println!("{}", String::from_utf8_lossy(data));
-                Ok(data.len())
-            })?;
-            transfer.perform()
-        };
+        let output = Command::new("curl")
+            .arg("-X")
+            .arg("PUT")
+            .arg(url)
+            .arg("-d")
+            .arg(data)
+            .arg("-s")
+            .arg("-o")
+            .arg("/dev/null")
+            .arg("-w")
+            .arg("%{http_code}")
+            .output()?;
+        
+        let response_code = String::from_utf8_lossy(&output.stdout).trim().parse::<u32>()?;
 
-        let response_code = handle.response_code()?;
-        match res {
-            Ok(_) => {
-                if response_code != 404 {
-                    break;
-                }
-            }
-            Err(e) => {
-                println!("res: {}, response_code: {}", e, response_code);
-            }
+        if response_code != 404 {
+            break;
         }
+
         i += 1;
         if i == retry_times {
             anyhow::bail!("failed to curl for {}", url);
         }
+
         tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
     }
     Ok(())
