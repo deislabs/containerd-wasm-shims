@@ -1,4 +1,4 @@
-use std::{time::Duration, process::Command};
+use std::{process::Command, time::Duration};
 
 use anyhow::Result;
 use curl::easy::Easy;
@@ -67,8 +67,10 @@ pub async fn retry_put(
             .arg("-w")
             .arg("%{http_code}")
             .output()?;
-        
-        let response_code = String::from_utf8_lossy(&output.stdout).trim().parse::<u32>()?;
+
+        let response_code = String::from_utf8_lossy(&output.stdout)
+            .trim()
+            .parse::<u32>()?;
 
         if response_code != 404 {
             break;
