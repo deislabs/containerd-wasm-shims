@@ -136,7 +136,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-wasm-shims-tests"
-version = "0.7.0"
+version = "0.9.0"
 dependencies = [
  "anyhow",
  "curl",
@@ -1578,7 +1578,7 @@ dependencies = [
 
 [[package]]
 name = "utils"
-version = "0.1.0"
+version = "0.9.0"
 dependencies = [
  "anyhow",
  "oci-spec",

@@ -28,12 +28,19 @@ pub async fn retry_get(
         };
         let response_code = handle.response_code()?;
         // verify res is ok and not 404
-        if res.is_ok() && response_code != 404 {
-            break;
+        match res {
+            Ok(_) => {
+                if response_code != 404 {
+                    break;
+                }
+            }
+            Err(e) => {
+                println!("res: {}, response_code: {}", e, response_code);
+            }
         }
         i += 1;
         if i == retry_times {
-            anyhow::bail!("failed to curl for hello");
+            anyhow::bail!("failed to curl for {}", url);
         }
         tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
     }
@@ -63,12 +70,19 @@ pub async fn retry_put(
         };
 
         let response_code = handle.response_code()?;
-        if res.is_ok() && response_code != 404 {
-            break;
+        match res {
+            Ok(_) => {
+                if response_code != 404 {
+                    break;
+                }
+            }
+            Err(e) => {
+                println!("res: {}, response_code: {}", e, response_code);
+            }
         }
         i += 1;
         if i == retry_times {
-            anyhow::bail!("failed to curl for hello");
+            anyhow::bail!("failed to curl for {}", url);
         }
         tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
     }
