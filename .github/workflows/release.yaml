@@ -10,7 +10,7 @@ jobs:
   build-and-push-wasm-images:
     uses: ./.github/workflows/docker-build-push.yaml
     with:
-      push: true
+      test: false
 
   release:
     permissions:

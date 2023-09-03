@@ -26,7 +26,7 @@ jobs:
   build-wasm-images:
     uses: ./.github/workflows/docker-build-push.yaml
     with:
-      push: false
+      test: true
   build:
     uses: ./.github/workflows/build.yaml
   test:
