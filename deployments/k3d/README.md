@@ -21,7 +21,7 @@ k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/e
 kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/raw/main/deployments/workloads/runtime.yaml
 kubectl apply -f https://github.com/deislabs/containerd-wasm-shims/raw/main/deployments/workloads/workload.yaml
 echo "waiting 5 seconds for workload to be ready"
-sleep 5
+sleep 15
 curl -v http://127.0.0.1:8081/spin/hello
 curl -v http://127.0.0.1:8081/slight/hello
 curl -v http://127.0.0.1:8081/wws/hello
