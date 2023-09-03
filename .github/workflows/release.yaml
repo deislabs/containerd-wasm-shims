@@ -62,8 +62,7 @@ jobs:
       - name: untar x86_64 musl artifacts into ./deployments/k3d/.tmp dir
         run: |
           mkdir -p ./deployments/k3d/.tmp
-          tar -xf ./_artifacts/containerd-wasm-shims-v1-linux-x86_64/containerd-wasm-shims-v1-linux-x86_64.tar.gz \
-            --directory ./deployments/k3d/.tmp
+          for f in ./_artifacts/*/*-x86_64.tar.gz; do tar -xf $f --directory ./deployments/k3d/.tmp; done
       - name: build and push k3d shim image
         uses: docker/build-push-action@v3
         with:
