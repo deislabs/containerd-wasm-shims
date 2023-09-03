@@ -54,7 +54,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: test
         uses: docker/build-push-action@v4
-        if: ${{ inputs.test == 'true' }}
+        if: ${{ inputs.test }}
         with:
           context: ${{ matrix.image.context }}
           load: true
@@ -62,7 +62,7 @@ jobs:
           platforms: wasi/wasm
       - name: build and push
         uses: docker/build-push-action@v4
-        if: ${{ inputs.test == 'false' }}
+        if: ${{ !inputs.test }}
         with:
           push: true
           tags: |
