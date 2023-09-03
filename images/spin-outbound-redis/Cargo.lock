@@ -238,7 +238,7 @@ dependencies = [
 [[package]]
 name = "spin-macro"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "bytes",
@@ -250,7 +250,7 @@ dependencies = [
 
 [[package]]
 name = "spin-outbound-redis"
-version = "0.8.0"
+version = "0.9.0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -261,8 +261,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sdk"
-version = "1.4.0"
-source = "git+https://github.com/fermyon/spin?tag=v1.4.0#7aab1fe43be70a271ba6336b959cd52191fc2253"
+version = "1.4.1"
+source = "git+https://github.com/fermyon/spin?tag=v1.4.1#e0bd9115fa51399e106681ac1c9ed1afbad1baaa"
 dependencies = [
  "anyhow",
  "bytes",
