@@ -4,6 +4,10 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
+  build-wasm-images:
+    uses: ./.github/workflows/docker-build-push.yaml
+    with:
+      push: false
   build:
     runs-on: ${{ matrix.config.os }}
     strategy:

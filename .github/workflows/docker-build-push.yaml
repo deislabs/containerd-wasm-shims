@@ -1,7 +1,11 @@
 name: 'Build and push Docker images'
 on:
   workflow_call:
-
+    inputs:
+      push:
+        description: 'Push the image to the registry'
+        type: boolean
+        required: true
 jobs:
   build_and_push:
     permissions:
@@ -49,9 +53,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
-          push: true
+          push: ${{ inputs.push }}
           tags: |
             ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:${{ env.RELEASE_VERSION }}
             ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:latest
