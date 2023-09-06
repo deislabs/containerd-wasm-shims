@@ -18,11 +18,6 @@ static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/wws";
 pub struct Workers {
     exit_code: ExitCode,
     id: String,
-    // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
-    // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
-    // will change in the future.
-    // stdin: String,
-    // stdout: String,
     stdio: Stdio,
     bundle: String,
     rootdir: PathBuf,
@@ -44,11 +39,6 @@ impl LibcontainerInstance for Workers {
         Workers {
             exit_code: Default::default(),
             id,
-            // TODO: set the stdio to redirect the logs to the pod. Currently, we only set the
-            // stderr as Wasm Workers use stdin/stdout to pass and receive data. This behavior
-            // will change in the future.
-            // stdin: cfg.get_stdin().unwrap_or_default(),
-            // stdout: cfg.get_stdout().unwrap_or_default(),
             stdio: Stdio::init_from_cfg(cfg).expect("failed to open stdio"),
             bundle,
             rootdir,

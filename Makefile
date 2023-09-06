@@ -93,7 +93,11 @@ update-deps:
 
 test/out_%/img.tar: images/%/Dockerfile
 	mkdir -p $(@D)
-	docker buildx build --platform=wasi/wasm --load -t $(TEST_IMG_NAME_$*) ./images/$*
+	# We disable provenance due to https://github.com/moby/buildkit/issues/3891.
+	# A workaround for this (https://github.com/moby/buildkit/pull/3983) has been released in
+	# buildkit v0.12.0. We can get rid of this flag with more recent versions of Docker that
+	# bump buildkit.
+	docker buildx build --provenance=false --platform=wasi/wasm --load -t $(TEST_IMG_NAME_$*) ./images/$*
 	docker save -o $@ $(TEST_IMG_NAME_$*)
 
 load: $(foreach shim,$(SHIMS),test/out_$(shim)/img.tar)
