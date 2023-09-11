@@ -1,7 +1,11 @@
 name: 'Build and push Docker images'
 on:
   workflow_call:
-
+    inputs:
+      test:
+        description: 'Is this a test run?'
+        type: boolean
+        required: true
 jobs:
   build_and_push:
     permissions:
@@ -48,8 +52,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: test
+        uses: docker/build-push-action@v4
+        if: ${{ inputs.test }}
+        with:
+          context: ${{ matrix.image.context }}
+          load: true
+          tags: containerd-wasm-shims${{ matrix.image.imageName }}:test
+          platforms: wasi/wasm
       - name: build and push
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
+        if: ${{ !inputs.test }}
         with:
           push: true
           tags: |

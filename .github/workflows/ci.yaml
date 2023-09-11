@@ -23,6 +23,10 @@ jobs:
       - name: fmt
         run: |
           make fmt
+  build-wasm-images:
+    uses: ./.github/workflows/docker-build-push.yaml
+    with:
+      test: true
   build:
     uses: ./.github/workflows/build.yaml
   test:
