@@ -3,10 +3,10 @@ use log::{error, info};
 use std::path::Path;
 use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::{libcontainer_instance::LinuxContainerExecutor, sandbox::Stdio};
-use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
-use oci_spec::runtime::Spec;
-use utils::is_linux_executable;
+use containerd_shim_wasm::{
+    container::{Engine, RuntimeContext},
+    sandbox::Stdio,
+};
 use wasm_workers_server::{
     wws_config::Config,
     wws_router::Routes,
@@ -17,20 +17,33 @@ use wasm_workers_server::{
 const WWS_ADDR: &str = "0.0.0.0";
 const WWS_PORT: u16 = 3000;
 
-#[derive(Clone)]
-pub struct WwsExecutor {
-    pub stdio: Stdio,
+#[derive(Clone, Default)]
+pub struct WwsEngine;
+
+impl WwsEngine {
+    async fn wasm_exec_async(&self, root: &Path, routes: Routes) -> Result<()> {
+        let server = serve(ServeOptions {
+            root_path: root.to_path_buf(),
+            base_routes: routes,
+            hostname: WWS_ADDR.to_string(),
+            port: WWS_PORT,
+            panel: Panel::Disabled,
+            cors_origins: None,
+        })
+        .await?;
+        info!(" >>> notifying main thread we are about to start");
+        Ok(server.await?)
+    }
 }
 
-impl WwsExecutor {
-    pub fn new(stdio: Stdio) -> Self {
-        Self { stdio }
+impl Engine for WwsEngine {
+    fn name() -> &'static str {
+        "wws"
     }
 
-    fn wasm_exec(&self, _spec: &Spec) -> anyhow::Result<()> {
-        let stderr = self.stdio.take().stderr;
-        stderr.redirect().context("redirecting stdio")?;
-
+    fn run_wasi(&self, _ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
+        log::info!("setting up wasi");
+        stdio.redirect()?;
         let path = Path::new("/");
 
         let config = Config::load(path).unwrap_or_else(|err| {
@@ -48,39 +61,11 @@ impl WwsExecutor {
         let routes = Routes::new(path, "", Vec::new(), &config);
 
         let rt = Runtime::new().context("failed to create runtime")?;
-        rt.block_on(self.wasm_exec_async(path, routes))
-    }
 
-    async fn wasm_exec_async(&self, root: &Path, routes: Routes) -> Result<()> {
-        let server = serve(ServeOptions {
-            root_path: root.to_path_buf(),
-            base_routes: routes,
-            hostname: WWS_ADDR.to_string(),
-            port: WWS_PORT,
-            panel: Panel::Disabled,
-            cors_origins: None,
-        }).await?;
-        info!(" >>> notifying main thread we are about to start");
-        Ok(server.await?)
-    }
-}
-
-impl Executor for WwsExecutor {
-    fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
-        if is_linux_executable(spec).is_ok() {
-            log::info!("executing linux container");
-            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
-        } else {
-            if let Err(err) = self.wasm_exec(spec) {
-                log::info!(" >>> server shut down due to error: {err}");
-                std::process::exit(137);
-            }
-            log::info!(" >>> server shut down: exiting");
-            std::process::exit(0);
+        if let Err(e) = rt.block_on(self.wasm_exec_async(path, routes)) {
+            log::error!(" >>> error: {:?}", e);
+            return Ok(137);
         }
-    }
-
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
-        Ok(())
+        Ok(0)
     }
 }

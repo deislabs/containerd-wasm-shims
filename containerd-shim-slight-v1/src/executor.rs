@@ -1,29 +1,23 @@
 use anyhow::{Context, Result};
+use containerd_shim_wasm::container::RuntimeContext;
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
+use containerd_shim_wasm::container::Engine;
 use containerd_shim_wasm::sandbox::Stdio;
-use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
-use oci_spec::runtime::Spec;
 use slight_lib::commands::run::{handle_run, RunArgs};
-use utils::is_linux_executable;
 
-#[derive(Clone)]
-pub struct SlightExecutor {
-    stdio: Stdio,
-}
+#[derive(Clone, Default)]
+pub struct SlightEngine;
 
-impl SlightExecutor {
-    pub fn new(stdio: Stdio) -> Self {
-        Self { stdio }
+impl Engine for SlightEngine {
+    fn name() -> &'static str {
+        "slight"
     }
 
-    fn wasm_exec(&self) -> anyhow::Result<()> {
-        self.stdio
-            .take()
-            .redirect()
-            .context("failed to redirect stdio")?;
+    fn run_wasi(&self, _ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
+        log::info!("setting up wasi");
+        stdio.redirect()?;
         let mod_path = PathBuf::from("/slightfile.toml");
         let wasm_path = PathBuf::from("/app.wasm");
         let rt = Runtime::new().context("failed to create runtime")?;
@@ -33,26 +27,11 @@ impl SlightExecutor {
             io_redirects: None,
             link_all_capabilities: true,
         };
-        rt.block_on(handle_run(args))
-    }
-}
 
-impl Executor for SlightExecutor {
-    fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
-        if is_linux_executable(spec).is_ok() {
-            log::info!("executing linux container");
-            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
-        } else {
-            if let Err(err) = self.wasm_exec() {
-                log::error!(" >>> error: {:?}", err);
-                std::process::exit(137);
-            }
-            log::info!(" >>> slight shut down: exiting");
-            std::process::exit(0);
+        if let Err(err) = rt.block_on(handle_run(args)) {
+            log::error!(" >>> error: {:?}", err);
+            return Ok(137);
         }
-    }
-
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
-        Ok(())
+        Ok(0)
     }
 }

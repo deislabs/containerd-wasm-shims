@@ -588,7 +588,7 @@ dependencies = [
  "containerd-shim",
  "containerd-shim-wasm",
  "libc",
- "libcontainer",
+ "libcontainer 0.1.0",
  "log",
  "lunatic-distributed",
  "lunatic-process",
@@ -618,7 +618,7 @@ dependencies = [
 [[package]]
 name = "containerd-shim-wasm"
 version = "0.2.1"
-source = "git+https://github.com/containerd/runwasi?rev=7e978edeaf34b54efb895738357c805cf888b76d#7e978edeaf34b54efb895738357c805cf888b76d"
+source = "git+https://github.com/containerd/runwasi?rev=4d212b968d24d42a27952e8b04979382b543a613#4d212b968d24d42a27952e8b04979382b543a613"
 dependencies = [
  "anyhow",
  "caps",
@@ -628,7 +628,7 @@ dependencies = [
  "containerd-shim",
  "crossbeam",
  "libc",
- "libcontainer",
+ "libcontainer 0.2.0",
  "log",
  "nix 0.26.4",
  "oci-spec",
@@ -637,6 +637,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "ttrpc",
+ "wat",
  "windows-sys 0.48.0",
 ]
 
@@ -1726,6 +1727,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "libcgroups"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebc75981724e1f7e065582ddfb1ef41bbe82c2d3afa130777fc41d75f386a0c6"
+dependencies = [
+ "fixedbitset 0.4.2",
+ "nix 0.26.4",
+ "oci-spec",
+ "procfs",
+ "serde",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
 name = "libcontainer"
 version = "0.1.0"
 source = "git+https://github.com/containers/youki?rev=09e67372a892f22a89eeef62ff429c3cbcac6d41#09e67372a892f22a89eeef62ff429c3cbcac6d41"
@@ -1736,7 +1752,34 @@ dependencies = [
  "fastrand",
  "futures",
  "libc",
- "libcgroups",
+ "libcgroups 0.1.0",
+ "nix 0.26.4",
+ "oci-spec",
+ "once_cell",
+ "prctl",
+ "procfs",
+ "regex",
+ "rust-criu",
+ "safe-path",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
+name = "libcontainer"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a122c3ce58c5a705d3e71809816ab6726dfd37621d8e55bfd5f33dac213c713"
+dependencies = [
+ "bitflags 2.4.0",
+ "caps",
+ "chrono",
+ "fastrand",
+ "futures",
+ "libc",
+ "libcgroups 0.2.0",
  "nix 0.26.4",
  "oci-spec",
  "once_cell",
