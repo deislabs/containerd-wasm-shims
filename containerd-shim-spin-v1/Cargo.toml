@@ -15,7 +15,7 @@ chrono = "0.4"
 clap = { version = "4.3", features = ["derive", "env"] }
 containerd-shim = "0.5.0"
 containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "7e978edeaf34b54efb895738357c805cf888b76d", features = ["cgroupsv2"] }
-libcontainer = { git = "https://github.com/containers/youki", rev = "09e67372a892f22a89eeef62ff429c3cbcac6d41", features = ["v2"], default-features = false }
+libcontainer = { git = "https://github.com/containers/youki", rev = "09e67372a892f22a89eeef62ff429c3cbcac6d41", features = ["v1","v2"], default-features = false }
 log = "0.4"
 spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v1.4.1" }
 spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.4.1" }
