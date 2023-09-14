@@ -1,100 +1,55 @@
-use std::{
-    env,
-    path::PathBuf,
-    sync::{Arc, Condvar, Mutex},
-};
+use std::sync::Arc;
 
-use containerd_shim::{parse, run};
-use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
-use containerd_shim_wasm::sandbox::stdio::Stdio;
-use containerd_shim_wasm::{
-    libcontainer_instance::LibcontainerInstance,
-    sandbox::{instance::ExitCode, Error, InstanceConfig, ShimCli},
-};
-use libcontainer::container::{builder::ContainerBuilder, Container};
-use libcontainer::syscall::syscall::SyscallType;
+use anyhow::{Context, Result};
+use containerd_shim_wasm::container::{RuntimeContext, Stdio};
+use lunatic_process::env::{Environment, Environments, LunaticEnvironments};
+use lunatic_process::runtimes::{wasmtime, RawWasm};
+use lunatic_process::wasm::spawn_wasm;
+use lunatic_process_api::ProcessConfigCtx;
+use lunatic_runtime::{DefaultProcessConfig, DefaultProcessState};
 
-use anyhow::Result;
+#[containerd_shim_wasm::main("Lunatic")]
+async fn main(ctx: &impl RuntimeContext, stdio: Stdio) -> Result<()> {
+    log::info!("setting up wasi");
 
-use crate::executor::LunaticExecutor;
+    stdio.redirect()?;
 
-mod common;
-mod executor;
+    let (path, func) = ctx
+        .resolved_wasi_entrypoint()
+        .context("no cmd provided")?
+        .into();
 
-static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/lunatic";
+    log::info!(" >>> building lunatic application (binary: {path:?}, entrypoint: {func:?})");
+    let wasmtime_config = wasmtime::default_config();
+    let runtime = wasmtime::WasmtimeRuntime::new(&wasmtime_config)?;
+    let envs = LunaticEnvironments::default();
+    let environment = envs.create(1).await;
 
-pub struct Wasi {
-    id: String,
-    exit_code: ExitCode,
-    bundle: String,
-    rootdir: PathBuf,
-    stdio: Stdio,
-}
+    let mut config = DefaultProcessConfig::default();
+    config.set_can_compile_modules(true);
+    config.set_can_create_configs(true);
+    config.set_can_spawn_processes(true);
+    config.set_command_line_arguments(ctx.args().to_vec());
+    config.set_environment_variables(std::env::vars().collect());
+    config.preopen_dir("/");
 
-impl LibcontainerInstance for Wasi {
-    type Engine = ();
+    let module: RawWasm = std::fs::read(&path).context("opening module")?.into();
+    let module = Arc::new(runtime.compile_module(module)?);
+    let state = DefaultProcessState::new(
+        environment.clone(),
+        None,
+        runtime.clone(),
+        module.clone(),
+        config.into(),
+        Default::default(),
+    )?;
 
-    fn new_libcontainer(id: String, cfg: Option<&InstanceConfig<Self::Engine>>) -> Self {
-        let cfg = cfg.unwrap();
-        let bundle = cfg.get_bundle().unwrap_or_default();
+    environment.can_spawn_next_process().await?;
 
-        Wasi {
-            id,
-            exit_code: Arc::new((Mutex::new(None), Condvar::new())),
-            rootdir: determine_rootdir(
-                bundle.as_str(),
-                cfg.get_namespace().as_str(),
-                DEFAULT_CONTAINER_ROOT_DIR,
-            )
-            .unwrap(),
-            bundle,
-            stdio: Stdio::init_from_cfg(cfg).expect("failed to open stdio"),
-        }
-    }
+    let (task, _) = spawn_wasm(environment, runtime, &module, state, &func, vec![], None)
+        .await
+        .context("Spawn lunatic process")?;
+    task.await??;
 
-    fn get_exit_code(&self) -> ExitCode {
-        self.exit_code.clone()
-    }
-
-    fn get_id(&self) -> String {
-        self.id.clone()
-    }
-
-    fn get_root_dir(&self) -> std::result::Result<PathBuf, Error> {
-        Ok(self.rootdir.clone())
-    }
-
-    fn build_container(&self) -> Result<Container, Error> {
-        log::info!("Building container");
-
-        let err_msg = |err| format!("failed to create container: {}", err);
-        let container = ContainerBuilder::new(self.id.clone(), SyscallType::Linux)
-            .with_executor(LunaticExecutor::new(self.stdio.take()))
-            .with_root_path(self.rootdir.clone())
-            .map_err(|err| Error::Others(err_msg(err)))?
-            .as_init(&self.bundle)
-            .with_systemd(false)
-            .build()
-            .map_err(|err| Error::Others(err_msg(err)))?;
-        log::info!(">>> Container built.");
-        Ok(container)
-    }
-}
-
-fn parse_version() {
-    let os_args: Vec<_> = env::args_os().collect();
-    let flags = parse(&os_args[1..]).unwrap();
-    if flags.version {
-        println!("{}:", os_args[0].to_string_lossy());
-        println!("  Version: {}", env!("CARGO_PKG_VERSION"));
-        println!("  Revision: {}", env!("CARGO_GIT_HASH"));
-        println!();
-
-        std::process::exit(0);
-    }
-}
-
-fn main() {
-    parse_version();
-    run::<ShimCli<Wasi>>("io.containerd.lunatic.v1", None);
+    Ok(())
 }

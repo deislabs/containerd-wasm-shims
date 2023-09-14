@@ -1,107 +1,91 @@
-use std::env;
-use std::net::SocketAddr;
-use std::net::ToSocketAddrs;
-use std::option::Option;
-use std::path::PathBuf;
-use std::sync::{Arc, Condvar, Mutex};
+use std::net::{SocketAddr, ToSocketAddrs};
+use std::path::Path;
 
-use anyhow::{anyhow, Result};
-use containerd_shim as shim;
-use containerd_shim_wasm::libcontainer_instance::LibcontainerInstance;
-use containerd_shim_wasm::sandbox::instance::ExitCode;
-use containerd_shim_wasm::sandbox::instance_utils::determine_rootdir;
-use containerd_shim_wasm::sandbox::stdio::Stdio;
-use containerd_shim_wasm::sandbox::{error::Error, InstanceConfig, ShimCli};
-use executor::SpinExecutor;
-use libcontainer::container::builder::ContainerBuilder;
-use libcontainer::container::Container;
-use libcontainer::syscall::syscall::SyscallType;
-
-mod executor;
+use anyhow::{bail, Context, Result};
+use containerd_shim_wasm::container::{RuntimeContext, Stdio};
+use spin_core::wasmtime::OptLevel;
+use spin_manifest::{Application, ApplicationTrigger};
+use spin_redis_engine::RedisTrigger;
+use spin_trigger::loader::TriggerLoader;
+use spin_trigger::{RuntimeConfig, TriggerExecutorBuilder};
+use spin_trigger_http::HttpTrigger;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
-static DEFAULT_CONTAINER_ROOT_DIR: &str = "/run/containerd/spin";
+const SPIN_FILE: &str = "/spin.toml";
 
-pub struct Wasi {
-    exit_code: ExitCode,
-    id: String,
-    stdio: Stdio,
-    bundle: String,
-    rootdir: PathBuf,
+#[containerd_shim_wasm::validate]
+fn validate(_ctx: &impl RuntimeContext) -> bool {
+    Path::new(SPIN_FILE).exists()
 }
 
-impl LibcontainerInstance for Wasi {
-    type Engine = ();
+#[containerd_shim_wasm::main("Spin")]
+async fn main(_ctx: &impl RuntimeContext, stdio: Stdio) -> Result<()> {
+    log::info!(" >>> building spin application");
 
-    fn new_libcontainer(id: String, cfg: Option<&InstanceConfig<Self::Engine>>) -> Self {
-        let cfg = cfg.unwrap();
-        let bundle = cfg.get_bundle().unwrap_or_default();
-        let rootdir = determine_rootdir(
-            bundle.as_str(),
-            cfg.get_namespace().as_str(),
-            DEFAULT_CONTAINER_ROOT_DIR,
-        )
-        .unwrap();
-        Wasi {
-            exit_code: Arc::new((Mutex::new(None), Condvar::new())),
-            id,
-            stdio: Stdio::init_from_cfg(cfg).expect("failed to open stdio"),
-            bundle: cfg.get_bundle().unwrap_or_default(),
-            rootdir,
+    stdio.redirect()?;
+
+    let app = spin_loader::from_file(SPIN_FILE, Some("/"))
+        .await
+        .context("failed to build spin application")?;
+
+    let trigger = &app.info.trigger;
+    log::info!(" >>> building spin trigger {:?}", trigger);
+
+    match trigger {
+        ApplicationTrigger::Http(_) => {
+            let config = spin_trigger_http::CliArgs {
+                address: parse_addr(SPIN_ADDR).unwrap(),
+                tls_cert: None,
+                tls_key: None,
+            };
+            run_spin_trigger::<HttpTrigger>(app, config).await
         }
+        ApplicationTrigger::Redis(_) => {
+            let config = spin_trigger::cli::NoArgs;
+            run_spin_trigger::<RedisTrigger>(app, config).await
+        }
+        _ => bail!("Only Http and Redis triggers are currently supported."),
     }
+}
 
-    fn get_exit_code(&self) -> ExitCode {
-        self.exit_code.clone()
-    }
+async fn run_spin_trigger<T>(app: Application, config: T::RunConfig) -> Result<()>
+where
+    T: spin_trigger::TriggerExecutor,
+    T::TriggerConfig: serde::de::DeserializeOwned,
+{
+    let working_dir = "/";
+    let locked_path = "/spin.lock";
+    let locked_uri = "file:///spin.lock";
 
-    fn get_id(&self) -> String {
-        self.id.clone()
-    }
+    // Build and write app lock file
+    let app = spin_trigger::locked::build_locked_app(app, working_dir)?;
+    let app_json = app.to_json().context("serializing locked app")?;
+    std::fs::write(&locked_path, app_json).context("could not write locked app")?;
 
-    fn get_root_dir(&self) -> std::result::Result<PathBuf, Error> {
-        Ok(self.rootdir.clone())
-    }
+    // Build trigger config
+    let loader = TriggerLoader::new(working_dir, true);
+    let runtime_config = RuntimeConfig::new(Some("/".into()));
+    let mut builder = TriggerExecutorBuilder::new(loader);
+    builder
+        .wasmtime_config_mut()
+        .cranelift_opt_level(OptLevel::Speed);
 
-    fn build_container(&self) -> std::result::Result<Container, Error> {
-        let err_others = |err| Error::Others(format!("failed to create container: {}", err));
-        let spin_executor = SpinExecutor::new(self.stdio.take());
-        let container = ContainerBuilder::new(self.id.clone(), SyscallType::Linux)
-            .with_executor(spin_executor)
-            .with_root_path(self.rootdir.clone())
-            .map_err(err_others)?
-            .as_init(&self.bundle)
-            .with_systemd(false)
-            .with_detach(true)
-            .build()
-            .map_err(err_others)?;
-        Ok(container)
-    }
+    let init_data = Default::default();
+    let trigger: T = builder
+        .build(locked_uri.into(), runtime_config, init_data)
+        .await
+        .context("failed to build spin trigger")?;
+
+    log::info!(" >>> running spin redis trigger");
+    trigger.run(config).await?;
+
+    Ok(())
 }
 
 fn parse_addr(addr: &str) -> Result<SocketAddr> {
-    let addrs: SocketAddr = addr
-        .to_socket_addrs()?
+    addr.to_socket_addrs()?
         .next()
-        .ok_or_else(|| anyhow!("could not parse address: {}", addr))?;
-    Ok(addrs)
-}
-
-fn parse_version() {
-    let os_args: Vec<_> = env::args_os().collect();
-    let flags = shim::parse(&os_args[1..]).unwrap();
-    if flags.version {
-        println!("{}:", os_args[0].to_string_lossy());
-        println!("  Version: {}", env!("CARGO_PKG_VERSION"));
-        println!("  Revision: {}", env!("CARGO_GIT_HASH"));
-        println!();
-        std::process::exit(0);
-    }
-}
-
-fn main() {
-    parse_version();
-    shim::run::<ShimCli<Wasi>>("io.containerd.spin.v1", None);
+        .context("could not parse address")
 }
 
 #[cfg(test)]
@@ -111,7 +95,7 @@ mod tests {
     #[test]
     fn can_parse_spin_address() {
         let parsed = parse_addr(SPIN_ADDR).unwrap();
-        assert_eq!(parsed.clone().port(), 80);
+        assert_eq!(parsed.port(), 80);
         assert_eq!(parsed.ip().to_string(), "0.0.0.0");
     }
 }
