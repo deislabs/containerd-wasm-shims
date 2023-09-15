@@ -69,10 +69,6 @@ build: $(foreach shim,$(SHIMS),build-$(shim)-cross-$(TARGET))
 install-cross:
 	@if [ -z $$(which cross) ]; then cargo install cross --git https://github.com/cross-rs/cross; fi
 
-.PHONY: install-rust-targets
-install-rust-targets:
-	rustup target add wasm32-wasi && rustup target add wasm32-unknown-unknown
-
 # build-cross can be be used to build any cross supported target (make build-cross-x86_64-unknown-linux-musl)
 .PHONY: $(BUILD_TARGETS)
 $(BUILD_TARGETS): SHIM = $(word 2,$(subst -, ,$@))
@@ -80,7 +76,7 @@ $(BUILD_TARGETS): install-cross
 	cross build --release --target $(TARGET) --manifest-path=containerd-shim-$(SHIM)-v1/Cargo.toml $(VERBOSE_FLAG)
 
 .PHONY: build-%
-build-%: install-rust-targets
+build-%:
 	cargo build --release --manifest-path=containerd-shim-$*-v1/Cargo.toml
 
 .PHONY: install

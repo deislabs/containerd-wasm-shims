@@ -13,9 +13,6 @@ jobs:
         with:
           workspaces: |
             "containerd-shim-*-v1 -> target"
-      - name: "Install Rust Wasm targets"
-        run: |
-          make install-rust-targets
       - name: "Install dependencies"
         run: |
           sudo apt-get update
