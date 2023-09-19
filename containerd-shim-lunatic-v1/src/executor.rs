@@ -24,10 +24,7 @@ impl Engine for LunaticEngine {
         stdio.redirect()?;
         let cmd = ctx.entrypoint().context("no cmd provided")?;
         let rt = Runtime::new().context("failed to create runtime")?;
-        if let Err(e) = rt.block_on(async {
-            log::info!(" >>> building lunatic application");
-            crate::executor::exec(cmd.to_owned()).await
-        }) {
+        if let Err(e) = rt.block_on(exec(cmd.to_owned())) {
             log::error!(" >>> error: {:?}", e);
             return Ok(137);
         }
@@ -35,7 +32,7 @@ impl Engine for LunaticEngine {
     }
 }
 
-pub async fn exec(cmd: PathBuf) -> Result<()> {
+async fn exec(cmd: PathBuf) -> Result<()> {
     log::info!(" >>> lunatic wasm binary: {:?}", cmd);
     // Create wasmtime runtime
     let wasmtime_config = runtimes::wasmtime::default_config();
@@ -57,10 +54,14 @@ pub async fn exec(cmd: PathBuf) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use crate::executor::exec;
+
     #[tokio::test]
     async fn test() {
-        if let Err(error) = crate::executor::exec(
-            "../images/lunatic/target/wasm32-wasi/release/wasi-hello-world.wasm".to_string(),
+        if let Err(error) = exec(
+            "../images/lunatic/target/wasm32-wasi/release/wasi-hello-world.wasm"
+                .to_string()
+                .into(),
         )
         .await
         {
