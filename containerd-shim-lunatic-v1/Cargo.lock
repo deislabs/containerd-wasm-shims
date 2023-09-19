@@ -587,19 +587,12 @@ dependencies = [
  "clap",
  "containerd-shim",
  "containerd-shim-wasm",
- "libc",
- "libcontainer 0.1.0",
  "log",
  "lunatic-distributed",
  "lunatic-process",
  "lunatic-process-api",
  "lunatic-runtime",
- "nix 0.26.4",
- "oci-spec",
  "openssl",
- "serde",
- "serde_json",
- "thiserror",
  "tokio",
 ]
 
@@ -627,7 +620,7 @@ dependencies = [
  "containerd-shim",
  "crossbeam",
  "libc",
- "libcontainer 0.2.0",
+ "libcontainer",
  "log",
  "nix 0.26.4",
  "oci-spec",
@@ -1713,20 +1706,6 @@ checksum = "b4668fb0ea861c1df094127ac5f1da3409a82116a4ba74fca2e58ef927159bb3"
 
 [[package]]
 name = "libcgroups"
-version = "0.1.0"
-source = "git+https://github.com/containers/youki?rev=09e67372a892f22a89eeef62ff429c3cbcac6d41#09e67372a892f22a89eeef62ff429c3cbcac6d41"
-dependencies = [
- "fixedbitset 0.4.2",
- "nix 0.26.4",
- "oci-spec",
- "procfs",
- "serde",
- "thiserror",
- "tracing",
-]
-
-[[package]]
-name = "libcgroups"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebc75981724e1f7e065582ddfb1ef41bbe82c2d3afa130777fc41d75f386a0c6"
@@ -1736,32 +1715,6 @@ dependencies = [
  "oci-spec",
  "procfs",
  "serde",
- "thiserror",
- "tracing",
-]
-
-[[package]]
-name = "libcontainer"
-version = "0.1.0"
-source = "git+https://github.com/containers/youki?rev=09e67372a892f22a89eeef62ff429c3cbcac6d41#09e67372a892f22a89eeef62ff429c3cbcac6d41"
-dependencies = [
- "bitflags 2.4.0",
- "caps",
- "chrono",
- "fastrand",
- "futures",
- "libc",
- "libcgroups 0.1.0",
- "nix 0.26.4",
- "oci-spec",
- "once_cell",
- "prctl",
- "procfs",
- "regex",
- "rust-criu",
- "safe-path",
- "serde",
- "serde_json",
  "thiserror",
  "tracing",
 ]
@@ -1778,7 +1731,7 @@ dependencies = [
  "fastrand",
  "futures",
  "libc",
- "libcgroups 0.2.0",
+ "libcgroups",
  "nix 0.26.4",
  "oci-spec",
  "once_cell",
