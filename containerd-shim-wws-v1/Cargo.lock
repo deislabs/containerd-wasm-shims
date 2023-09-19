@@ -795,7 +795,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-wws-v1"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3786,7 +3786,7 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "utils"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "anyhow",
  "oci-spec",
