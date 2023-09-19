@@ -3,9 +3,7 @@ use log::{error, info};
 use std::path::Path;
 use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::{
-    container::{Engine, RuntimeContext, Stdio},
-};
+use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
 use wasm_workers_server::{
     wws_config::Config,
     wws_router::Routes,
