@@ -1,10 +1,8 @@
 use anyhow::{Context, Result};
-use containerd_shim_wasm::container::RuntimeContext;
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::container::Engine;
-use containerd_shim_wasm::sandbox::Stdio;
+use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
 use slight_lib::commands::run::{handle_run, RunArgs};
 
 #[derive(Clone, Default)]
