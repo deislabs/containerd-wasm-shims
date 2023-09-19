@@ -6,7 +6,7 @@ use executor::SlightEngine;
 
 mod executor;
 
-pub type SlightInstance = Instance<SlightEngine>;
+type SlightInstance = Instance<SlightEngine>;
 
 fn parse_version() {
     let os_args: Vec<_> = env::args_os().collect();
