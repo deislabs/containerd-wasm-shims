@@ -1,8 +1,9 @@
+use anyhow::{anyhow, Context, Result};
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::PathBuf;
 
-use anyhow::{anyhow, Context, Result};
+use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
 use log::info;
 use spin_manifest::Application;
 use spin_redis_engine::RedisTrigger;
@@ -11,8 +12,6 @@ use spin_trigger_http::HttpTrigger;
 use tokio::runtime::Runtime;
 use url::Url;
 use wasmtime::OptLevel;
-
-use containerd_shim_wasm::{container::Engine, sandbox::Stdio};
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
 
@@ -100,11 +99,7 @@ impl Engine for SpinEngine {
         "spin"
     }
 
-    fn run_wasi(
-        &self,
-        _ctx: &impl containerd_shim_wasm::container::RuntimeContext,
-        stdio: Stdio,
-    ) -> Result<i32> {
+    fn run_wasi(&self, _ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
         log::info!("setting up wasi");
         stdio.redirect()?;
         let rt = Runtime::new().context("failed to create runtime")?;
