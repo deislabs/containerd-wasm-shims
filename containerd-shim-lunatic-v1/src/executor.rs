@@ -3,10 +3,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::runtime::Runtime;
 
-use containerd_shim_wasm::{
-    container::{Engine, RuntimeContext},
-    sandbox::Stdio,
-};
+use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
 use lunatic_process::{
     env::{Environments, LunaticEnvironments},
     runtimes,
