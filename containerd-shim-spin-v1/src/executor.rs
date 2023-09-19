@@ -109,10 +109,7 @@ impl Engine for SpinEngine {
         stdio.redirect()?;
         let rt = Runtime::new().context("failed to create runtime")?;
 
-        if let Err(err) = rt.block_on(self.wasm_exec_async()) {
-            log::error!(" >>> error: {:?}", err);
-            return Ok(137);
-        }
+        rt.block_on(self.wasm_exec_async())?;
         Ok(0)
     }
 }

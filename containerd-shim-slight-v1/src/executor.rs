@@ -28,10 +28,7 @@ impl Engine for SlightEngine {
             link_all_capabilities: true,
         };
 
-        if let Err(err) = rt.block_on(handle_run(args)) {
-            log::error!(" >>> error: {:?}", err);
-            return Ok(137);
-        }
+        rt.block_on(handle_run(args))?;
         Ok(0)
     }
 }

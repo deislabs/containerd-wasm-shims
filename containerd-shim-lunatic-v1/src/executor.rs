@@ -24,10 +24,7 @@ impl Engine for LunaticEngine {
         stdio.redirect()?;
         let cmd = ctx.entrypoint().context("no cmd provided")?;
         let rt = Runtime::new().context("failed to create runtime")?;
-        if let Err(e) = rt.block_on(exec(cmd.to_owned())) {
-            log::error!(" >>> error: {:?}", e);
-            return Ok(137);
-        }
+        rt.block_on(exec(cmd.to_owned()))?;
         Ok(0)
     }
 }

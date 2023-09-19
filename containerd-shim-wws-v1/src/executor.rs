@@ -62,10 +62,7 @@ impl Engine for WwsEngine {
 
         let rt = Runtime::new().context("failed to create runtime")?;
 
-        if let Err(e) = rt.block_on(self.wasm_exec_async(path, routes)) {
-            log::error!(" >>> error: {:?}", e);
-            return Ok(137);
-        }
+        rt.block_on(self.wasm_exec_async(path, routes))?;
         Ok(0)
     }
 }
