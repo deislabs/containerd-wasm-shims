@@ -76,8 +76,8 @@ jobs:
             ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:latest
           context: deployments/k3d
           platforms: linux/amd64,linux/arm64
-          build-args:
-            - STAGE=release
+          build-args: |
+            STAGE=release
       - name: clear
         if: always()
         run: |
