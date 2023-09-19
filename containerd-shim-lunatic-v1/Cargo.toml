@@ -24,7 +24,7 @@ lunatic-runtime = { git = "https://github.com/lunatic-solutions/lunatic", tag = 
 clap = { version = "4.0", features = ["cargo", "derive"] }
 tokio = "1.30.0"
 oci-spec = "0.6.2"
-utils = { path = "../utils" }
+
 
 # https://github.com/sfackler/rust-openssl/issues/603#issuecomment-822619837
 openssl = { version = "0.10", features = ["vendored"] }
