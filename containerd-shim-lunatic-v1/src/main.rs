@@ -6,7 +6,7 @@ use containerd_shim_wasm::sandbox::ShimCli;
 
 use executor::LunaticEngine;
 
-pub type LunaticInstance = Instance<LunaticEngine>;
+type LunaticInstance = Instance<LunaticEngine>;
 
 mod common;
 mod executor;
