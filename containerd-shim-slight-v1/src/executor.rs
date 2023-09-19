@@ -29,4 +29,8 @@ impl Engine for SlightEngine {
         rt.block_on(handle_run(args))?;
         Ok(0)
     }
+
+    fn can_handle(&self, _ctx: &impl RuntimeContext) -> Result<()> {
+        Ok(())
+    }
 }

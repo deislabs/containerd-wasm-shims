@@ -4,8 +4,7 @@ use std::path::Path;
 use tokio::runtime::Runtime;
 
 use containerd_shim_wasm::{
-    container::{Engine, RuntimeContext},
-    sandbox::Stdio,
+    container::{Engine, RuntimeContext, Stdio},
 };
 use wasm_workers_server::{
     wws_config::Config,
@@ -64,5 +63,9 @@ impl Engine for WwsEngine {
 
         rt.block_on(self.wasm_exec_async(path, routes))?;
         Ok(0)
+    }
+
+    fn can_handle(&self, _ctx: &impl RuntimeContext) -> Result<()> {
+        Ok(())
     }
 }

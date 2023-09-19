@@ -107,6 +107,10 @@ impl Engine for SpinEngine {
         rt.block_on(self.wasm_exec_async())?;
         Ok(0)
     }
+
+    fn can_handle(&self, _ctx: &impl RuntimeContext) -> Result<()> {
+        Ok(())
+    }
 }
 
 fn parse_addr(addr: &str) -> Result<SocketAddr> {
