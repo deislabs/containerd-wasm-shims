@@ -4,12 +4,12 @@ use containerd_shim::{parse, run};
 use containerd_shim_wasm::container::Instance;
 use containerd_shim_wasm::sandbox::ShimCli;
 
-use executor::LunaticEngine;
+use engine::LunaticEngine;
 
 type LunaticInstance = Instance<LunaticEngine>;
 
 mod common;
-mod executor;
+mod engine;
 
 fn parse_version() {
     let os_args: Vec<_> = env::args_os().collect();

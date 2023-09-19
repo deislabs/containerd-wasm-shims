@@ -3,9 +3,9 @@ use std::env;
 use containerd_shim as shim;
 use containerd_shim_wasm::container::Instance;
 use containerd_shim_wasm::sandbox::ShimCli;
-use executor::WwsEngine;
+use engine::WwsEngine;
 
-mod executor;
+mod engine;
 
 pub type WwsInstance = Instance<WwsEngine>;
 

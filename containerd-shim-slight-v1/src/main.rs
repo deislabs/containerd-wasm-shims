@@ -2,9 +2,9 @@ use std::env;
 
 use containerd_shim as shim;
 use containerd_shim_wasm::{container::Instance, sandbox::ShimCli};
-use executor::SlightEngine;
+use engine::SlightEngine;
 
-mod executor;
+mod engine;
 
 type SlightInstance = Instance<SlightEngine>;
 

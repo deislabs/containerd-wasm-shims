@@ -51,7 +51,7 @@ async fn exec(cmd: PathBuf) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use crate::executor::exec;
+    use crate::engine::exec;
 
     #[tokio::test]
     async fn test() {
