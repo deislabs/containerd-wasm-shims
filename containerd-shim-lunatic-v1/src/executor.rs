@@ -22,11 +22,11 @@ impl Engine for LunaticEngine {
     fn run_wasi(&self, ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
         log::info!("setting up wasi");
         stdio.redirect()?;
-        let cmd = ctx.args().first().context("no cmd provided")?.clone();
+        let cmd = ctx.entrypoint().context("no cmd provided")?;
         let rt = Runtime::new().context("failed to create runtime")?;
         if let Err(e) = rt.block_on(async {
             log::info!(" >>> building lunatic application");
-            crate::executor::exec(cmd).await
+            crate::executor::exec(cmd.to_owned()).await
         }) {
             log::error!(" >>> error: {:?}", e);
             return Ok(137);
@@ -35,7 +35,7 @@ impl Engine for LunaticEngine {
     }
 }
 
-pub async fn exec(cmd: String) -> Result<()> {
+pub async fn exec(cmd: PathBuf) -> Result<()> {
     log::info!(" >>> lunatic wasm binary: {:?}", cmd);
     // Create wasmtime runtime
     let wasmtime_config = runtimes::wasmtime::default_config();
@@ -44,7 +44,7 @@ pub async fn exec(cmd: String) -> Result<()> {
 
     let env = envs.create(1).await;
     run_wasm(RunWasm {
-        path: PathBuf::from(cmd),
+        path: cmd,
         wasm_args: vec![],
         dir: vec![],
         runtime,
