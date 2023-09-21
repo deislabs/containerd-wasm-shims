@@ -1,35 +1,24 @@
 use anyhow::{anyhow, Context, Result};
+use std::net::SocketAddr;
+use std::net::ToSocketAddrs;
+use std::path::PathBuf;
+
+use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
 use log::info;
 use spin_manifest::Application;
 use spin_redis_engine::RedisTrigger;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
-use std::path::PathBuf;
-
 use tokio::runtime::Runtime;
 use url::Url;
 use wasmtime::OptLevel;
 
-use containerd_shim_wasm::libcontainer_instance::LinuxContainerExecutor;
-use containerd_shim_wasm::sandbox::Stdio;
-use libcontainer::workload::{Executor, ExecutorError, ExecutorValidationError};
-use oci_spec::runtime::Spec;
-use utils::is_linux_executable;
+const SPIN_ADDR: &str = "0.0.0.0:80";
 
-use crate::{parse_addr, SPIN_ADDR};
+#[derive(Clone, Default)]
+pub struct SpinEngine;
 
-#[derive(Clone)]
-pub struct SpinExecutor {
-    stdio: Stdio,
-}
-
-impl SpinExecutor {
-    pub fn new(stdio: Stdio) -> Self {
-        Self { stdio }
-    }
-}
-
-impl SpinExecutor {
+impl SpinEngine {
     async fn build_spin_application(
         mod_path: PathBuf,
         working_dir: PathBuf,
@@ -65,16 +54,10 @@ impl SpinExecutor {
         Ok(executor)
     }
 
-    fn wasm_exec(&self, _spec: &Spec) -> Result<()> {
-        log::info!("executing spin container");
-        let rt = Runtime::new().context("failed to create runtime")?;
-        rt.block_on(self.wasm_exec_async())
-    }
-
     async fn wasm_exec_async(&self) -> Result<()> {
         info!(" >>> building spin application");
         let app =
-            SpinExecutor::build_spin_application(PathBuf::from("/spin.toml"), PathBuf::from("/"))
+            SpinEngine::build_spin_application(PathBuf::from("/spin.toml"), PathBuf::from("/"))
                 .await
                 .context("failed to build spin application")?;
 
@@ -84,7 +67,7 @@ impl SpinExecutor {
         let f = match trigger {
             spin_manifest::ApplicationTrigger::Http(_config) => {
                 let http_trigger: HttpTrigger =
-                    SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
+                    SpinEngine::build_spin_trigger(PathBuf::from("/"), app)
                         .await
                         .context("failed to build spin trigger")?;
                 info!(" >>> running spin trigger");
@@ -96,7 +79,7 @@ impl SpinExecutor {
             }
             spin_manifest::ApplicationTrigger::Redis(_config) => {
                 let redis_trigger: RedisTrigger =
-                    SpinExecutor::build_spin_trigger(PathBuf::from("/"), app)
+                    SpinEngine::build_spin_trigger(PathBuf::from("/"), app)
                         .await
                         .context("failed to build spin trigger")?;
 
@@ -111,22 +94,41 @@ impl SpinExecutor {
     }
 }
 
-impl Executor for SpinExecutor {
-    fn exec(&self, spec: &Spec) -> Result<(), ExecutorError> {
-        if is_linux_executable(spec).is_ok() {
-            log::info!("executing linux container");
-            LinuxContainerExecutor::new(self.stdio.clone()).exec(spec)
-        } else {
-            if let Err(err) = self.wasm_exec(spec) {
-                log::info!(" >>> server shut down due to error: {err}");
-                std::process::exit(137);
-            }
-            log::info!(" >>> server shut down: exiting");
-            std::process::exit(0);
-        }
+impl Engine for SpinEngine {
+    fn name() -> &'static str {
+        "spin"
     }
 
-    fn validate(&self, _spec: &Spec) -> Result<(), ExecutorValidationError> {
+    fn run_wasi(&self, _ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
+        log::info!("setting up wasi");
+        stdio.redirect()?;
+        let rt = Runtime::new().context("failed to create runtime")?;
+
+        rt.block_on(self.wasm_exec_async())?;
+        Ok(0)
+    }
+
+    fn can_handle(&self, _ctx: &impl RuntimeContext) -> Result<()> {
         Ok(())
+    }
+}
+
+fn parse_addr(addr: &str) -> Result<SocketAddr> {
+    let addrs: SocketAddr = addr
+        .to_socket_addrs()?
+        .next()
+        .ok_or_else(|| anyhow!("could not parse address: {}", addr))?;
+    Ok(addrs)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_parse_spin_address() {
+        let parsed = parse_addr(SPIN_ADDR).unwrap();
+        assert_eq!(parsed.clone().port(), 80);
+        assert_eq!(parsed.ip().to_string(), "0.0.0.0");
     }
 }
