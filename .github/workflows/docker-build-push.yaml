@@ -61,7 +61,9 @@ jobs:
           tags: containerd-wasm-shims${{ matrix.image.imageName }}:test
           platforms: wasi/wasm
       - name: build and push
-        uses: docker/build-push-action@v4
+        # we use v3 here because we can't push wasi/wasm images with v4
+        # see https://github.com/deislabs/containerd-wasm-shims/issues/154#issuecomment-1726030749
+        uses: docker/build-push-action@v3
         if: ${{ !inputs.test }}
         with:
           push: true
