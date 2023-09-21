@@ -47,8 +47,10 @@ impl SpinEngine {
         let loader = loader::TriggerLoader::new(working_dir.clone(), true);
         let runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
         let mut builder = TriggerExecutorBuilder::new(loader);
-        let config = builder.wasmtime_config_mut();
-        config.cranelift_opt_level(OptLevel::Speed);
+        builder
+            .config_mut()
+            .wasmtime_config()
+            .cranelift_opt_level(OptLevel::Speed);
         let init_data = Default::default();
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
