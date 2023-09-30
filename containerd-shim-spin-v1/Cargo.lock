@@ -302,7 +302,7 @@ dependencies = [
  "rustc_version",
  "serde",
  "serde_json",
- "time",
+ "time 0.3.28",
  "url",
  "uuid",
 ]
@@ -323,7 +323,7 @@ dependencies = [
  "serde_json",
  "sha2 0.10.8",
  "thiserror",
- "time",
+ "time 0.3.28",
  "url",
  "uuid",
 ]
@@ -432,7 +432,7 @@ dependencies = [
  "sled",
  "tempfile",
  "thiserror",
- "time",
+ "time 0.3.28",
  "tokio",
  "tokio-stream",
  "tokio-tar",
@@ -1067,7 +1067,7 @@ dependencies = [
  "serde_json",
  "signal-hook",
  "thiserror",
- "time",
+ "time 0.3.28",
  "windows-sys 0.48.0",
 ]
 
@@ -4993,7 +4993,7 @@ dependencies = [
  "num-bigint",
  "num-traits",
  "thiserror",
- "time",
+ "time 0.3.28",
 ]
 
 [[package]]
@@ -6294,6 +6294,12 @@ name = "wasi"
 version = "0.9.0+wasi-snapshot-preview1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cccddf32554fecc6acb585f82a32a72e28b48f8c4c1883ddfeeeaa96f7d8e519"
+
+[[package]]
+name = "wasi"
+version = "0.10.0+wasi-snapshot-preview1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a143597ca7c7793eff794def352d41792a93c481eb1042423ff7ff72ba2c31f"
 
 [[package]]
 name = "wasi"

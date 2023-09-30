@@ -11,15 +11,16 @@ Containerd shim for running Spin workloads.
 """
 
 [dependencies]
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "5a0a47a9ad79f7ae19153897486b8621c8d6a58e" }
+containerd-shim = "0.6.0"
+containerd-shim-wasm =  "0.4.0"
 log = "0.4"
-spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-core = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-trigger-http = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-redis-engine = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-loader = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
+spin-trigger = { path = "../../spin/crates/trigger" }
+spin-trigger-http = { path = "../../spin/crates/trigger-http" }
+spin-redis-engine ={ path = "../../spin/crates/redis" }
+spin-manifest = { path = "../../spin/crates/manifest" }
+spin-loader = { path = "../../spin/crates/loader" }
+spin-app = { path = "../../spin/crates/app" }
+spin-oci = { path = "../../spin/crates/oci" }
 wasmtime = "10.0.1"
 tokio = { version = "1", features = ["rt"] }
 openssl = { version = "*", features = ["vendored"] }
@@ -27,5 +28,5 @@ serde = "1.0"
 serde_json = "1.0"
 url = "2.3"
 anyhow = "1.0"
+oci-spec = { version = "0.6.1", features = ["runtime"] }
 
-[workspace]

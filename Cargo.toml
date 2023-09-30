@@ -10,5 +10,6 @@ homepage = "https://github.com/deislabs/containerd-wasm-shims"
 [workspace]
 resolver = "2"
 members = [
-    "tests"
+    "tests",
+    "containerd-shim-spin-v1"
 ]
