@@ -1172,6 +1172,7 @@ dependencies = [
 [[package]]
 name = "containerd-shim-wasm"
 version = "0.3.0"
+source = "git+https://github.com/jsturtevant/runwasi?branch=handle-oci-artifacts#0cdef7db644add22fa2b176e8eeef437806da918"
 dependencies = [
  "anyhow",
  "caps",
@@ -1184,7 +1185,7 @@ dependencies = [
  "libc",
  "libcontainer",
  "log",
- "nix 0.26.4",
+ "nix 0.27.1",
  "oci-spec 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "oci-spec 0.6.2 (git+https://github.com/containers/oci-spec-rs?rev=c109fe19b2548a86f20e48b18831bf17eb72c494)",
  "protobuf 3.2.0",
@@ -4076,6 +4077,7 @@ dependencies = [
 [[package]]
 name = "outbound-http"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "http",
@@ -4090,6 +4092,7 @@ dependencies = [
 [[package]]
 name = "outbound-mysql"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "flate2",
@@ -4105,6 +4108,7 @@ dependencies = [
 [[package]]
 name = "outbound-pg"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "native-tls",
@@ -4119,6 +4123,7 @@ dependencies = [
 [[package]]
 name = "outbound-redis"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "redis",
@@ -5642,6 +5647,7 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 [[package]]
 name = "spin-app"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5656,6 +5662,7 @@ dependencies = [
 [[package]]
 name = "spin-common"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "dirs 4.0.0",
@@ -5678,6 +5685,7 @@ dependencies = [
 [[package]]
 name = "spin-config"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5695,6 +5703,7 @@ dependencies = [
 [[package]]
 name = "spin-core"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5712,6 +5721,7 @@ dependencies = [
 [[package]]
 name = "spin-http"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "http",
@@ -5726,6 +5736,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "lru 0.9.0",
@@ -5739,6 +5750,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-azure"
 version = "0.1.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "azure_data_cosmos",
@@ -5753,6 +5765,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-redis"
 version = "0.1.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "redis",
@@ -5766,6 +5779,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-sqlite"
 version = "0.1.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "once_cell",
@@ -5779,6 +5793,7 @@ dependencies = [
 [[package]]
 name = "spin-llm"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "bytesize",
@@ -5804,6 +5819,7 @@ dependencies = [
 [[package]]
 name = "spin-loader"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5839,6 +5855,7 @@ dependencies = [
 [[package]]
 name = "spin-manifest"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "indexmap 1.9.2",
  "serde",
@@ -5849,6 +5866,7 @@ dependencies = [
 [[package]]
 name = "spin-oci"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "base64 0.21.4",
@@ -5873,6 +5891,7 @@ dependencies = [
 [[package]]
 name = "spin-redis-engine"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5889,6 +5908,7 @@ dependencies = [
 [[package]]
 name = "spin-sqlite"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5902,6 +5922,7 @@ dependencies = [
 [[package]]
 name = "spin-sqlite-inproc"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5916,6 +5937,7 @@ dependencies = [
 [[package]]
 name = "spin-sqlite-libsql"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5929,6 +5951,7 @@ dependencies = [
 [[package]]
 name = "spin-trigger"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5971,6 +5994,7 @@ dependencies = [
 [[package]]
 name = "spin-trigger-http"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6003,6 +6027,7 @@ dependencies = [
 [[package]]
 name = "spin-world"
 version = "1.5.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "wasmtime",
 ]
@@ -6221,6 +6246,7 @@ dependencies = [
 [[package]]
 name = "terminal"
 version = "0.1.0"
+source = "git+https://github.com/jsturtevant/spin?branch=spin-oci#713b47243dda3e52e387990a0070aa964f07a02f"
 dependencies = [
  "atty",
  "once_cell",
@@ -6676,12 +6702,11 @@ checksum = "3528ecfd12c466c6f163363caf2d02a71161dd5e1cc6ae7b34207ea2d42d81ed"
 
 [[package]]
 name = "ttrpc"
-version = "0.8.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55ea338db445bee75c596cf8a478fbfcefad5a943c9e92a7e1c805c65ed39551"
+checksum = "adb03d0f5219ec54d870cb3d58719a2dc0b8849405b75a2e0968b3590392a5b0"
 dependencies = [
  "byteorder",
- "crossbeam",
  "libc",
  "log",
  "nix 0.26.4",

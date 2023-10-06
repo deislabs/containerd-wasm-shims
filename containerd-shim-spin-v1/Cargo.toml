@@ -14,13 +14,13 @@ Containerd shim for running Spin workloads.
 containerd-shim = "0.6.0"
 containerd-shim-wasm =  "0.4.0"
 log = "0.4"
-spin-trigger = { path = "../../spin/crates/trigger" }
-spin-trigger-http = { path = "../../spin/crates/trigger-http" }
-spin-redis-engine ={ path = "../../spin/crates/redis" }
-spin-manifest = { path = "../../spin/crates/manifest" }
-spin-loader = { path = "../../spin/crates/loader" }
-spin-app = { path = "../../spin/crates/app" }
-spin-oci = { path = "../../spin/crates/oci" }
+spin-trigger = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-trigger-http = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-redis-engine ={ git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-manifest = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-loader = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-app = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-oci = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
 wasmtime = "10.0.1"
 tokio = { version = "1", features = ["rt"] }
 openssl = { version = "*", features = ["vendored"] }
