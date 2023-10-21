@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context, Result};
+use spin_trigger::TriggerHooks;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::PathBuf;
@@ -17,6 +18,22 @@ const SPIN_ADDR: &str = "0.0.0.0:80";
 
 #[derive(Clone, Default)]
 pub struct SpinEngine;
+struct StdioTriggerHook{}
+impl TriggerHooks for StdioTriggerHook {
+    fn app_loaded(&mut self, _app: &spin_app::App, _runtime_config: &RuntimeConfig) -> Result<()> {
+        Ok(())
+    }
+
+    fn component_store_builder(
+        &self,
+        _component: &spin_app::AppComponent,
+        builder: &mut spin_core::StoreBuilder,
+    ) -> Result<()> {
+        builder.inherit_stdout();
+        builder.inherit_stderr();
+        Ok(())
+    }
+}
 
 impl SpinEngine {
     async fn build_spin_application(
@@ -102,7 +119,7 @@ impl Engine for SpinEngine {
     }
 
     fn run_wasi(&self, _ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
-        log::info!("setting up wasi");
+        info!("setting up wasi");
         stdio.redirect()?;
         let rt = Runtime::new().context("failed to create runtime")?;
 
