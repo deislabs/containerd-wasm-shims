@@ -4,8 +4,8 @@ mod test {
     use crate::{list_pods, random_payload, retry_get, retry_put};
     use anyhow::Result;
 
-    const RETRY_TIMES: u32 = 25;
-    const INTERVAL_IN_SECS: u64 = 2;
+    const RETRY_TIMES: u32 = 5;
+    const INTERVAL_IN_SECS: u64 = 10;
 
     #[tokio::test]
     async fn slight_test() -> Result<()> {

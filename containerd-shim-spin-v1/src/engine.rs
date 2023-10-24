@@ -18,7 +18,8 @@ const SPIN_ADDR: &str = "0.0.0.0:80";
 
 #[derive(Clone, Default)]
 pub struct SpinEngine;
-struct StdioTriggerHook{}
+
+struct StdioTriggerHook;
 impl TriggerHooks for StdioTriggerHook {
     fn app_loaded(&mut self, _app: &spin_app::App, _runtime_config: &RuntimeConfig) -> Result<()> {
         Ok(())

@@ -73,8 +73,8 @@ pub async fn retry_put(
             .trim()
             .parse::<u32>()?;
 
-        if response_code != 404 {
-            break;
+        if response_code / 100 == 2 {
+            break; // 2xx response
         }
 
         i += 1;

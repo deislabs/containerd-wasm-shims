@@ -11,8 +11,7 @@ Containerd shim for running Slight workloads.
 """
 
 [dependencies]
-containerd-shim = "0.5.0"
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "4d212b968d24d42a27952e8b04979382b543a613", features = ["cgroupsv1", "cgroupsv2"] }
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "5a0a47a9ad79f7ae19153897486b8621c8d6a58e" }
 log = "0.4"
 tokio = { version = "1", features = [ "full" ] }
 slight = { git = "https://github.com/deislabs/spiderlightning", version = "0.5.1" }
