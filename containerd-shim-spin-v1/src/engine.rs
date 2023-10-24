@@ -65,6 +65,7 @@ impl SpinEngine {
         let runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
         let mut builder = TriggerExecutorBuilder::new(loader);
         builder
+            .hooks(StdioTriggerHook{})
             .config_mut()
             .wasmtime_config()
             .cranelift_opt_level(OptLevel::Speed);
