@@ -30,8 +30,9 @@ pub async fn retry_get(
         // verify res is ok and not 404
         match res {
             Ok(_) => {
-                if response_code != 404 {
-                    break;
+                println!("response_code: {}", response_code);
+                if response_code / 100 == 2 {
+                    break; // 2xx response
                 }
             }
             Err(e) => {
