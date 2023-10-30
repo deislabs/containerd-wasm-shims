@@ -15,7 +15,7 @@ spec:
       runtimeClassName: wasmtime-slight
       containers:
         - name: slight-hello
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:v0.9.1
+          image: ghcr.io/deislabs/containerd-wasm-shims/examples/slight-rust-hello:v0.9.2
           command: ["/"]
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
@@ -54,7 +54,7 @@ spec:
       runtimeClassName: wasmtime-spin
       containers:
         - name: spin-hello
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:v0.9.1
+          image: ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:v0.9.2
           command: ["/"]
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
@@ -93,7 +93,7 @@ spec:
       runtimeClassName: wasmtime-wws
       containers:
         - name: wws-hello
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:v0.9.1
+          image: ghcr.io/deislabs/containerd-wasm-shims/examples/wws-js-hello:v0.9.2
           command: ["/"]
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
@@ -132,7 +132,7 @@ spec:
       runtimeClassName: wasmtime-lunatic
       containers:
         - name: lunatic
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/lunatic-submillisecond:v0.9.1
+          image: ghcr.io/deislabs/containerd-wasm-shims/examples/lunatic-submillisecond:v0.9.2
           resources: # limit the resources to 128Mi of memory and 100m of CPU
             limits:
               cpu: 100m

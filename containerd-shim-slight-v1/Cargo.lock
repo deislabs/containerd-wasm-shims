@@ -1460,7 +1460,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-slight-v1"
-version = "0.9.1"
+version = "0.9.2"
 dependencies = [
  "anyhow",
  "containerd-shim-wasm",
@@ -3825,9 +3825,9 @@ dependencies = [
 
 [[package]]
 name = "postgres"
-version = "0.19.7"
+version = "0.19.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7915b33ed60abc46040cbcaa25ffa1c7ec240668e0477c4f3070786f5916d451"
+checksum = "2843af30d9b6dccec9f8779eb50d56cfbec54b38c7b1bbaf50b37d6c8a4f8959"
 dependencies = [
  "bytes 1.5.0",
  "fallible-iterator",
