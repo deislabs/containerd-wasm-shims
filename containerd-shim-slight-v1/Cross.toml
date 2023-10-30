@@ -2,7 +2,7 @@
 default-target = "x86_64-unknown-linux-musl"
 
 [target.x86_64-unknown-linux-musl]
-dockerfile = "./containerd-shim-slight-v1/Dockerfile"
+dockerfile = "./cross/Dockerfile"
 
 [target.aarch64-unknown-linux-musl]
-dockerfile = "./containerd-shim-slight-v1/Dockerfile"
+dockerfile = "./cross/Dockerfile"
