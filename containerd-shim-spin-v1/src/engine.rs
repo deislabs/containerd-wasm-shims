@@ -1,30 +1,28 @@
 
 use anyhow::{anyhow, Context, Result};
-<<<<<<< HEAD
+
+use spin_loader::FilesMountStrategy;
+use spin_trigger::TriggerExecutor;
 use spin_trigger::TriggerHooks;
-=======
-use spin_manifest::ApplicationTrigger;
+use spin_manifest::schema::v1::AppTriggerV1 as ApplicationTrigger;
 use std::fs::File;
 use std::io::Write;
->>>>>>> 1879c99 (oci artifact support)
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::PathBuf;
 
 use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
-use containerd_shim_wasm::sandbox::oci::WASM_LAYER_MEDIA_TYPE;
 use spin_app::locked::LockedApp;
 use oci_spec::image::MediaType;
 use log::info;
 use spin_loader::cache::Cache;
 use spin_redis_engine::RedisTrigger;
-use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
+use spin_trigger::{loader, RuntimeConfig, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
 use tokio::runtime::Runtime;
 use url::Url;
-use wasmtime::OptLevel;
 
-const SPIN_ADDR: &str = "0.0.0.0:80";
+const SPIN_ADDR: &str = "0.0.0.0:3000";
 const SPIN_APPLICATION_MEDIA_TYPE: &str = "application/vnd.fermyon.spin.application.v1+config";
 
 enum AppSource {
@@ -59,14 +57,13 @@ impl SpinEngine {
         match source {
             AppSource::File => {
                 log::info!("loading from file");
-                let app = spin_loader::from_file(PathBuf::from("/spin.toml"), Some(working_dir.clone())).await.context("unable to find app file")?;
-                spin_trigger::locked::build_locked_app(app, &working_dir).context("couldn't build app")
+                spin_loader::from_file(PathBuf::from("/spin.toml"), FilesMountStrategy::Direct).await.context("unable to find app file")
             },
             AppSource::Oci => {
                 log::info!("loading from oci");
                 let oci_loader = spin_oci::OciLoader::new(working_dir);
                 let reference = "docker.io/library/wasmtest_spin:latest"; // todo maybe get that via annotations?
-                oci_loader.build_locked_app(PathBuf::from("/spin.json"), reference, cache).await
+                oci_loader.load_from_cache(PathBuf::from("/spin.json"), reference, cache).await
             },
         }
     }
@@ -95,7 +92,7 @@ impl SpinEngine {
             .hooks(StdioTriggerHook{})
             .config_mut()
             .wasmtime_config()
-            .cranelift_opt_level(OptLevel::Speed);
+            .cranelift_opt_level(spin_core::wasmtime::OptLevel::Speed);
         let init_data = Default::default();
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
@@ -107,10 +104,10 @@ impl SpinEngine {
         
         // TODO: can spin load all this without writing to disk? maybe in memory cache?
         let cache = Cache::new(Some(PathBuf::from("/"))).await.context("failed to create cache")?;
-        if let Some(artifacts) = ctx.oci_artifacts() {
-            info!(" >>> configuring spin oci application {}", artifacts.len());
+        if ctx.wasm_layers().len() > 0 {
+            info!(" >>> configuring spin oci application {}", ctx.wasm_layers().len());
             app_source = AppSource::Oci;
-            for artifact in artifacts.iter() {
+            for artifact in ctx.wasm_layers() {
                 match artifact.config.media_type() {
                     MediaType::Other(name) if name == SPIN_APPLICATION_MEDIA_TYPE => {
                         let path = PathBuf::from("/spin.json");
@@ -137,10 +134,10 @@ impl SpinEngine {
 
         let trigger = &app.metadata["trigger"];
         let trigger: ApplicationTrigger = serde_json::from_str(trigger.to_string().as_ref()).context("not able to parse trigger from locked")?;
-        info!(" >>> building spin trigger {:?}", trigger);
+        info!(" >>> building spin trigger {:?}", trigger.trigger_type);
 
-        let f = match trigger {
-            spin_manifest::ApplicationTrigger::Http(_config) => {
+        let f = match trigger.trigger_type.as_str() {
+            HttpTrigger::TRIGGER_TYPE => {
                 let http_trigger: HttpTrigger =
                     SpinEngine::build_spin_trigger(PathBuf::from("/"), app)
                         .await
@@ -152,7 +149,7 @@ impl SpinEngine {
                     tls_key: None,
                 })
             }
-            spin_manifest::ApplicationTrigger::Redis(_config) => {
+            RedisTrigger::TRIGGER_TYPE => {
                 let redis_trigger: RedisTrigger =
                     SpinEngine::build_spin_trigger(PathBuf::from("/"), app)
                         .await
