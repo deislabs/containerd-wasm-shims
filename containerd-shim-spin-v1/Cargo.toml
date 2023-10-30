@@ -14,13 +14,13 @@ Containerd shim for running Spin workloads.
 containerd-shim = "0.6.0"
 containerd-shim-wasm =  "0.4.0"
 log = "0.4"
-spin-trigger = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
-spin-trigger-http = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
-spin-redis-engine ={ git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
-spin-manifest = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
-spin-loader = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
-spin-app = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
-spin-oci = { git = "https://github.com/jsturtevant/spin", branch = "spin-oci" }
+spin-trigger = { git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
+spin-trigger-http = { git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
+spin-redis-engine ={ git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
+spin-manifest = { git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
+spin-loader = { git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
+spin-app = { git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
+spin-oci = { git = "https://github.com/jsturtevant/spin", rev = "1856ba8971f93beae5fe1f8e2e0961d7ad50d493" }
 wasmtime = "10.0.1"
 tokio = { version = "1", features = ["rt"] }
 openssl = { version = "*", features = ["vendored"] }

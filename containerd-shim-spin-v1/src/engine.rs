@@ -120,7 +120,7 @@ impl SpinEngine {
                             .write_all(&artifact.layer)
                             .context("failed to write spin.json")?;
                     },
-                    MediaType::Other(name) if name == WASM_LAYER_MEDIA_TYPE  => {
+                    MediaType::Other(name) if name == "application/vnd.wasm.content.layer.v1+wasm"  => {
                         log::info!("writing artifact config to cache, near {:?}", cache.manifests_dir());
                         cache.write_wasm(&artifact.layer, &artifact.config.digest()).await?;
                     },
