@@ -1,6 +1,6 @@
 [package]
 name = "containerd-shim-spin-v1"
-version = "0.9.1"
+version = "0.9.2"
 authors = ["DeisLabs Engineering Team"]
 edition = "2021"
 repository = 'https://github.com/deislabs/containerd-wasm-shims'
@@ -11,7 +11,7 @@ Containerd shim for running Spin workloads.
 """
 
 [dependencies]
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", rev = "5a0a47a9ad79f7ae19153897486b8621c8d6a58e" }
+containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", tag = "containerd-shim-wasm/v0.4.0" }
 log = "0.4"
 spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
 spin-core = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
