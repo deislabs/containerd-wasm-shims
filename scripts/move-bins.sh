@@ -29,7 +29,7 @@ default_shim_path="${bin_path}containerd-shim-"
 
 declare -A shims=(
     [slight]="${default_shim_path}slight-v1"
-    [spin]="${default_shim_path}spin-v1"
+    [spin]="${default_shim_path}spin-v2"
     [wws]="${default_shim_path}wws-v1"
     [lunatic]="${default_shim_path}lunatic-v1"
 )
