@@ -14,10 +14,12 @@ fn on_message(message: Bytes) -> Result<()> {
     let address = std::env::var(REDIS_ADDRESS_ENV)?;
     let channel = std::env::var(REDIS_CHANNEL_ENV)?;
 
+    let conn = redis::Connection::open(&address)?;
+
     println!("{}", from_utf8(&message)?);
     
     // Publish to Redis
-    redis::publish(&address, &channel, &message).unwrap();
+    conn.publish(&channel, &message.to_vec())?;
 
     Ok(())
 }
