@@ -1,5 +1,5 @@
 SHIMS = spin slight wws lunatic
-
+SPIN_VERSION = v2
 IMAGE_NAME ?= k3swithshims
 CLUSTER_NAME ?= k3s-default
 PLATFORM ?= linux/amd64
@@ -15,8 +15,10 @@ compile-musl-%:
 
 move-musl-to-tmp: $(addprefix compile-musl-,$(SHIMS))
 	mkdir -p ./.tmp
-	$(foreach shim,$(SHIMS),cp ../../containerd-shim-$(shim)-v1/target/$(TARGET)/release/containerd-shim-*-v1 ./.tmp/;)
-
+	cp ../../containerd-shim-spin/target/$(TARGET)/release/containerd-shim-spin-$(SPIN_VERSION) ./.tmp/
+	cp ../../containerd-shim-slight/target/$(TARGET)/release/containerd-shim-slight-v1 ./.tmp/
+	cp ../../containerd-shim-wws/target/$(TARGET)/release/containerd-shim-wws-v1 ./.tmp/
+	cp ../../containerd-shim-lunatic/target/$(TARGET)/release/containerd-shim-lunatic-v1 ./.tmp/
 
 build-multi-k3d-image: move-musl-to-tmp
 	docker buildx build -t $(IMAGE_NAME) --platform linux/amd64,linux/arm64 .

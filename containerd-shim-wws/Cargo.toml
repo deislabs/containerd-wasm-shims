@@ -14,7 +14,7 @@ Containerd shim for running Wasm Workers Server workloads.
 
 [dependencies]
 anyhow = "1.0"
-containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", tag = "containerd-shim-wasm/v0.4.0" }
+containerd-shim-wasm = { git = "https://github.com/mossaka/runwasi", rev = "25ff925e9b2c50d1d72b79a3003b381a599c0b65" }
 wasm-workers-server = { git = "https://github.com/vmware-labs/wasm-workers-server", tag = "v1.7.0" }
 log = "0.4"
 tokio = { version = "1", features = [ "full" ] }
