@@ -5,5 +5,5 @@ mod common;
 mod engine;
 
 fn main() {
-    shim_main::<Instance<engine::LunaticEngine>>("lunatic", version!(), revision!(), None);
+    shim_main::<Instance<engine::LunaticEngine>>("lunatic", version!(), revision!(), None, None);
 }
