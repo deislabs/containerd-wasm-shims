@@ -13,19 +13,22 @@ Containerd shim for running Spin workloads.
 [dependencies]
 containerd-shim-wasm = { git = "https://github.com/containerd/runwasi", tag = "containerd-shim-wasm/v0.4.0" }
 log = "0.4"
-spin-app = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-core = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-trigger-http = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-redis-engine = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-spin-loader = { git = "https://github.com/fermyon/spin", tag = "v1.5.0" }
-wasmtime = "10.0.1"
+spin-app = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-core = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-trigger-http = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-redis-engine = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-loader = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-oci = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-common = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+wasmtime = "14.0.4"
 tokio = { version = "1", features = ["rt"] }
 openssl = { version = "*", features = ["vendored"] }
 serde = "1.0"
 serde_json = "1.0"
 url = "2.3"
 anyhow = "1.0"
+
 
 [workspace]
