@@ -55,8 +55,7 @@ impl SpinEngine {
         let resolved_app_source = self.resolve_app_source(app_source.clone())?;
         let trigger_cmd = trigger_command_for_resolved_app_source(&resolved_app_source)
             .with_context(|| format!("Couldn't find trigger executor for {app_source:?}"))?;
-        let mut locked_app = self.load_resolved_app_source(resolved_app_source).await?;
-        self.update_locked_app(&mut locked_app); // no-op for now
+        let locked_app = self.load_resolved_app_source(resolved_app_source).await?;
         self.run_trigger(&trigger_cmd, locked_app).await
     }
 
@@ -102,6 +101,9 @@ impl SpinEngine {
                 let files_mount_strategy = FilesMountStrategy::Direct;
 
                 // create a cache directory at /.cache
+                // this is needed for the spin LocalLoader to work
+                // TODO: spin should provide a more flexible `loader::from_file` that
+                // does not assume the existance of a cache directory
                 let cache_dir = PathBuf::from("/.cache");
                 env::set_var("XDG_CACHE_HOME", &cache_dir);
 
@@ -115,10 +117,6 @@ impl SpinEngine {
             }
             ResolvedAppSource::OciRegistry { locked_app } => Ok(locked_app),
         }
-    }
-
-    fn update_locked_app(&self, _locked_app: &mut LockedApp) {
-        // TODO: Apply --env to component environments
     }
 
     async fn write_locked_app(&self, locked_app: &LockedApp, working_dir: &Path) -> Result<String> {
@@ -187,6 +185,7 @@ fn parse_addr(addr: &str) -> Result<SocketAddr> {
     Ok(addrs)
 }
 
+// TODO: we should use spin's ResolvedAppSource
 pub enum ResolvedAppSource {
     File {
         manifest_path: PathBuf,
