@@ -12,7 +12,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
-            "containerd-shim-*-v1 -> target"
+            "containerd-shim-* -> target"
       - name: "Install dependencies"
         run: |
           sudo apt-get update
@@ -37,7 +37,7 @@ jobs:
       - name: Extract containerd-wasm-shims-v1-linux-${{ env.ARCH }}
         run: |
           mkdir -p ./bin
-          for f in containerd-wasm-shims-v1-*-linux-${{ env.ARCH }}/containerd-wasm-shims-v1-*-linux-${{ env.ARCH }}.tar.gz
+          for f in containerd-wasm-shims-*-*-linux-${{ env.ARCH }}/containerd-wasm-shims-*-*-linux-${{ env.ARCH }}.tar.gz
             do tar -xzf "$f" -C ./bin
           done
       - name: install k3d

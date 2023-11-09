@@ -24,7 +24,7 @@ test: unit-tests integration-tests
 
 .PHONY: unit-tests
 unit-tests: build
-	$(foreach shim,$(SHIMS),cross test --release --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml --target $(TARGET);)
+	$(foreach shim,$(SHIMS),cross test --release --manifest-path=containerd-shim-$(shim)/Cargo.toml --target $(TARGET);)
 
 .PHONY: check-bins
 check-bins:
@@ -56,8 +56,8 @@ test/clean:
 
 .PHONY: fmt
 fmt:
-	$(foreach shim,$(SHIMS),cargo fmt --all --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml -- --check;)
-	$(foreach shim,$(SHIMS),cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-$(shim)-v1/Cargo.toml -- -D warnings;)	
+	$(foreach shim,$(SHIMS),cargo fmt --all --manifest-path=containerd-shim-$(shim)/Cargo.toml -- --check;)
+	$(foreach shim,$(SHIMS),cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-$(shim)/Cargo.toml -- -D warnings;)	
 	cargo fmt --all -- --check
 	cargo clippy --all-targets --all-features --workspace -- --deny=warnings
 
@@ -73,15 +73,15 @@ install-cross:
 .PHONY: $(BUILD_TARGETS)
 $(BUILD_TARGETS): SHIM = $(word 2,$(subst -, ,$@))
 $(BUILD_TARGETS): install-cross
-	cross build --release --target $(TARGET) --manifest-path=containerd-shim-$(SHIM)-v1/Cargo.toml $(VERBOSE_FLAG)
+	cross build --release --target $(TARGET) --manifest-path=containerd-shim-$(SHIM)/Cargo.toml $(VERBOSE_FLAG)
 
 .PHONY: build-%
 build-%:
-	cargo build --release --manifest-path=containerd-shim-$*-v1/Cargo.toml
+	cargo build --release --manifest-path=containerd-shim-$*/Cargo.toml
 
 .PHONY: install
 install: $(foreach shim,$(SHIMS),build-$(shim))
-	sudo $(INSTALL) containerd-shim-*/target/release/containerd-shim-*-v1 $(PREFIX)/bin
+	sudo $(INSTALL) containerd-shim-*/target/release/containerd-shim-* $(PREFIX)/bin
 
 .PHONY: update-deps
 update-deps:
@@ -105,9 +105,9 @@ run_%: install load
 
 .PHONY: clean
 clean: $(addprefix clean-,$(SHIMS))
-	$(foreach shim,$(SHIMS),test -f $(PREFIX)/bin/containerd-shim-$(shim)-v1 && sudo rm -rf $(PREFIX)/bin/containerd-shim-$(proj)-v1 || true;)
+	$(foreach shim,$(SHIMS),test -f $(PREFIX)/bin/containerd-shim-$(shim)-* && sudo rm -rf $(PREFIX)/bin/containerd-shim-$(proj)-* || true;)
 	test -d ./test && sudo rm -rf ./test || true
 
 .PHONY: clean-%
 clean-%:
-	cargo clean --manifest-path containerd-shim-$*-v1/Cargo.toml
+	cargo clean --manifest-path containerd-shim-$*/Cargo.toml

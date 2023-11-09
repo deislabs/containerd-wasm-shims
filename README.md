@@ -29,7 +29,7 @@ As mentioned above, this project uses runwasi's `containerd-shim-wasm` to build 
 ## Quickstarts
 
 - [Start k3d and run a sample WASM application](./deployments/k3d/README.md#how-to-run-the-example).
-- [Create a Spin application on k3d](./containerd-shim-spin-v1/quickstart.md)
+- [Create a Spin application on k3d](./containerd-shim-spin-v2/quickstart.md)
 - [Deploy a SpiderLightning application with k3d](./containerd-shim-slight-v1/quickstart.md)
 - [Deploy a Wasm Workers Server application with k3d](./containerd-shim-slight-v1/quickstart.md)
 
@@ -53,12 +53,12 @@ In [the deployments directory](deployments) you will find examples of deploying 
 
 To use one of these containerd shims in Kubernetes, you must do the following:
 
-1. Install the shim binary somewhere on the path of your Kubernetes worker nodes. For example, copy `containerd-shim-spin-v1` to `/bin`.
+1. Install the shim binary somewhere on the path of your Kubernetes worker nodes. For example, copy `containerd-shim-spin-v2` to `/bin`.
 2. Add the following to the containerd config.toml that maps the runtime type to the shim binary from step 1.
 
 ```toml
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.spin]
-  runtime_type = "io.containerd.spin.v1"
+  runtime_type = "io.containerd.spin.v2"
 ```
 
 3. Apply a runtime class that contains a handler that matches the "spin" config runtime name from step 2.

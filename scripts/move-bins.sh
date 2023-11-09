@@ -20,28 +20,29 @@
 set -euo pipefail
 
 target="${2:-x86_64-unknown-linux-musl}"
-release_pattern="${1:-containerd-shim-%s-v1/target/$target/release}"
+release_pattern="${1:-containerd-shim-%s/target/$target/release}"
 
 dockerfile_path="deployments/k3d"
 bin_path="${dockerfile_path}/.tmp/"
 cluster_name="test-cluster"
-default_shim_path="${bin_path}containerd-shim-"
 
 declare -A shims=(
-    [slight]="${default_shim_path}slight-v1"
-    [spin]="${default_shim_path}spin-v1"
-    [wws]="${default_shim_path}wws-v1"
-    [lunatic]="${default_shim_path}lunatic-v1"
+    [slight]="v1"
+    [spin]="v2"
+    [wws]="v1"
+    [lunatic]="v1"
 )
 
 mkdir -p "$bin_path"
 
 for shim_key in "${!shims[@]}"; do
-    shim_path=${shims[$shim_key]}
+    version=${shims[$shim_key]}
+    release_bin="containerd-shim-${shim_key}-${version}"
+    shim_path="${bin_path}${release_bin}"
     release_path=$(printf "$release_pattern" "$shim_key")
 
     if [ ! -f "$shim_path" ]; then
-        echo ">>> install containerd-shim-${shim_key}-v1 from $release_path"
-        cp "$(eval echo $release_path)/containerd-shim-${shim_key}-v1" "${bin_path}containerd-shim-${shim_key}-v1"
+        echo ">>> install $release_bin from $release_path"
+        cp "$release_path/$release_bin" "$shim_path"
     fi
 done

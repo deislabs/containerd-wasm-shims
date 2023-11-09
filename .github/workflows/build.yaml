@@ -17,7 +17,23 @@ jobs:
               os: "ubuntu-latest",
               arch: "aarch64"
             }
-        shims: [slight, spin, wws, lunatic]
+        shims: 
+          - {
+              name: "slight",
+              version: "v1", 
+            }
+          - {
+              name: "spin",
+              version: "v2", 
+            }
+          - {
+              name: "wws",
+              version: "v1", 
+            }
+          - {
+              name: "lunatic",
+              version: "v1", 
+            }
     env:
       ARCH: ${{ matrix.config.arch }}
     steps:
@@ -25,17 +41,17 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: |
-            "containerd-shim-*-v1 -> target"
+            "containerd-shim-* -> target"
       - name: "Install dependencies"
         run: |
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler libseccomp-dev
-      - name: build ${{ matrix.shims }}
+      - name: build ${{ matrix.shims.name }}
         run: |
-          VERBOSE=1 make build SHIMS=${{ matrix.shims }}
-      - name: unit tests ${{ matrix.shims }}
+          VERBOSE=1 make build SHIMS=${{ matrix.shims.name }}
+      - name: unit tests ${{ matrix.shims.name }}
         run: |
-          VERBOSE=1 make unit-tests  SHIMS=${{ matrix.shims }}
+          VERBOSE=1 make unit-tests  SHIMS=${{ matrix.shims.name }}
       - name: lowercase the runner OS name
         shell: bash
         run: |
@@ -44,12 +60,12 @@ jobs:
       - name: package release assets
         run: |
           mkdir _dist
-          cp containerd-shim-*-v1/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-v1 _dist/
+          cp containerd-shim-*/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-${{ matrix.shims.version }} _dist/
           cd _dist
-          tar czf containerd-wasm-shims-v1-${{ matrix.shims }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-v1
+          tar czf containerd-wasm-shims-${{ matrix.shims.version }}-${{ matrix.shims.name }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-${{ matrix.shims.version }}
       - name: upload shim artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: containerd-wasm-shims-v1-${{ matrix.shims }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}
-          path: _dist/containerd-wasm-shims-v1-${{ matrix.shims }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz
+          name: containerd-wasm-shims-${{ matrix.shims.version }}-${{ matrix.shims.name }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}
+          path: _dist/containerd-wasm-shims-${{ matrix.shims.version }}-${{ matrix.shims.name }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz
           retention-days: 5
