@@ -13,6 +13,7 @@ use spin_trigger_http::HttpTrigger;
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
+use std::env;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::{Path, PathBuf};
@@ -113,7 +114,7 @@ impl SpinEngine {
                 let working_dir = PathBuf::from("/");
                 let loader = spin_oci::OciLoader::new(working_dir);
 
-                //todo
+                // TODO: what is the best way to get this info? It isn't used only saved in the locked file
                 let reference = "docker.io/library/wasmtest_spin:latest";
 
                 let locked_app = loader
@@ -127,10 +128,14 @@ impl SpinEngine {
 
     async fn wasm_exec_async(&self, ctx: &impl RuntimeContext) -> Result<()> {
         // create a cache directory at /.cache
-        // this is needed for the spin Loaders to work
-        let cache = Cache::new(Some(PathBuf::from("/.cache")))
+        // this is needed for the spin LocalLoader to work
+        // TODO: spin should provide a more flexible `loader::from_file` that
+        // does not assume the existence of a cache directory
+        let cache_dir = PathBuf::from("/.cache");
+        let cache = Cache::new(Some(cache_dir.clone()))
             .await
             .context("failed to create cache")?;
+        env::set_var("XDG_CACHE_HOME", &cache_dir);
         let app_source = self.app_source(ctx, &cache).await?;
         let resolved_app_source = self.resolve_app_source(app_source.clone(), &cache).await?;
         let trigger_cmd = trigger_command_for_resolved_app_source(&resolved_app_source)
@@ -230,10 +235,9 @@ impl Engine for SpinEngine {
     }
 
     fn run_wasi(&self, ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
-        info!("setting up wasi");
         stdio.redirect()?;
+        info!("setting up wasi");
         let rt = Runtime::new().context("failed to create runtime")?;
-
         rt.block_on(self.wasm_exec_async(ctx))?;
         Ok(0)
     }
