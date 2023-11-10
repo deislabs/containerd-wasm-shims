@@ -1,7 +1,9 @@
 use anyhow::{anyhow, ensure, Context, Result};
 use containerd_shim_wasm::container::{Engine, RuntimeContext, Stdio};
 use log::info;
+use oci_spec::image::MediaType;
 use spin_app::locked::LockedApp;
+use spin_loader::cache::Cache;
 use spin_loader::FilesMountStrategy;
 use spin_manifest::schema::v2::AppManifest;
 use spin_redis_engine::RedisTrigger;
@@ -9,7 +11,8 @@ use spin_trigger::TriggerHooks;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
 use std::collections::HashSet;
-use std::env;
+use std::fs::File;
+use std::io::Write;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::{Path, PathBuf};
@@ -38,21 +41,98 @@ impl TriggerHooks for StdioTriggerHook {
     }
 }
 
+#[derive(Clone)]
+enum AppSource {
+    File(PathBuf),
+    Oci,
+}
+
+impl std::fmt::Debug for AppSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AppSource::File(path) => write!(f, "File({})", path.display()),
+            AppSource::Oci => write!(f, "Oci"),
+        }
+    }
+}
+
 impl SpinEngine {
-    fn app_source(&self) -> Result<PathBuf> {
-        spin_common::paths::resolve_manifest_file_path("/spin.toml")
+    async fn app_source(&self, ctx: &impl RuntimeContext, cache: &Cache) -> Result<AppSource> {
+        match ctx.wasm_layers() {
+            [] => Ok(AppSource::File(
+                spin_common::paths::resolve_manifest_file_path("/spin.toml")?,
+            )),
+            layers => {
+                info!(
+                    " >>> configuring spin oci application {}",
+                    ctx.wasm_layers().len()
+                );
+
+                for artifact in layers {
+                    match artifact.config.media_type() {
+                        MediaType::Other(name)
+                            if name == spin_oci::client::SPIN_APPLICATION_MEDIA_TYPE =>
+                        {
+                            let path = PathBuf::from("/spin.json");
+                            log::info!("writing spin oci config to {:?}", path);
+                            File::create(&path)
+                                .context("failed to create spin.json")?
+                                .write_all(&artifact.layer)
+                                .context("failed to write spin.json")?;
+                        }
+                        MediaType::Other(name)
+                            if name == "application/vnd.wasm.content.layer.v1+wasm" =>
+                        {
+                            log::info!(
+                                "writing artifact config to cache, near {:?}",
+                                cache.manifests_dir()
+                            );
+                            cache
+                                .write_wasm(&artifact.layer, &artifact.config.digest())
+                                .await?;
+                        }
+                        _ => {}
+                    }
+                }
+                Ok(AppSource::Oci)
+            }
+        }
     }
 
-    fn resolve_app_source(&self, app_source: PathBuf) -> Result<ResolvedAppSource> {
-        Ok(ResolvedAppSource::File {
-            manifest_path: app_source.clone(),
-            manifest: spin_manifest::manifest_from_file(app_source)?,
-        })
+    async fn resolve_app_source(
+        &self,
+        app_source: AppSource,
+        cache: &Cache,
+    ) -> Result<ResolvedAppSource> {
+        let resolve_app_source = match app_source {
+            AppSource::File(source) => ResolvedAppSource::File {
+                manifest_path: source.clone(),
+                manifest: spin_manifest::manifest_from_file(source.clone())?,
+            },
+            AppSource::Oci => {
+                let working_dir = PathBuf::from("/");
+                let loader = spin_oci::OciLoader::new(working_dir);
+
+                //todo
+                let reference = "docker.io/library/wasmtest_spin:latest";
+
+                let locked_app = loader
+                    .load_from_cache(PathBuf::from("/spin.json"), reference, cache)
+                    .await?;
+                ResolvedAppSource::OciRegistry { locked_app }
+            }
+        };
+        Ok(resolve_app_source)
     }
 
-    async fn wasm_exec_async(&self) -> Result<()> {
-        let app_source = self.app_source()?;
-        let resolved_app_source = self.resolve_app_source(app_source.clone())?;
+    async fn wasm_exec_async(&self, ctx: &impl RuntimeContext) -> Result<()> {
+        // create a cache directory at /.cache
+        // this is needed for the spin Loaders to work
+        let cache = Cache::new(Some(PathBuf::from("/.cache")))
+            .await
+            .context("failed to create cache")?;
+        let app_source = self.app_source(ctx, &cache).await?;
+        let resolved_app_source = self.resolve_app_source(app_source.clone(), &cache).await?;
         let trigger_cmd = trigger_command_for_resolved_app_source(&resolved_app_source)
             .with_context(|| format!("Couldn't find trigger executor for {app_source:?}"))?;
         let locked_app = self.load_resolved_app_source(resolved_app_source).await?;
@@ -99,20 +179,6 @@ impl SpinEngine {
             ResolvedAppSource::File { manifest_path, .. } => {
                 // TODO: This should be configurable, see https://github.com/deislabs/containerd-wasm-shims/issues/166
                 let files_mount_strategy = FilesMountStrategy::Direct;
-
-                // create a cache directory at /.cache
-                // this is needed for the spin LocalLoader to work
-                // TODO: spin should provide a more flexible `loader::from_file` that
-                // does not assume the existance of a cache directory
-                let cache_dir = PathBuf::from("/.cache");
-                env::set_var("XDG_CACHE_HOME", &cache_dir);
-
-                if !cache_dir.exists() {
-                    tokio::fs::create_dir_all(&cache_dir)
-                        .await
-                        .with_context(|| format!("failed to create {:?}", cache_dir))?;
-                }
-
                 spin_loader::from_file(&manifest_path, files_mount_strategy).await
             }
             ResolvedAppSource::OciRegistry { locked_app } => Ok(locked_app),
@@ -163,12 +229,12 @@ impl Engine for SpinEngine {
         "spin"
     }
 
-    fn run_wasi(&self, _ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
+    fn run_wasi(&self, ctx: &impl RuntimeContext, stdio: Stdio) -> Result<i32> {
         info!("setting up wasi");
         stdio.redirect()?;
         let rt = Runtime::new().context("failed to create runtime")?;
 
-        rt.block_on(self.wasm_exec_async())?;
+        rt.block_on(self.wasm_exec_async(ctx))?;
         Ok(0)
     }
 
@@ -202,9 +268,11 @@ impl ResolvedAppSource {
             ResolvedAppSource::File { manifest, .. } => {
                 manifest.triggers.keys().collect::<HashSet<_>>()
             }
-            ResolvedAppSource::OciRegistry { locked_app: _ } => {
-                todo!("OCI not yet supported")
-            }
+            ResolvedAppSource::OciRegistry { locked_app } => locked_app
+                .triggers
+                .iter()
+                .map(|t| &t.trigger_type)
+                .collect::<HashSet<_>>(),
         };
 
         ensure!(!types.is_empty(), "no triggers in app");
