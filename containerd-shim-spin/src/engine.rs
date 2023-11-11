@@ -17,6 +17,10 @@ use tokio::runtime::Runtime;
 use url::Url;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
+/// RUNTIME_CONFIG_PATH specifies the expected location and name of the runtime
+/// config for a Spin application. The runtime config should be loaded into the
+/// root `/` of the container.
+const RUNTIME_CONFIG_PATH: &str = "/runtime-config.toml";
 
 #[derive(Clone, Default)]
 pub struct SpinEngine;
@@ -145,7 +149,11 @@ impl SpinEngine {
 
         // Build trigger config
         let loader = loader::TriggerLoader::new(working_dir.clone(), true);
-        let runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
+        let mut runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
+        // Load in runtime config if one exists at expected location
+        if Path::new(RUNTIME_CONFIG_PATH).exists() {
+            runtime_config.merge_config_file(RUNTIME_CONFIG_PATH);
+        }
         let mut builder = TriggerExecutorBuilder::new(loader);
         builder
             .hooks(StdioTriggerHook {})
