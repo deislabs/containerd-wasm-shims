@@ -41,8 +41,6 @@ To build the shims in this project, run `make build`.
 
 To run the integration tests, run `make integration-tests`.
 
-### Cleaning up
-
 To clean up, run `make tests/clean`.
 
 ## Example Kubernetes Cluster Deployments

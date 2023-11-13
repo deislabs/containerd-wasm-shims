@@ -81,6 +81,79 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: spin-keyvalue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spin-keyvalue
+  template:
+    metadata:
+      labels:
+        app: spin-keyvalue
+    spec:
+      runtimeClassName: wasmtime-spin
+      containers:
+        - name: keyvalue
+          image: docker.io/library/spin-keyvalue:latest
+          command: ["/"]
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spin-keyvalue
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: spin-keyvalue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spin-outbound-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spin-outbound-redis
+  template:
+    metadata:
+      labels:
+        app: spin-outbound-redis
+    spec:
+      runtimeClassName: wasmtime-spin
+      containers:
+        - name: outbound-redis
+          image: docker.io/library/spin-outbound-redis:latest
+          command: ["/"]
+          imagePullPolicy: IfNotPresent
+          env:
+          - name: SPIN_VARIABLE_REDIS_ADDRESS
+            value: redis://redis-service.default.svc.cluster.local:6379
+          - name: SPIN_VARIABLE_REDIS_CHANNEL
+            value: test
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spin-outbound-redis
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: spin-outbound-redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: wasm-wws
 spec:
   replicas: 1
@@ -170,6 +243,8 @@ spec:
       - /slight
       - /wws
       - /lunatic
+      - /outboundredis
+      - /keyvalue
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -209,5 +284,19 @@ spec:
             backend:
               service:
                 name: wasm-lunatic
+                port:
+                  number: 80
+          - path: /keyvalue
+            pathType: Prefix
+            backend:
+              service:
+                name: spin-keyvalue
+                port:
+                  number: 80
+          - path: /outboundredis
+            pathType: Prefix
+            backend:
+              service:
+                name: spin-outbound-redis
                 port:
                   number: 80

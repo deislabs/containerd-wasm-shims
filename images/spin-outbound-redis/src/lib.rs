@@ -3,24 +3,15 @@ use spin_sdk::{
     http::responses::internal_server_error,
     http::{IntoResponse, Request, Response},
     http_component, redis,
+    variables,
 };
-
-
-const REDIS_ADDRESS_ENV: &str = "REDIS_ADDRESS";
-const REDIS_CHANNEL_ENV: &str = "REDIS_CHANNEL";
 
 #[http_component]
 fn hello_world(_req: Request) -> Result<impl IntoResponse> {
-    let address = std::env::var(REDIS_ADDRESS_ENV)?;
-    let channel = std::env::var(REDIS_CHANNEL_ENV)?;
+    let address = variables::get("redis_address").expect("could not get variable");
+    let channel = variables::get("redis_channel").expect("could not get variable");
 
     let conn = redis::Connection::open(&address)?;
-
-    // Get the message to publish from the Redis key "mykey"
-    let payload = conn
-        .get("mykey")
-        .map_err(|_| anyhow!("Error querying Redis"))?
-        .context("no value for key 'mykey'")?;
 
     // Set the Redis key "spin-example" to value "Eureka!"
     conn.set("spin-example", &"Eureka!".to_owned().into_bytes())
@@ -33,6 +24,12 @@ fn hello_world(_req: Request) -> Result<impl IntoResponse> {
         .incr("int-key")
         .map_err(|_| anyhow!("Error executing Redis incr command",))?;
     assert_eq!(int_value, 1);
+
+    // Get the Redis key "spin-example"
+    let payload = conn
+        .get("spin-example")
+        .map_err(|_| anyhow!("Error querying Redis"))?
+        .context("no value for key 'mykey'")?;
 
     // Publish to Redis
     match conn.publish(&channel, &payload) {

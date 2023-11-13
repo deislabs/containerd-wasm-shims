@@ -1,13 +1,23 @@
-spin_version = "1"
+spin_manifest_version = 2
+
+[application]
 authors = ["Suneet Nangia <suneetnangia@gmail.com>"]
-name = "spin-hello"
-trigger = { type = "redis", address = "redis:/localhost:6379" }
+name = "spin-inbound-redis"
 version = "1.0.0"
 
-[[component]]
-environment = { REDIS_ADDRESS = "redis://localhost:6379", REDIS_CHANNEL = "messages-out" }
-id = "hello"
+[variables]
+redis_address = { required = true }
+redis_channel = { required = true }
+
+[[trigger.redis]]
+address = "redis://redis-service.default.svc.cluster.local:6379"
+component = "hello"
+
+[component.hello]
 source = "spin_inbound_redis.wasm"
-allowed_http_hosts = []
-[component.trigger]
-channel = "messages-in"
+allowed_outbound_hosts = ["redis://*:*"]
+
+[component.hello.variables]
+redis_address = "{{ redis_address }}"
+redis_channel = "{{ redis_channel }}"
+

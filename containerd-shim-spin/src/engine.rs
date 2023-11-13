@@ -223,7 +223,7 @@ impl SpinEngine {
         let mut runtime_config = RuntimeConfig::new(PathBuf::from("/").into());
         // Load in runtime config if one exists at expected location
         if Path::new(RUNTIME_CONFIG_PATH).exists() {
-            runtime_config.merge_config_file(RUNTIME_CONFIG_PATH);
+            runtime_config.merge_config_file(RUNTIME_CONFIG_PATH)?;
         }
         let mut builder = TriggerExecutorBuilder::new(loader);
         builder
