@@ -1,6 +1,6 @@
 [package]
 name = "spin-rust-hello"
-version = "0.9.3"
+version = "0.10.0"
 authors = ["DeisLabs Engineering Team"]
 edition = "2021"
 
