@@ -980,6 +980,7 @@ dependencies = [
  "anyhow",
  "containerd-shim-wasm",
  "log",
+ "oci-spec",
  "openssl",
  "serde",
  "serde_json",

@@ -61,6 +61,13 @@ fmt:
 	cargo fmt --all -- --check
 	cargo clippy --all-targets --all-features --workspace -- --deny=warnings
 
+.PHONY: fix
+fix:
+	$(foreach shim,$(SHIMS),cargo fmt --all --manifest-path=containerd-shim-$(shim)/Cargo.toml;)
+	$(foreach shim,$(SHIMS),cargo clippy --all-targets --all-features --workspace --manifest-path=containerd-shim-$(shim)/Cargo.toml --fix -- -D warnings;)	
+	cargo fmt --all
+	cargo clippy --all-targets --all-features --workspace --fix -- --deny=warnings
+
 .PHONY: build
 build: $(foreach shim,$(SHIMS),build-$(shim)-cross-$(TARGET))
 	echo "Build complete"

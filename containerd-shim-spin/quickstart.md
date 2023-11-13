@@ -122,6 +122,13 @@ Return to the terminal window running `spin up` and stop the application.
 
 ## Create a container image for the application
 
+You have two choices for publishing spin apps.  The steps to deploy are the same afterwards.
+
+- [Container image](#creating-a-container-image) - use `docker build` to build a container image. This is a standard container image with the Spin application files in the root directory.
+- [OCI WASM image](#creating-an-oci-wasm-image) - use `spin registry push` to [publish to OCI registry](https://developer.fermyon.com/spin/v2/distributing-apps#publishing-a-spin-application-to-a-registry). This is a WASM specific image format that contains custom layers for the spin files.  Requires Spin 2.0+ and containerd 1.7.7+.
+
+### Creating a container image
+
 Create a `Dockerfile` at the root of the application directory with the following:
 
 ```dockerfile
@@ -148,8 +155,17 @@ source = "qs_wasm_spin.wasm"
 Use `docker` to build the container image and push it to the k3d registry:
 
 ```bash
-docker buildx build --platform=wasi/wasm -t localhost:12345/qs-wasm-spin .
-docker push localhost:12345/qs-wasm-spin:latest
+docker buildx build --platform=wasi/wasm -t localhost:5000/qs-wasm-spin .
+docker push localhost:5000/qs-wasm-spin:latest
+```
+
+### Creating a OCI WASM Image
+
+It is possible to publish spin applications to [OCI registries](https://developer.fermyon.com/spin/v2/distributing-apps). 
+
+```
+# must be spin 2.0
+spin registry push localhost:5000/spin-wasm-shim:latest-2.0
 ```
 
 ## Deploy the application
