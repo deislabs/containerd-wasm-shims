@@ -165,7 +165,7 @@ It is possible to publish spin applications to [OCI registries](https://develope
 
 ```
 # must be spin 2.0
-spin registry localhost:5000/spin-wasm-shim:latest-2.0
+spin registry push localhost:5000/spin-wasm-shim:latest-2.0
 ```
 
 ## Deploy the application
