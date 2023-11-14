@@ -68,8 +68,7 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:${{ env.RELEASE_VERSION }}
-            ghcr.io/deislabs/containerd-wasm-shims/${{ matrix.image.imageName }}:latest
+            ghcr.io/${{ github.repository }}/${{ matrix.image.imageName }}:${{ env.RELEASE_VERSION }}
+            ghcr.io/${{ github.repository }}/${{ matrix.image.imageName }}:latest
           context: ${{ matrix.image.context }}
           platforms: wasi/wasm
-      

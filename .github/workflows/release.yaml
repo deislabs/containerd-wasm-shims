@@ -59,7 +59,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       # Build and push k3d shim image
       - name: untar musl artifacts into ./deployments/k3d/.tmp/linux/(amd64|arm64) dir
         run: |
@@ -72,8 +72,8 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:${{ env.RELEASE_VERSION }}
-            ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:latest
+            ghcr.io/${{ github.repository }}/examples/k3d:${{ env.RELEASE_VERSION }}
+            ghcr.io/${{ github.repository }}/examples/k3d:latest
           context: deployments/k3d
           platforms: linux/amd64,linux/arm64
           build-args: |
