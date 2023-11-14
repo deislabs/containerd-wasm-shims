@@ -12,7 +12,7 @@ anyhow = "1"
 bytes = "1"
 http = "0.2" 
 # Do not change spin sdk version without testing the e2e.
-spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v2.0.0" }
+spin-sdk = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
 
 [workspace]
 

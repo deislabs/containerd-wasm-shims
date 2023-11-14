@@ -995,7 +995,7 @@ dependencies = [
  "spin-trigger-http",
  "tokio",
  "url",
- "wasmtime",
+ "wasmtime 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -1067,7 +1067,15 @@ version = "0.101.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b5bb9245ec7dcc04d03110e538d31f0969d301c9d673145f4b4d5c3478539a3"
 dependencies = [
- "cranelift-entity",
+ "cranelift-entity 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "cranelift-bforest"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cranelift-entity 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -1077,12 +1085,32 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebb18d10e5ddac43ba4ca8fd4e310938569c3e484cc01b6372b27dc5bb4dfd28"
 dependencies = [
  "bumpalo",
- "cranelift-bforest",
- "cranelift-codegen-meta",
- "cranelift-codegen-shared",
- "cranelift-control",
- "cranelift-entity",
- "cranelift-isle",
+ "cranelift-bforest 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-codegen-meta 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-codegen-shared 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-control 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-entity 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-isle 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gimli",
+ "hashbrown 0.14.2",
+ "log",
+ "regalloc2",
+ "smallvec",
+ "target-lexicon",
+]
+
+[[package]]
+name = "cranelift-codegen"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "bumpalo",
+ "cranelift-bforest 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-codegen-meta 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-codegen-shared 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-control 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-entity 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-isle 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "gimli",
  "hashbrown 0.14.2",
  "log",
@@ -1097,7 +1125,15 @@ version = "0.101.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a3ce6d22982c1b9b6b012654258bab1a13947bb12703518bef06b1a4867c3d6"
 dependencies = [
- "cranelift-codegen-shared",
+ "cranelift-codegen-shared 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "cranelift-codegen-meta"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cranelift-codegen-shared 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -1107,10 +1143,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47220fd4f9a0ce23541652b6f16f83868d282602c600d14934b2a4c166b4bd80"
 
 [[package]]
+name = "cranelift-codegen-shared"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+
+[[package]]
 name = "cranelift-control"
 version = "0.101.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5a4c42672aea9b6e820046b52e47a1c05d3394a6cdf4cb3c3c4b702f954bd2"
+dependencies = [
+ "arbitrary",
+]
+
+[[package]]
+name = "cranelift-control"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "arbitrary",
 ]
@@ -1126,12 +1175,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "cranelift-entity"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "serde",
+ "serde_derive",
+]
+
+[[package]]
 name = "cranelift-frontend"
 version = "0.101.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33ec537d0f0b8e084517f3e7bfa1d89af343d7c7df455573fca9f272d4e01267"
 dependencies = [
- "cranelift-codegen",
+ "cranelift-codegen 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log",
+ "smallvec",
+ "target-lexicon",
+]
+
+[[package]]
+name = "cranelift-frontend"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "log",
  "smallvec",
  "target-lexicon",
@@ -1144,12 +1213,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "45bab6d69919d210a50331d35cc6ce111567bc040aebac63a8ae130d0400a075"
 
 [[package]]
+name = "cranelift-isle"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+
+[[package]]
 name = "cranelift-native"
 version = "0.101.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f32e81605f352cf37af5463f11cd7deec7b6572741931a8d372f7fdd4a744f5d"
 dependencies = [
- "cranelift-codegen",
+ "cranelift-codegen 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc",
+ "target-lexicon",
+]
+
+[[package]]
+name = "cranelift-native"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "libc",
  "target-lexicon",
 ]
@@ -1160,14 +1244,29 @@ version = "0.101.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0edaa4cbec1bc787395c074233df2652dd62f3e29d3ee60329514a0a51e6b045"
 dependencies = [
- "cranelift-codegen",
- "cranelift-entity",
- "cranelift-frontend",
+ "cranelift-codegen 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-entity 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-frontend 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "itertools 0.10.5",
  "log",
  "smallvec",
  "wasmparser 0.115.0",
- "wasmtime-types",
+ "wasmtime-types 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "cranelift-wasm"
+version = "0.101.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-entity 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-frontend 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "itertools 0.10.5",
+ "log",
+ "smallvec",
+ "wasmparser 0.115.0",
+ "wasmtime-types 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -3481,8 +3580,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-http"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "http",
@@ -3499,8 +3598,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-mysql"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "flate2",
@@ -3518,8 +3617,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-pg"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "native-tls",
@@ -3536,8 +3635,8 @@ dependencies = [
 
 [[package]]
 name = "outbound-redis"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "redis",
@@ -4933,8 +5032,8 @@ checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 
 [[package]]
 name = "spin-app"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4949,8 +5048,8 @@ dependencies = [
 
 [[package]]
 name = "spin-common"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "dirs 4.0.0",
@@ -4974,8 +5073,8 @@ dependencies = [
 
 [[package]]
 name = "spin-core"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4988,15 +5087,15 @@ dependencies = [
  "tokio",
  "tracing",
  "wasi-common",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wasmtime-wasi",
  "wasmtime-wasi-http",
 ]
 
 [[package]]
 name = "spin-http"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "http",
@@ -5013,8 +5112,8 @@ dependencies = [
 
 [[package]]
 name = "spin-key-value"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "lru 0.9.0",
@@ -5029,7 +5128,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-azure"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "azure_data_cosmos",
@@ -5044,7 +5143,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-redis"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "redis",
@@ -5058,7 +5157,7 @@ dependencies = [
 [[package]]
 name = "spin-key-value-sqlite"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "once_cell",
@@ -5071,8 +5170,8 @@ dependencies = [
 
 [[package]]
 name = "spin-llm"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "bytesize",
@@ -5084,8 +5183,8 @@ dependencies = [
 
 [[package]]
 name = "spin-llm-remote-http"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "http",
@@ -5101,8 +5200,8 @@ dependencies = [
 
 [[package]]
 name = "spin-loader"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5139,8 +5238,8 @@ dependencies = [
 
 [[package]]
 name = "spin-locked-app"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5153,8 +5252,8 @@ dependencies = [
 
 [[package]]
 name = "spin-manifest"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "indexmap 1.9.3",
@@ -5168,8 +5267,8 @@ dependencies = [
 
 [[package]]
 name = "spin-oci"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -5196,8 +5295,8 @@ dependencies = [
 
 [[package]]
 name = "spin-outbound-networking"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "spin-locked-app",
@@ -5207,8 +5306,8 @@ dependencies = [
 
 [[package]]
 name = "spin-redis-engine"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5224,8 +5323,8 @@ dependencies = [
 
 [[package]]
 name = "spin-serde"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "base64 0.21.5",
  "serde",
@@ -5233,8 +5332,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sqlite"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5247,8 +5346,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sqlite-inproc"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5262,8 +5361,8 @@ dependencies = [
 
 [[package]]
 name = "spin-sqlite-libsql"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5277,8 +5376,8 @@ dependencies = [
 
 [[package]]
 name = "spin-trigger"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5316,14 +5415,14 @@ dependencies = [
  "toml 0.5.11",
  "tracing",
  "url",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wasmtime-wasi-http",
 ]
 
 [[package]]
 name = "spin-trigger-http"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5352,15 +5451,15 @@ dependencies = [
  "tracing",
  "url",
  "wasi-common",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wasmtime-wasi",
  "wasmtime-wasi-http",
 ]
 
 [[package]]
 name = "spin-variables"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -5377,10 +5476,10 @@ dependencies = [
 
 [[package]]
 name = "spin-world"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -5572,8 +5671,8 @@ dependencies = [
 
 [[package]]
 name = "table"
-version = "2.0.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+version = "2.0.1"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 
 [[package]]
 name = "tap"
@@ -5623,7 +5722,7 @@ dependencies = [
 [[package]]
 name = "terminal"
 version = "0.1.0"
-source = "git+https://github.com/fermyon/spin?tag=v2.0.0#e4bb2357067d29f053b2d039476180ffa31222b2"
+source = "git+https://github.com/fermyon/spin?tag=v2.0.1#1d72f1c4244ecd8f7e0f150836565b18ef897e64"
 dependencies = [
  "atty",
  "once_cell",
@@ -6286,8 +6385,7 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 [[package]]
 name = "wasi-cap-std-sync"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fd94e147b273348ec68ae412b8bc17a4d372b9e070535b98e3e2c5a3ffd8e83"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6309,8 +6407,7 @@ dependencies = [
 [[package]]
 name = "wasi-common"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d5166f7432ee36d06aa9f9bd7990a00330401fdbc75be7887ea952a299b9a19"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "bitflags 2.4.1",
@@ -6321,7 +6418,7 @@ dependencies = [
  "rustix 0.38.21",
  "thiserror",
  "tracing",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wiggle",
  "windows-sys 0.48.0",
 ]
@@ -6329,8 +6426,7 @@ dependencies = [
 [[package]]
 name = "wasi-tokio"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "862e148e4aec5e7dbb7fbff7a9f1afac83a4236e99971beef19ca32c1060ad53"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "cap-std",
@@ -6497,6 +6593,42 @@ dependencies = [
  "bincode",
  "bumpalo",
  "cfg-if 1.0.0",
+ "fxprof-processed-profile",
+ "indexmap 2.1.0",
+ "libc",
+ "log",
+ "object",
+ "once_cell",
+ "paste",
+ "psm",
+ "rayon",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "target-lexicon",
+ "wasm-encoder 0.35.0",
+ "wasmparser 0.115.0",
+ "wasmtime-cache 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-component-macro 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-cranelift 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-environ 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-fiber 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-jit 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-runtime 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wat",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "wasmtime"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bincode",
+ "bumpalo",
+ "cfg-if 1.0.0",
  "encoding_rs",
  "fxprof-processed-profile",
  "indexmap 2.1.0",
@@ -6513,14 +6645,14 @@ dependencies = [
  "target-lexicon",
  "wasm-encoder 0.35.0",
  "wasmparser 0.115.0",
- "wasmtime-cache",
- "wasmtime-component-macro",
- "wasmtime-component-util",
- "wasmtime-cranelift",
- "wasmtime-environ",
- "wasmtime-fiber",
- "wasmtime-jit",
- "wasmtime-runtime",
+ "wasmtime-cache 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-component-macro 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-component-util 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-cranelift 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-fiber 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-jit 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-runtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wasmtime-winch",
  "wat",
  "windows-sys 0.48.0",
@@ -6531,6 +6663,14 @@ name = "wasmtime-asm-macros"
 version = "14.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "54984bc0b5689da87a43d7c181d23092b4d5cfcbb7ae3eb6b917dd55865d95e6"
+dependencies = [
+ "cfg-if 1.0.0",
+]
+
+[[package]]
+name = "wasmtime-asm-macros"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "cfg-if 1.0.0",
 ]
@@ -6556,6 +6696,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmtime-cache"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "base64 0.21.5",
+ "bincode",
+ "directories-next",
+ "log",
+ "rustix 0.38.21",
+ "serde",
+ "serde_derive",
+ "sha2",
+ "toml 0.5.11",
+ "windows-sys 0.48.0",
+ "zstd",
+]
+
+[[package]]
 name = "wasmtime-component-macro"
 version = "14.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6565,8 +6724,22 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.39",
- "wasmtime-component-util",
- "wasmtime-wit-bindgen",
+ "wasmtime-component-util 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-wit-bindgen 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wit-parser",
+]
+
+[[package]]
+name = "wasmtime-component-macro"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.39",
+ "wasmtime-component-util 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-wit-bindgen 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wit-parser",
 ]
 
@@ -6577,6 +6750,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f9141a8df069e106eee0c3a8173c0809cf1a4b5630628cfb1f25ab114720093"
 
 [[package]]
+name = "wasmtime-component-util"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+
+[[package]]
 name = "wasmtime-cranelift"
 version = "14.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6584,21 +6762,45 @@ checksum = "1cf3cee8be02f5006d21b773ffd6802f96a0b7d661ff2ad8a01fb93df458b1aa"
 dependencies = [
  "anyhow",
  "cfg-if 1.0.0",
- "cranelift-codegen",
- "cranelift-control",
- "cranelift-entity",
- "cranelift-frontend",
- "cranelift-native",
- "cranelift-wasm",
+ "cranelift-codegen 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-control 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-entity 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-frontend 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-native 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-wasm 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "gimli",
  "log",
  "object",
  "target-lexicon",
  "thiserror",
  "wasmparser 0.115.0",
- "wasmtime-cranelift-shared",
- "wasmtime-environ",
- "wasmtime-versioned-export-macros",
+ "wasmtime-cranelift-shared 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-environ 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-versioned-export-macros 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "wasmtime-cranelift"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "cfg-if 1.0.0",
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-control 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-entity 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-frontend 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-native 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-wasm 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "gimli",
+ "log",
+ "object",
+ "target-lexicon",
+ "thiserror",
+ "wasmparser 0.115.0",
+ "wasmtime-cranelift-shared 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-versioned-export-macros 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -6608,13 +6810,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "420fd2a69bc162957f4c94f21c7fa08ecf60d916f4e87b56332507c555da381d"
 dependencies = [
  "anyhow",
- "cranelift-codegen",
- "cranelift-control",
- "cranelift-native",
+ "cranelift-codegen 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-control 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cranelift-native 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "gimli",
  "object",
  "target-lexicon",
- "wasmtime-environ",
+ "wasmtime-environ 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "wasmtime-cranelift-shared"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-control 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "cranelift-native 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "gimli",
+ "object",
+ "target-lexicon",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -6624,7 +6841,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb6a445ce2b2810127caee6c1b79b8da4ae57712b05556a674592c18b7500a14"
 dependencies = [
  "anyhow",
- "cranelift-entity",
+ "cranelift-entity 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gimli",
+ "indexmap 2.1.0",
+ "log",
+ "object",
+ "serde",
+ "serde_derive",
+ "target-lexicon",
+ "thiserror",
+ "wasmparser 0.115.0",
+ "wasmtime-types 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "wasmtime-environ"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "cranelift-entity 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "gimli",
  "indexmap 2.1.0",
  "log",
@@ -6636,8 +6872,8 @@ dependencies = [
  "wasm-encoder 0.35.0",
  "wasmparser 0.115.0",
  "wasmprinter",
- "wasmtime-component-util",
- "wasmtime-types",
+ "wasmtime-component-util 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-types 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -6649,8 +6885,21 @@ dependencies = [
  "cc",
  "cfg-if 1.0.0",
  "rustix 0.38.21",
- "wasmtime-asm-macros",
- "wasmtime-versioned-export-macros",
+ "wasmtime-asm-macros 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-versioned-export-macros 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "wasmtime-fiber"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cc",
+ "cfg-if 1.0.0",
+ "rustix 0.38.21",
+ "wasmtime-asm-macros 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-versioned-export-macros 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "windows-sys 0.48.0",
 ]
 
@@ -6674,10 +6923,36 @@ dependencies = [
  "serde",
  "serde_derive",
  "target-lexicon",
- "wasmtime-environ",
- "wasmtime-jit-debug",
- "wasmtime-jit-icache-coherence",
- "wasmtime-runtime",
+ "wasmtime-environ 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-jit-debug 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-jit-icache-coherence 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-runtime 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "wasmtime-jit"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "addr2line",
+ "anyhow",
+ "bincode",
+ "cfg-if 1.0.0",
+ "cpp_demangle",
+ "gimli",
+ "ittapi",
+ "log",
+ "object",
+ "rustc-demangle",
+ "rustix 0.38.21",
+ "serde",
+ "serde_derive",
+ "target-lexicon",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-jit-debug 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-jit-icache-coherence 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-runtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "windows-sys 0.48.0",
 ]
 
@@ -6690,7 +6965,18 @@ dependencies = [
  "object",
  "once_cell",
  "rustix 0.38.21",
- "wasmtime-versioned-export-macros",
+ "wasmtime-versioned-export-macros 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "wasmtime-jit-debug"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "object",
+ "once_cell",
+ "rustix 0.38.21",
+ "wasmtime-versioned-export-macros 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -6705,10 +6991,48 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmtime-jit-icache-coherence"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
 name = "wasmtime-runtime"
 version = "14.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d07986b2327b5e7f535ed638fbde25990fc8f85400194fda0d26db71c7b685e"
+dependencies = [
+ "anyhow",
+ "cc",
+ "cfg-if 1.0.0",
+ "indexmap 2.1.0",
+ "libc",
+ "log",
+ "mach",
+ "memfd",
+ "memoffset 0.9.0",
+ "paste",
+ "rand 0.8.5",
+ "rustix 0.38.21",
+ "sptr",
+ "wasm-encoder 0.35.0",
+ "wasmtime-asm-macros 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-environ 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-fiber 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-jit-debug 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-versioned-export-macros 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasmtime-wmemcheck 14.0.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "wasmtime-runtime"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "cc",
@@ -6725,12 +7049,12 @@ dependencies = [
  "rustix 0.38.21",
  "sptr",
  "wasm-encoder 0.35.0",
- "wasmtime-asm-macros",
- "wasmtime-environ",
- "wasmtime-fiber",
- "wasmtime-jit-debug",
- "wasmtime-versioned-export-macros",
- "wasmtime-wmemcheck",
+ "wasmtime-asm-macros 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-fiber 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-jit-debug 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-versioned-export-macros 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-wmemcheck 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "windows-sys 0.48.0",
 ]
 
@@ -6740,7 +7064,19 @@ version = "14.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e810a0d2e869abd1cb42bd232990f6bd211672b3d202d2ae7e70ffb97ed70ea3"
 dependencies = [
- "cranelift-entity",
+ "cranelift-entity 0.101.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde",
+ "serde_derive",
+ "thiserror",
+ "wasmparser 0.115.0",
+]
+
+[[package]]
+name = "wasmtime-types"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "cranelift-entity 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "serde",
  "serde_derive",
  "thiserror",
@@ -6759,10 +7095,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmtime-versioned-export-macros"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.39",
+]
+
+[[package]]
 name = "wasmtime-wasi"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e6730a2853226292cee755a36549dd1a443b324cf99319cb390af1afed6cb8a"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6789,7 +7134,7 @@ dependencies = [
  "wasi-cap-std-sync",
  "wasi-common",
  "wasi-tokio",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wiggle",
  "windows-sys 0.48.0",
 ]
@@ -6797,8 +7142,7 @@ dependencies = [
 [[package]]
 name = "wasmtime-wasi-http"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1df20fc6047a3676298bbc93194f4d9040263ae7dde6cfb121ffbf005d13c7b3"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -6812,7 +7156,7 @@ dependencies = [
  "tokio",
  "tokio-rustls 0.24.1",
  "tracing",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wasmtime-wasi",
  "webpki-roots",
 ]
@@ -6820,17 +7164,16 @@ dependencies = [
 [[package]]
 name = "wasmtime-winch"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1c1b6abbba5a01739bef9f00a87b419414a7dd99b795823d93fb12fc2bf994a"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
- "cranelift-codegen",
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "gimli",
  "object",
  "target-lexicon",
  "wasmparser 0.115.0",
- "wasmtime-cranelift-shared",
- "wasmtime-environ",
+ "wasmtime-cranelift-shared 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "winch-codegen",
 ]
 
@@ -6847,10 +7190,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "wasmtime-wit-bindgen"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
+dependencies = [
+ "anyhow",
+ "heck 0.4.1",
+ "indexmap 2.1.0",
+ "wit-parser",
+]
+
+[[package]]
 name = "wasmtime-wmemcheck"
 version = "14.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9dafab2db172a53e23940e0fa3078c202f567ee5f13f4b42f66b694fab43c658"
+
+[[package]]
+name = "wasmtime-wmemcheck"
+version = "14.0.4"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 
 [[package]]
 name = "wast"
@@ -6933,23 +7292,21 @@ dependencies = [
 [[package]]
 name = "wiggle"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f6ce56a4019ce3d8592c298029a75abe6887d1c95a078a4c53ec77a0628262d"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "async-trait",
  "bitflags 2.4.1",
  "thiserror",
  "tracing",
- "wasmtime",
+ "wasmtime 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "wiggle-macro",
 ]
 
 [[package]]
 name = "wiggle-generate"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e585a4b1e84195031c77d8484af99cd93f129f45d519e83cb8cc75e9a420cfd3"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "heck 0.4.1",
@@ -6963,8 +7320,7 @@ dependencies = [
 [[package]]
 name = "wiggle-macro"
 version = "14.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6f321dbce722989d65c3082dba479fa392c7b7a1a4c3adc2a39545dd5aa452f"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7006,17 +7362,16 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "winch-codegen"
 version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f112bebb367a544d20c254083798087f22ceeb426168a970b955e8436f749dca"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
- "cranelift-codegen",
+ "cranelift-codegen 0.101.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
  "gimli",
  "regalloc2",
  "smallvec",
  "target-lexicon",
  "wasmparser 0.115.0",
- "wasmtime-environ",
+ "wasmtime-environ 14.0.4 (git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6)",
 ]
 
 [[package]]
@@ -7228,8 +7583,7 @@ dependencies = [
 [[package]]
 name = "witx"
 version = "0.9.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e366f27a5cabcddb2706a78296a40b8fcc451e1a6aba2fc1d94b4a01bdaaef4b"
+source = "git+https://github.com/fermyon/wasmtime?rev=a2fa8fe7de1e918eae06d78de53451832ba380b6#a2fa8fe7de1e918eae06d78de53451832ba380b6"
 dependencies = [
  "anyhow",
  "log",
