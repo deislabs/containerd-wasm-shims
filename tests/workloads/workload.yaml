@@ -98,6 +98,15 @@ spec:
           image: docker.io/library/spin-keyvalue:latest
           command: ["/"]
           imagePullPolicy: IfNotPresent
+          volumeMounts:
+          - name: config-volume
+            mountPath: /runtime-config.toml
+            subPath: runtime-config.toml
+            readOnly: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: spin-runtime-config
 ---
 apiVersion: v1
 kind: Service
