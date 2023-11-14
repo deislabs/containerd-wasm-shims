@@ -174,8 +174,7 @@ mod test {
             .arg("port-forward")
             .arg("redis")
             .arg(format!("{}:{}", forward_port, redis_port))
-            .output()
-            .await?;
+            .spawn()?;
         tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
         Ok(())
     }
