@@ -1,6 +1,6 @@
 [package]
 name = "containerd-shim-wws-v1"
-version = "0.9.3"
+version = "0.10.0"
 authors = ["Wasm Labs team <wasmlabs@vmware.com>"]
 edition = "2021"
 repository = 'https://github.com/deislabs/containerd-wasm-shims'

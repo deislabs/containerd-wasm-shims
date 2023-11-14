@@ -975,7 +975,7 @@ dependencies = [
 
 [[package]]
 name = "containerd-shim-spin-v2"
-version = "0.9.3"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "containerd-shim-wasm",
