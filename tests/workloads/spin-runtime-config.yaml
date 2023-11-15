@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  runtime-config.toml: "# This defines a new store named user_data\n[key_value_store.foo]\ntype
+    = \"spin\" \npath = \"user_data.db\""
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2023-11-14T00:41:01Z"
+  name: spin-runtime-config
+  namespace: default
+  resourceVersion: "4453"
+  uid: 10dd6b0d-cf71-4ddc-abf8-44853f53436e

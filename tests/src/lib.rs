@@ -8,15 +8,11 @@ use rand::{distributions::Alphanumeric, Rng};
 
 mod integration_test;
 
-pub async fn retry_get(
-    url: &str,
-    buf: &mut Vec<u8>,
-    retry_times: u32,
-    interval_in_secs: u64,
-) -> Result<()> {
+pub async fn retry_get(url: &str, retry_times: u32, interval_in_secs: u64) -> Result<Vec<u8>> {
     let mut i = 0;
     let mut handle = Easy::new();
     handle.url(url)?;
+    let mut buf = Vec::new();
     loop {
         let res = {
             let mut transfer = handle.transfer();
@@ -43,9 +39,10 @@ pub async fn retry_get(
         if i == retry_times {
             anyhow::bail!("failed to curl for {}", url);
         }
+        buf = Vec::new();
         tokio::time::sleep(Duration::from_secs(interval_in_secs)).await;
     }
-    Ok(())
+    Ok(buf)
 }
 
 pub async fn retry_put(

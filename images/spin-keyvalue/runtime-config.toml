@@ -1,0 +1,4 @@
+# This defines a new store named user_data
+[key_value_store.foo]
+type = "spin" 
+path = "user_data.db"
