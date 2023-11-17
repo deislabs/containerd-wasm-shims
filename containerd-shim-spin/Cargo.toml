@@ -18,6 +18,7 @@ spin-core = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
 spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
 spin-trigger-http = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
 spin-redis-engine = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
+trigger-sqs = { git = "https://github.com/fermyon/spin-trigger-sqs", rev = "34ef90888a7374ca53d32654dcf02b3fbfd82119" }
 spin-manifest = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
 spin-loader = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
 spin-oci = { git = "https://github.com/fermyon/spin", tag = "v2.0.1" }
