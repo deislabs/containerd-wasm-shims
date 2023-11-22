@@ -29,9 +29,9 @@ As mentioned above, this project uses runwasi's `containerd-shim-wasm` to build 
 ## Quickstarts
 
 - [Start k3d and run a sample WASM application](./deployments/k3d/README.md#how-to-run-the-example).
-- [Create a Spin application on k3d](./containerd-shim-spin-v2/quickstart.md)
-- [Deploy a SpiderLightning application with k3d](./containerd-shim-slight-v1/quickstart.md)
-- [Deploy a Wasm Workers Server application with k3d](./containerd-shim-slight-v1/quickstart.md)
+- [Create a Spin application on k3d](./containerd-shim-spin/quickstart.md)
+- [Deploy a SpiderLightning application with k3d](./containerd-shim-slight/quickstart.md)
+- [Deploy a Wasm Workers Server application with k3d](./containerd-shim-wws/quickstart.md)
 
 ### Building the shims
 
