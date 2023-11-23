@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spin-dapr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spin-dapr
+  template:
+    metadata:
+      labels:
+        app: spin-dapr
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "spin-dapr"
+        dapr.io/app-port: "80"
+        dapr.io/log-level: "debug"
+    spec:
+      runtimeClassName: wasmtime-spin
+      containers:
+        - image: redis
+          name: redis
+        - name: spin-dapr
+          image: spin-dapr:latest
+          imagePullPolicy: Never
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spin-dapr
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: spin-dapr
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: spin-dapr
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /spin-dapr
+            pathType: Prefix
+            backend:
+              service:
+                name: spin-dapr
+                port:
+                  number: 80
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kevents
+  namespace: default
+spec:
+  type: bindings.kubernetes
+  version: v1
+  metadata:
+  - name: namespace
+    value: "default"
+  - name: resyncPeriodInSec
+    value: "1"
+  - name: direction
+    value: "input"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spin-dapr
+rules:
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spin-dapr
+subjects:
+- kind: ServiceAccount
+  name: default # or as need be, can be changed
+roleRef:
+  kind: Role
+  name: spin-dapr # same as the one above
+  apiGroup: ""
