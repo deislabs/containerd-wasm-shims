@@ -6,15 +6,15 @@ Before you begin, you need to have the following installed:
 - [Docker](https://docs.docker.com/install/) version 4.13.1 (90346) or later with [containerd enabled](https://docs.docker.com/desktop/containerd/)
 - [k3d](https://k3d.io/v5.4.6/#installation)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
-- [Spin binary and templates](https://spin.fermyon.dev/quickstart/)
-- [Rust](https://www.rust-lang.org/tools/install)
+- [Spin v2.0+ and templates](https://developer.fermyon.com/spin/quickstart/)
+- [Rust 1.71+](https://www.rust-lang.org/tools/install)
 
 ## Start and configure a k3d cluster
 
 Start a k3d cluster with the wasm shims already installed:
 
 ```bash
-k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.3.3 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
+k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.10.0 -p "8081:80@loadbalancer" --agents 2 --registry-create mycluster-registry:12345
 ```
 
 Apply RuntimeClass for spin applications to use the spin wasm shim:
@@ -67,15 +67,14 @@ kubectl delete -f https://raw.githubusercontent.com/deislabs/containerd-wasm-shi
 Use `spin` to create a new sample application based on the `http-rust` template:
 
 ```bash
-spin new http-rust qs-wasm-spin
+spin new -t http-rust qs-wasm-spin
 ```
 
 Add the details when prompted. For example:
 
 ```bash
-$ spin new http-rust qs-wasm-spin
-Project description: An example app for the quickstart
-HTTP base: /
+$ spin new -t http-rust qs-wasm-spin
+Description: An example app for the quickstart
 HTTP path: /hi
 ```
 
@@ -132,7 +131,7 @@ You have two choices for publishing spin apps.  The steps to deploy are the same
 Create a `Dockerfile` at the root of the application directory with the following:
 
 ```dockerfile
-FROM --platform=${BUILDPLATFORM} rust:1.59 AS build
+FROM --platform=${BUILDPLATFORM} rust:1.71 AS build
 WORKDIR /opt/build
 COPY . .
 RUN rustup target add wasm32-wasi && cargo build --target wasm32-wasi --release
@@ -146,8 +145,7 @@ Update `spin.toml` to change `source` to `qs_wasm_spin.wasm`:
 
 ```toml
 ...
-[[component]]
-id = "qs-wasm-spin"
+[component.qs-wasm-spin]
 source = "qs_wasm_spin.wasm"
 ...
 ```
@@ -155,8 +153,8 @@ source = "qs_wasm_spin.wasm"
 Use `docker` to build the container image and push it to the k3d registry:
 
 ```bash
-docker buildx build --platform=wasi/wasm -t localhost:5000/qs-wasm-spin .
-docker push localhost:5000/qs-wasm-spin:latest
+docker buildx build --platform=wasi/wasm -t localhost:12345/qs-wasm-spin .
+docker push localhost:12345/qs-wasm-spin:latest
 ```
 
 ### Creating a OCI WASM Image
@@ -165,7 +163,7 @@ It is possible to publish spin applications to [OCI registries](https://develope
 
 ```
 # must be spin 2.0
-spin registry push localhost:5000/spin-wasm-shim:latest-2.0
+spin registry push localhost:12345/spin-wasm-shim:latest-2.0
 ```
 
 ## Deploy the application
