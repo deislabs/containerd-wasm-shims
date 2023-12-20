@@ -9,7 +9,7 @@ COPY ./.tmp/${TARGETPLATFORM} /
 
 FROM bin-${STAGE} AS bin
 
-FROM rancher/k3s:v1.27.4-k3s1
+FROM rancher/k3s:v1.27.8-k3s2
 
 # copy shims from target directory into the /bin
 COPY --link --from=bin / /bin/
