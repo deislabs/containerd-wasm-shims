@@ -226,11 +226,7 @@ impl SpinEngine {
             runtime_config.merge_config_file(RUNTIME_CONFIG_PATH)?;
         }
         let mut builder = TriggerExecutorBuilder::new(loader);
-        builder
-            .hooks(StdioTriggerHook {})
-            .config_mut()
-            .wasmtime_config()
-            .cranelift_opt_level(spin_core::wasmtime::OptLevel::Speed);
+        builder.hooks(StdioTriggerHook {});
         let init_data = Default::default();
         let executor = builder.build(locked_url, runtime_config, init_data).await?;
         Ok(executor)
