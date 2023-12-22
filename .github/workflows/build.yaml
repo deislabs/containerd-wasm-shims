@@ -18,22 +18,22 @@ jobs:
               arch: "aarch64"
             }
         shims: 
-          - {
-              name: "slight",
-              version: "v1", 
-            }
+          # - {
+          #     name: "slight",
+          #     version: "v1", 
+          #   }
           - {
               name: "spin",
               version: "v2", 
             }
-          - {
-              name: "wws",
-              version: "v1", 
-            }
-          - {
-              name: "lunatic",
-              version: "v1", 
-            }
+          # - {
+          #     name: "wws",
+          #     version: "v1", 
+          #   }
+          # - {
+          #     name: "lunatic",
+          #     version: "v1", 
+          #   }
     env:
       ARCH: ${{ matrix.config.arch }}
     steps:
