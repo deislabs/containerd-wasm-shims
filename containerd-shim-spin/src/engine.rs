@@ -7,6 +7,7 @@ use spin_loader::cache::Cache;
 use spin_loader::FilesMountStrategy;
 use spin_manifest::schema::v2::AppManifest;
 use spin_redis_engine::RedisTrigger;
+use trigger_sqs::SqsTrigger;
 use spin_trigger::TriggerHooks;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
@@ -172,8 +173,17 @@ impl SpinEngine {
                 info!(" >>> running spin trigger");
                 redis_trigger.run(spin_trigger::cli::NoArgs)
             }
+            SqsTrigger::TRIGGER_TYPE => {
+                let sqs_trigger: SqsTrigger = self
+                    .build_spin_trigger(working_dir, app)
+                    .await
+                    .context("failed to build spin trigger")?;
+
+                info!(" >>> running spin trigger");
+                sqs_trigger.run(spin_trigger::cli::NoArgs)
+            }
             _ => {
-                todo!("Only Http and Redis triggers are currently supported.")
+                todo!("Only Http, Redis and SQS triggers are currently supported.")
             }
         };
         info!(" >>> notifying main thread we are about to start");
@@ -297,9 +307,9 @@ fn trigger_command_for_resolved_app_source(resolved: &ResolvedAppSource) -> Resu
     let trigger_type = resolved.trigger_type()?;
 
     match trigger_type {
-        RedisTrigger::TRIGGER_TYPE | HttpTrigger::TRIGGER_TYPE => Ok(trigger_type.to_owned()),
+        RedisTrigger::TRIGGER_TYPE | HttpTrigger::TRIGGER_TYPE | SqsTrigger::TRIGGER_TYPE => Ok(trigger_type.to_owned()),
         _ => {
-            todo!("Only Http and Redis triggers are currently supported.")
+            todo!("Only Http, Redis and SQS triggers are currently supported.")
         }
     }
 }
