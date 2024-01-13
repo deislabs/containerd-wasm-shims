@@ -7,18 +7,18 @@ use spin_loader::cache::Cache;
 use spin_loader::FilesMountStrategy;
 use spin_manifest::schema::v2::AppManifest;
 use spin_redis_engine::RedisTrigger;
-use trigger_sqs::SqsTrigger;
 use spin_trigger::TriggerHooks;
 use spin_trigger::{loader, RuntimeConfig, TriggerExecutor, TriggerExecutorBuilder};
 use spin_trigger_http::HttpTrigger;
 use std::collections::HashSet;
+use std::env;
 use std::fs::File;
 use std::io::Write;
-use std::env;
 use std::net::SocketAddr;
 use std::net::ToSocketAddrs;
 use std::path::{Path, PathBuf};
 use tokio::runtime::Runtime;
+use trigger_sqs::SqsTrigger;
 use url::Url;
 
 const SPIN_ADDR: &str = "0.0.0.0:80";
@@ -198,7 +198,7 @@ impl SpinEngine {
             ResolvedAppSource::File { manifest_path, .. } => {
                 // TODO: This should be configurable, see https://github.com/deislabs/containerd-wasm-shims/issues/166
                 let files_mount_strategy = FilesMountStrategy::Direct;
-                spin_loader::from_file(&manifest_path, files_mount_strategy).await
+                spin_loader::from_file(&manifest_path, files_mount_strategy, None).await
             }
             ResolvedAppSource::OciRegistry { locked_app } => Ok(locked_app),
         }
@@ -307,7 +307,9 @@ fn trigger_command_for_resolved_app_source(resolved: &ResolvedAppSource) -> Resu
     let trigger_type = resolved.trigger_type()?;
 
     match trigger_type {
-        RedisTrigger::TRIGGER_TYPE | HttpTrigger::TRIGGER_TYPE | SqsTrigger::TRIGGER_TYPE => Ok(trigger_type.to_owned()),
+        RedisTrigger::TRIGGER_TYPE | HttpTrigger::TRIGGER_TYPE | SqsTrigger::TRIGGER_TYPE => {
+            Ok(trigger_type.to_owned())
+        }
         _ => {
             todo!("Only Http, Redis and SQS triggers are currently supported.")
         }
