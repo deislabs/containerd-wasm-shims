@@ -6497,7 +6497,7 @@ dependencies = [
 [[package]]
 name = "trigger-sqs"
 version = "0.5.0"
-source = "git+https://github.com/radu-matei/spin-trigger-sqs?branch=chore/bump-spin#34bb8f42b57536cdbf29cddd26e0a3433c8f6bb0"
+source = "git+https://github.com/fermyon/spin-trigger-sqs?rev=f60545012bc153071d8005d1b8ed117a614dce0b#f60545012bc153071d8005d1b8ed117a614dce0b"
 dependencies = [
  "anyhow",
  "async-trait",
