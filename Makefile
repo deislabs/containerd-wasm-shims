@@ -75,7 +75,7 @@ build: $(foreach shim,$(SHIMS),build-$(shim)-cross-$(TARGET))
 # pin cross to a specific commit to avoid breaking changes
 .PHONY: install-cross
 install-cross:
-	@if [ -z $$(which cross) ]; then cargo install cross --git https://github.com/cross-rs/cross --rev 5896ed1359642510855ca9ee50ce7fdf75c50e3c#5896ed13; fi
+	@if [ -z $$(which cross) ]; then cargo install cross --git https://github.com/cross-rs/cross --rev 5896ed1359642510855ca9ee50ce7fdf75c50e3c; fi
 
 # build-cross can be be used to build any cross supported target (make build-cross-x86_64-unknown-linux-musl)
 .PHONY: $(BUILD_TARGETS)
