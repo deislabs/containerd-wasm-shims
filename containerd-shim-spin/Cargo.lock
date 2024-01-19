@@ -6600,8 +6600,8 @@ dependencies = [
 
 [[package]]
 name = "trigger-sqs"
-version = "0.4.0"
-source = "git+https://github.com/0xE282B0/spin-trigger-sqs?branch=sql-trigger-library#388501385735ccba16875f37c177191d189c6bcc"
+version = "0.5.0"
+source = "git+https://github.com/fermyon/spin-trigger-sqs?rev=34ef90888a7374ca53d32654dcf02b3fbfd82119#34ef90888a7374ca53d32654dcf02b3fbfd82119"
 dependencies = [
  "anyhow",
  "async-trait",
