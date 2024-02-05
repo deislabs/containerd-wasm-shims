@@ -52,6 +52,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: enable containerd image store
+        run: |
+          echo '{ "features": { "containerd-snapshotter": true } }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+          docker info -f '{{ .DriverStatus }}'
       - name: test
         uses: docker/build-push-action@v4
         if: ${{ inputs.test }}
