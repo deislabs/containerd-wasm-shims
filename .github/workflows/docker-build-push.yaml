@@ -58,7 +58,7 @@ jobs:
           sudo systemctl restart docker
           docker info -f '{{ .DriverStatus }}'
       - name: test
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         if: ${{ inputs.test }}
         with:
           context: ${{ matrix.image.context }}
@@ -66,9 +66,7 @@ jobs:
           tags: containerd-wasm-shims${{ matrix.image.imageName }}:test
           platforms: wasi/wasm
       - name: build and push
-        # we use v3 here because we can't push wasi/wasm images with v4
-        # see https://github.com/deislabs/containerd-wasm-shims/issues/154#issuecomment-1726030749
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         if: ${{ !inputs.test }}
         with:
           push: true
@@ -77,3 +75,4 @@ jobs:
             ghcr.io/${{ github.repository }}/${{ matrix.image.imageName }}:latest
           context: ${{ matrix.image.context }}
           platforms: wasi/wasm
+          provenance: false
