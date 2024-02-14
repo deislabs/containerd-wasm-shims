@@ -18,7 +18,7 @@ sudo mv ./spin /usr/local/bin/
 ### Run example with K3d:
 ```sh
 # start the K3d cluster
-k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.11.0 -p "8081:80@loadbalancer"  
+k3d cluster create wasm-cluster --image ghcr.io/deislabs/containerd-wasm-shims/examples/k3d:v0.11.1 -p "8081:80@loadbalancer"  
 # Install Dapr
 dapr init -k --wait
 # or via helm
