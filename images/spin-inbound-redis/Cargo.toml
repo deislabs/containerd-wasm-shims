@@ -1,6 +1,6 @@
 [package]
 name = "spin-inbound-redis"
-version = "0.11.0"
+version = "0.11.1"
 authors = ["Suneet Nangia <suneetnangia@gmail.com>"]
 edition = "2021"
 
