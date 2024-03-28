@@ -5,6 +5,9 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   build:
+    permissions:
+      # cosign uses the GitHub OIDC token
+      id-token: write
     runs-on: ${{ matrix.config.os }}
     strategy:
       matrix:
@@ -46,12 +49,26 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler libseccomp-dev
+      - name: Setup cosign for signing
+        uses: sigstore/cosign-installer@v3.3.0
+        with:
+          cosign-release: 'v2.2.2'
       - name: build ${{ matrix.shims.name }}
         run: |
           VERBOSE=1 make build SHIMS=${{ matrix.shims.name }}
       - name: unit tests ${{ matrix.shims.name }}
         run: |
           VERBOSE=1 make unit-tests  SHIMS=${{ matrix.shims.name }}
+      - name: Sign the binary
+        run: |
+          mkdir _dist
+          cp containerd-shim-*/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-${{ matrix.shims.version }} _dist/
+
+          cd _dist
+          cosign sign-blob --yes \
+            --output-certificate containerd-shim-${{ needs.parse.outputs.runtime }}-${{ matrix.shims.version }}-crt.pem \
+            --output-signature containerd-shim-${{ needs.parse.outputs.runtime }}-${{ matrix.shims.version }}.sig \
+            containerd-shim-${{ needs.parse.outputs.runtime }}-${{ matrix.shims.version }}
       - name: lowercase the runner OS name
         shell: bash
         run: |
@@ -59,8 +76,6 @@ jobs:
           echo "RUNNER_OS=$OS" >> $GITHUB_ENV
       - name: package release assets
         run: |
-          mkdir _dist
-          cp containerd-shim-*/target/${{ matrix.config.arch }}-unknown-linux-musl/release/containerd-shim-*-${{ matrix.shims.version }} _dist/
           cd _dist
           tar czf containerd-wasm-shims-${{ matrix.shims.version }}-${{ matrix.shims.name }}-${{ env.RUNNER_OS }}-${{ matrix.config.arch }}.tar.gz containerd-shim-*-${{ matrix.shims.version }}
       - name: upload shim artifacts
