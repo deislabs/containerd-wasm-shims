@@ -8,7 +8,7 @@ This project aims to provide containerd shim implementations that can run [Wasm]
 
 This repo currently maintains four shims for Wasm application runtimes/frameworks:
 
-1. [Lunatic](https://github.com/lunatic-solutions/lunatic) - an Earlang-inspired runtime for fast, robust and scalable server-side Wasm application.
+1. [Lunatic](https://github.com/lunatic-solutions/lunatic) - an Earlang-inspired runtime for fast, robust and scalable server-side Wasm applications.
 2. [Spin](https://github.com/fermyon/spin) - a developer tool for building and running serverless Wasm applications.
 3. [Slight](https://github.com/deislabs/spiderlightning) - a wasmtime-based runtime for running Wasm applications that use SpiderLightning (aks [WASI-Cloud-Core](https://github.com/WebAssembly/wasi-cloud-core)) capabilities
 4. [Wasm Workers Server](https://github.com/vmware-labs/wasm-workers-server) - a tool to develop and run serverless applications server on top of Wasm.
@@ -24,7 +24,7 @@ Below is a table of the shims and the the most recent versions of the shims that
 
 ## Compare to `runwasi` shims
 
-As mentioned above, this project uses runwasi's `containerd-shim-wasm` to build shim implementations for higher level Wasm application runtimes/frameworks. The `runwasi` shims are more lower level that are intended to run WASI-compatible Wasm modules, instead of Wasm applicaitons that are built on top of a framework. If you are looking for `Wasmtime`, `WasmEdge` or `Wasmer` shims, please check out [runwasi](https://github.com/deislabs/runwasi).
+As mentioned above, this project uses runwasi's `containerd-shim-wasm` to build shim implementations for higher level Wasm application runtimes/frameworks. The `runwasi` shims are more lower level that are intended to run WASI-compatible Wasm modules, instead of Wasm applications that are built on top of a framework. If you are looking for `Wasmtime`, `WasmEdge` or `Wasmer` shims, please check out [runwasi](https://github.com/deislabs/runwasi).
 
 ## Quickstarts
 
