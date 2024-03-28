@@ -8,7 +8,8 @@ This project aims to provide containerd shim implementations that can run [Wasm]
 
 This repo currently maintains four shims for Wasm application runtimes/frameworks:
 
-1. [Lunatic](https://github.com/lunatic-solutions/lunatic) - an Earlang-inspired runtime for fast, robust and scalable server-side Wasm applications.
+
+1. [Lunatic](https://github.com/lunatic-solutions/lunatic) - an Erlang-inspired runtime for fast, robust and scalable server-side Wasm applications.
 2. [Spin](https://github.com/fermyon/spin) - a developer tool for building and running serverless Wasm applications.
 3. [Slight](https://github.com/deislabs/spiderlightning) - a wasmtime-based runtime for running Wasm applications that use SpiderLightning (aks [WASI-Cloud-Core](https://github.com/WebAssembly/wasi-cloud-core)) capabilities
 4. [Wasm Workers Server](https://github.com/vmware-labs/wasm-workers-server) - a tool to develop and run serverless applications server on top of Wasm.
