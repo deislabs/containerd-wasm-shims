@@ -1,7 +1,3 @@
 [profile.release]
 strip = "symbols"
 panic = "abort"
-
-[target.aarch64-unknown-linux-musl]
-# see https://github.com/fermyon/spin/commit/07db218dccf2d02eb6c8c74d0b39dd2eb59cc4b4
-rustflags = ["-Ctarget-feature=+fp16"]

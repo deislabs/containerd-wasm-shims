@@ -40,45 +40,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wasm-spin
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: wasm-spin
-  template:
-    metadata:
-      labels:
-        app: wasm-spin
-    spec:
-      runtimeClassName: wasmtime-spin
-      containers:
-        - name: spin-hello
-          image: ghcr.io/deislabs/containerd-wasm-shims/examples/spin-rust-hello:v0.11.1
-          command: ["/"]
-          resources: # limit the resources to 128Mi of memory and 100m of CPU
-            limits:
-              cpu: 100m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: wasm-spin
-spec:
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  selector:
-    app: wasm-spin
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: wasm-wws
 spec:
   replicas: 1
@@ -154,7 +115,7 @@ spec:
     app: wasm-lunatic
 ---
 # Middleware
-# Strip prefix /spin
+# Strip prefix /slight
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
@@ -163,7 +124,6 @@ spec:
   stripPrefix:
     forceSlash: false
     prefixes:
-      - /spin
       - /slight
       - /wws
       - /lunatic
@@ -180,13 +140,6 @@ spec:
   rules:
     - http:
         paths:
-          - path: /spin
-            pathType: Prefix
-            backend:
-              service:
-                name: wasm-spin
-                port:
-                  number: 80
           - path: /slight
             pathType: Prefix
             backend:

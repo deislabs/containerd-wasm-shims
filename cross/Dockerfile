@@ -14,8 +14,5 @@ ENV LIBSECCOMP_LIB_PATH="${CROSS_SYSROOT}/lib"
 # wws needs zlib (though libssh2-sys)
 RUN apk-${MARCH} add zlib-dev zlib-static
 
-# See https://github.com/fermyon/spin/issues/1786 for the upstream issue requiring this polyfill.
-RUN --mount=type=bind,from=jorgeprendes420/gcc_vld1q_s8_x4_polyfill,source=/polyfill.sh,target=/polyfill.sh /polyfill.sh
-
 RUN apt-get -y update && \
     apt-get install -y pkg-config protobuf-compiler

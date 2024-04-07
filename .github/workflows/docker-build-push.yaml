@@ -15,18 +15,10 @@ jobs:
     strategy:
       matrix:
         image:
-          - imageName: examples/spin-rust-hello
-            context: images/spin
-          - imageName: examples/spin-dotnet-hello
-            context: images/spin_dotnet
           - imageName: examples/slight-rust-hello
             context: images/slight
           - imageName: examples/wws-js-hello
             context: images/wws
-          - imageName: examples/spin-inbound-redis
-            context: images/spin-inbound-redis
-          - imageName: examples/spin-outbound-redis
-            context: images/spin-outbound-redis
           - imageName: examples/lunatic-rust-hello
             context: images/lunatic
           - imageName: examples/lunatic-spawn
