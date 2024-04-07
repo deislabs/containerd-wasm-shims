@@ -1,7 +1,5 @@
 #[cfg(test)]
 mod test {
-    use tokio::process::Command;
-
     use crate::{random_payload, retry_get, retry_put};
     use anyhow::Result;
 
