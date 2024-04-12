@@ -1,12 +1,10 @@
-SHIMS = spin slight wws lunatic
-SPIN_VERSION = v2
+SHIMS = slight wws lunatic
 IMAGE_NAME ?= k3swithshims
 CLUSTER_NAME ?= k3s-default
 PLATFORM ?= linux/amd64
 ARCH ?= x86_64
 TARGET ?= $(ARCH)-unknown-linux-musl
 TEST_IMG_NAME_lunatic ?= wasmtest_lunatic:latest
-TEST_IMG_NAME_spin ?= wasmtest_spin:latest
 TEST_IMG_NAME_slight ?= wasmtest_slight:latest
 TEST_IMG_NAME_wws ?= wasmtest_wws:latest
 
@@ -15,7 +13,6 @@ compile-musl-%:
 
 move-musl-to-tmp: $(addprefix compile-musl-,$(SHIMS))
 	mkdir -p ./.tmp
-	cp ../../containerd-shim-spin/target/$(TARGET)/release/containerd-shim-spin-$(SPIN_VERSION) ./.tmp/
 	cp ../../containerd-shim-slight/target/$(TARGET)/release/containerd-shim-slight-v1 ./.tmp/
 	cp ../../containerd-shim-wws/target/$(TARGET)/release/containerd-shim-wws-v1 ./.tmp/
 	cp ../../containerd-shim-lunatic/target/$(TARGET)/release/containerd-shim-lunatic-v1 ./.tmp/
@@ -36,7 +33,7 @@ load-workload-images: build-workload-images
 	$(foreach shim,$(SHIMS),k3d image load $(TEST_IMG_NAME_$(shim));)
 
 up: create-k3d load-workload-images
-	kubectl label nodes k3d-k3s-default-agent-0 spin-enabled=true slight-enabled=true wws-enabled=true lunatic-enabled=true
+	kubectl label nodes k3d-k3s-default-agent-0 slight-enabled=true wws-enabled=true lunatic-enabled=true
 	kubectl apply -f ./workload
 
 test:

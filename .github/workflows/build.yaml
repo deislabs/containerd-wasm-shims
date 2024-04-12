@@ -23,10 +23,6 @@ jobs:
               version: "v1", 
             }
           - {
-              name: "spin",
-              version: "v2", 
-            }
-          - {
               name: "wws",
               version: "v1", 
             }

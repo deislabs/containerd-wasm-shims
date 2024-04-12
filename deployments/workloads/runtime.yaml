@@ -7,12 +7,6 @@ handler: slight
 apiVersion: node.k8s.io/v1
 kind: RuntimeClass
 metadata:
-  name: wasmtime-spin
-handler: spin
----
-apiVersion: node.k8s.io/v1
-kind: RuntimeClass
-metadata:
   name: wasmtime-wws
 handler: wws
 ---

@@ -41,128 +41,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wasm-spin
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: wasm-spin
-  template:
-    metadata:
-      labels:
-        app: wasm-spin
-    spec:
-      runtimeClassName: wasmtime-spin
-      containers:
-        - name: testwasm
-          image: docker.io/library/spin-hello-world:latest
-          imagePullPolicy: Never # prevent k8s from pulling the image from a registry
-          command: ["/"]
-          resources: # limit the resources to 128Mi of memory and 100m of CPU
-            limits:
-              cpu: 100m
-              memory: 128Mi
-            requests:
-              cpu: 100m
-              memory: 128Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: wasm-spin
-spec:
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  selector:
-    app: wasm-spin
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: spin-keyvalue
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: spin-keyvalue
-  template:
-    metadata:
-      labels:
-        app: spin-keyvalue
-    spec:
-      runtimeClassName: wasmtime-spin
-      containers:
-        - name: keyvalue
-          image: docker.io/library/spin-keyvalue:latest
-          command: ["/"]
-          imagePullPolicy: IfNotPresent
-          volumeMounts:
-          - name: config-volume
-            mountPath: /runtime-config.toml
-            subPath: runtime-config.toml
-            readOnly: true
-      volumes:
-      - name: config-volume
-        configMap:
-          name: spin-runtime-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: spin-keyvalue
-spec:
-  type: LoadBalancer
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  selector:
-    app: spin-keyvalue
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: spin-outbound-redis
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: spin-outbound-redis
-  template:
-    metadata:
-      labels:
-        app: spin-outbound-redis
-    spec:
-      runtimeClassName: wasmtime-spin
-      containers:
-        - name: outbound-redis
-          image: docker.io/library/spin-outbound-redis:latest
-          command: ["/"]
-          imagePullPolicy: IfNotPresent
-          env:
-          - name: SPIN_VARIABLE_REDIS_ADDRESS
-            value: redis://redis-service.default.svc.cluster.local:6379
-          - name: SPIN_VARIABLE_REDIS_CHANNEL
-            value: test
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: spin-outbound-redis
-spec:
-  type: LoadBalancer
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  selector:
-    app: spin-outbound-redis
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
   name: wasm-wws
 spec:
   replicas: 1
@@ -239,7 +117,7 @@ spec:
     app: wasm-lunatic
 ---
 # Middleware
-# Strip prefix /spin
+# Strip prefix /slight
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
@@ -248,12 +126,9 @@ spec:
   stripPrefix:
     forceSlash: false
     prefixes:
-      - /spin
       - /slight
       - /wws
       - /lunatic
-      - /outboundredis
-      - /keyvalue
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -267,13 +142,6 @@ spec:
   rules:
     - http:
         paths:
-          - path: /spin
-            pathType: Prefix
-            backend:
-              service:
-                name: wasm-spin
-                port:
-                  number: 80
           - path: /slight
             pathType: Prefix
             backend:
@@ -293,19 +161,5 @@ spec:
             backend:
               service:
                 name: wasm-lunatic
-                port:
-                  number: 80
-          - path: /keyvalue
-            pathType: Prefix
-            backend:
-              service:
-                name: spin-keyvalue
-                port:
-                  number: 80
-          - path: /outboundredis
-            pathType: Prefix
-            backend:
-              service:
-                name: spin-outbound-redis
                 port:
                   number: 80

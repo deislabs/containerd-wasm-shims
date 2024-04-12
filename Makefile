@@ -1,10 +1,9 @@
-SHIMS := slight spin wws lunatic
+SHIMS := slight wws lunatic
 BUILD_TARGETS = $(foreach shim,$(SHIMS),build-$(shim)-cross-$(TARGET))
 
 PREFIX ?= /usr/local
 INSTALL ?= install
 TEST_IMG_NAME_lunatic ?= wasmtest_lunatic:latest
-TEST_IMG_NAME_spin ?= wasmtest_spin:latest
 TEST_IMG_NAME_slight ?= wasmtest_slight:latest
 TEST_IMG_NAME_wws ?= wasmtest_wws:latest
 ARCH ?= x86_64

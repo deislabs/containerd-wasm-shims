@@ -2,7 +2,7 @@
 
 # Containerd Shim Installer Script
 #
-# This script automates the installation of specific containerd shim versions (slight, spin, wws, lunatic)
+# This script automates the installation of specific containerd shim versions (slight, wws, lunatic)
 # by checking their existence and copying them to a desired location if not found.
 #
 # Usage:
@@ -28,7 +28,6 @@ cluster_name="test-cluster"
 
 declare -A shims=(
     [slight]="v1"
-    [spin]="v2"
     [wws]="v1"
     [lunatic]="v1"
 )
